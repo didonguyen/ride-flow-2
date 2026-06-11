@@ -21,6 +21,12 @@ implemented until tests or validation evidence exist.
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | TBD | Add rows when story packets are created | no | no | no | no | planned | none |
 
+## RideFlow V1 Planning Core
+
+| Story | Contract | Proof | Command |
+| --- | --- | --- | --- |
+| RideFlow V1 planning core | Auth, trip creation, roles, timeline, place search, AI draft, realtime sync | Unit + integration + E2E + build | `pnpm --dir apps/web test && pnpm --dir apps/web test:e2e && pnpm build` |
+
 ## Evidence Rules
 
 - Unit proof covers pure domain and application rules.
