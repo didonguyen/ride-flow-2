@@ -1,4 +1,5 @@
 import { addDays, format, isBefore, parseISO } from "date-fns";
+import { isStrictDateOnly } from "@/src/domain/dates";
 import { err, ok, type Result } from "@/src/lib/result";
 
 export type TripDateRange = { startDate: string; endDate: string };
@@ -7,14 +8,18 @@ export type TripDayDraft = { date: string; dayIndex: number };
 export function validateTripDateRange(
   startDate: string,
   endDate: string
-): Result<TripDateRange, "trip_end_before_start"> {
+): Result<TripDateRange, "trip_date_invalid" | "trip_end_before_start"> {
+  if (!isStrictDateOnly(startDate) || !isStrictDateOnly(endDate)) {
+    return err("trip_date_invalid");
+  }
+
   if (isBefore(parseISO(endDate), parseISO(startDate))) {
     return err("trip_end_before_start");
   }
 
   return ok({ startDate, endDate }) as Result<
     TripDateRange,
-    "trip_end_before_start"
+    "trip_date_invalid" | "trip_end_before_start"
   >;
 }
 
@@ -22,6 +27,12 @@ export function createTripDays(
   startDate: string,
   endDate: string
 ): TripDayDraft[] {
+  const dateRange = validateTripDateRange(startDate, endDate);
+
+  if (!dateRange.ok) {
+    throw new Error("Invalid trip date range");
+  }
+
   const days: TripDayDraft[] = [];
   const end = parseISO(endDate);
   let current = parseISO(startDate);

@@ -46,4 +46,13 @@ describe("AI itinerary draft rules", () => {
       error: "ai_draft_days_required"
     });
   });
+
+  it("rejects impossible calendar dates", () => {
+    expect(
+      validateItineraryDraft({ days: [{ date: "2026-02-31", items: [] }] })
+    ).toEqual({
+      ok: false,
+      error: "ai_draft_invalid"
+    });
+  });
 });

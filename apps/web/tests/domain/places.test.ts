@@ -27,4 +27,15 @@ describe("place domain rules", () => {
       error: "place_name_required"
     });
   });
+
+  it("creates readable deterministic manual IDs for Vietnamese place names", () => {
+    expect(normalizeManualPlace({ name: "Đà Nẵng" })).toEqual({
+      ok: true,
+      value: {
+        id: "manual:da-nang",
+        source: "manual",
+        name: "Đà Nẵng"
+      }
+    });
+  });
 });
