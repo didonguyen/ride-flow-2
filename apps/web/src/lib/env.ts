@@ -15,6 +15,10 @@ const serverEnvSchema = publicEnvSchema.extend({
     .default("https://nominatim.openstreetmap.org")
 });
 
+function emptyToUndefined(value: string | undefined) {
+  return value && value.trim().length > 0 ? value : undefined;
+}
+
 export function getPublicEnv() {
   return publicEnvSchema.parse({
     NEXT_PUBLIC_SUPABASE_URL: process.env.NEXT_PUBLIC_SUPABASE_URL,
@@ -26,9 +30,13 @@ export function getServerEnv() {
   return serverEnvSchema.parse({
     NEXT_PUBLIC_SUPABASE_URL: process.env.NEXT_PUBLIC_SUPABASE_URL,
     NEXT_PUBLIC_SUPABASE_ANON_KEY: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
-    SUPABASE_SERVICE_ROLE_KEY: process.env.SUPABASE_SERVICE_ROLE_KEY,
-    OPENAI_API_KEY: process.env.OPENAI_API_KEY,
-    OPENAI_MODEL: process.env.OPENAI_MODEL,
-    OSM_NOMINATIM_BASE_URL: process.env.OSM_NOMINATIM_BASE_URL
+    SUPABASE_SERVICE_ROLE_KEY: emptyToUndefined(
+      process.env.SUPABASE_SERVICE_ROLE_KEY
+    ),
+    OPENAI_API_KEY: emptyToUndefined(process.env.OPENAI_API_KEY),
+    OPENAI_MODEL: emptyToUndefined(process.env.OPENAI_MODEL),
+    OSM_NOMINATIM_BASE_URL: emptyToUndefined(
+      process.env.OSM_NOMINATIM_BASE_URL
+    )
   });
 }
