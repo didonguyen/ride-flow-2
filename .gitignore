@@ -13,3 +13,10 @@ scripts/bin/harness-cli.exe
 
 # Local implementation worktrees.
 .worktrees/
+
+# Node/Next.js application dependencies and build output.
+node_modules/
+apps/*/node_modules/
+apps/*/.next/
+apps/*/out/
+apps/*/coverage/
