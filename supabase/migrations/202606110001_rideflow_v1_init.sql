@@ -34,9 +34,18 @@ create table public.trip_members (
   invite_status public.invite_status not null default 'pending',
   created_at timestamptz not null default now(),
   accepted_at timestamptz,
-  constraint trip_members_user_or_pending check (
-    (invite_status = 'pending' and user_id is null)
-    or (invite_status = 'accepted' and user_id is not null)
+  constraint trip_members_invite_state_valid check (
+    (
+      invite_status = 'pending'
+      and user_id is null
+      and accepted_at is null
+      and length(trim(invited_email::text)) > 0
+    )
+    or (
+      invite_status = 'accepted'
+      and user_id is not null
+      and accepted_at is not null
+    )
   )
 );
 
@@ -105,6 +114,30 @@ $$;
 create trigger trips_touch_updated_at
 before update on public.trips
 for each row execute function public.touch_updated_at();
+
+create or replace function public.set_timeline_item_updated_by()
+returns trigger
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  current_user_id uuid;
+begin
+  current_user_id := auth.uid();
+
+  if current_user_id is null then
+    raise exception 'auth_required';
+  end if;
+
+  new.updated_by = current_user_id;
+  return new;
+end;
+$$;
+
+create trigger timeline_items_set_updated_by
+before insert or update on public.timeline_items
+for each row execute function public.set_timeline_item_updated_by();
 
 create trigger timeline_items_touch_updated_at
 before update on public.timeline_items
