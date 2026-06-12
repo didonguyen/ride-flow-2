@@ -16,6 +16,10 @@ export async function moveTimelineItemUseCase(
     return err("timeline_mutation_forbidden");
   }
 
+  if (!Number.isFinite(input.minutesSinceMidnight)) {
+    return err("timeline_time_invalid");
+  }
+
   const startTime = minutesToTime(
     snapMinutesToTimeline(input.minutesSinceMidnight)
   );

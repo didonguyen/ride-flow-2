@@ -47,7 +47,9 @@ export type DeletedTimelineItem = {
   id: string;
 };
 
-export type TimelineMutationError = "timeline_mutation_forbidden";
+export type TimelineMutationError =
+  | "timeline_mutation_forbidden"
+  | TimelineValidationError;
 
 export type AddTimelineItemError =
   | TimelineMutationError

@@ -117,6 +117,29 @@ describe("timeline use cases", () => {
     });
   });
 
+  it.each([Number.NaN, Infinity, -Infinity])(
+    "rejects non-finite move input %s before calling the repository",
+    async (minutesSinceMidnight) => {
+      const repository: TimelineRepository = {
+        addItem: vi.fn(),
+        moveItem: vi.fn(),
+        deleteItem: vi.fn()
+      };
+
+      const result = await moveTimelineItemUseCase(repository, {
+        actorRole: "planner",
+        itemId: "item-1",
+        minutesSinceMidnight
+      });
+
+      expect(result).toEqual({
+        ok: false,
+        error: "timeline_time_invalid"
+      });
+      expect(repository.moveItem).not.toHaveBeenCalled();
+    }
+  );
+
   it("blocks a viewer from deleting before calling the repository", async () => {
     const repository: TimelineRepository = {
       addItem: vi.fn(),
