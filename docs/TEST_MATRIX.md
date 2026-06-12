@@ -20,7 +20,7 @@ tests or validation evidence exist.
 
 | Story | Contract | Unit | Integration | E2E | Platform | Status | Evidence |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| RideFlow V1 planning core | Auth, trip creation, roles, timeline, place search, AI draft, realtime sync. Required combined proof command: `pnpm --dir apps/web test && pnpm --dir apps/web test:e2e && pnpm build` | yes | yes | required | not required for browser-only V1 | planned / partial | Domain tests and build passed in temp verification during Task 3 for early tasks; full V1 integration and E2E proof pending. |
+| RideFlow V1 planning core | Auth, trip creation, roles, timeline, place search, AI draft, realtime sync. Required combined proof command: `pnpm --dir apps/web test && pnpm --dir apps/web test:e2e && pnpm build` | yes | yes | required | not required for browser-only V1 | planned | Domain tests and build passed in temp verification during Task 3 for early tasks; full V1 integration and E2E proof pending. |
 
 ## Evidence Rules
 
