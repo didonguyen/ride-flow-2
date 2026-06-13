@@ -1,0 +1,12 @@
+{
+  "name": "ride-flow-2",
+  "private": true,
+  "packageManager": "pnpm@9.15.0",
+  "scripts": {
+    "dev": "pnpm --dir apps/web dev",
+    "build": "pnpm --dir apps/web build",
+    "lint": "pnpm --dir apps/web lint",
+    "test": "pnpm --dir apps/web test",
+    "test:e2e": "pnpm --dir apps/web test:e2e"
+  }
+}

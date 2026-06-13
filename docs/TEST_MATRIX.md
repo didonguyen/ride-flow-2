@@ -2,8 +2,9 @@
 
 This file maps product behavior to proof.
 
-No product behavior has been defined or implemented yet. Do not mark a row
-implemented until tests or validation evidence exist.
+RideFlow V1 product behavior is defined in the product contract and should stay
+mapped to explicit proof expectations here. Do not mark a row implemented until
+tests or validation evidence exist.
 
 ## Status Values
 
@@ -19,7 +20,7 @@ implemented until tests or validation evidence exist.
 
 | Story | Contract | Unit | Integration | E2E | Platform | Status | Evidence |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| TBD | Add rows when story packets are created | no | no | no | no | planned | none |
+| RideFlow V1 planning core | Auth, trip creation, roles, timeline, place search, AI draft, realtime sync. Required combined proof command: `pnpm --dir apps/web test && pnpm --dir apps/web test:e2e && pnpm build` | yes | yes | required | not required for browser-only V1 | planned | Domain tests and build passed in temp verification during Task 3 for early tasks; full V1 integration and E2E proof pending. |
 
 ## Evidence Rules
 
