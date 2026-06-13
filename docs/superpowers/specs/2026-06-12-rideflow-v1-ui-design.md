@@ -14,11 +14,11 @@ The design should feel like a focused planning workspace, not a biker social net
 
 The 2026-06-13 design update is based on the user's edited RideFlow assets now copied into the project:
 
-- `docs/design/RideFlow_logo.png`
-- `docs/design/RideFlow_Dashboard.png`
-- `docs/design/Planning.png`
-- `docs/design/Memories.png`
-- `docs/design/Expenses.png`
+- `publics/design/RideFlow_logo.png`
+- `publics/design/RideFlow_Dashboard.png`
+- `publics/design/Planning.png`
+- `publics/design/Memories.png`
+- `publics/design/Expenses.png`
 
 These screens are now the primary visual reference for the RideFlow UI direction. Future mockups and implementation should preserve their structure, density, brand treatment, and core interaction model unless the user explicitly approves a change.
 
@@ -100,7 +100,7 @@ Avoid full-page purple gradients, heavy bokeh, and overly dark glass dashboards 
 
 ### Brand Mark
 
-Use the black RideFlow motorcycle wordmark from `docs/design/RideFlow_logo.png` as the main brand asset.
+Use the black RideFlow motorcycle wordmark from `publics/design/RideFlow_logo.png` as the main brand asset.
 
 Logo usage:
 

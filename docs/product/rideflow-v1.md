@@ -18,11 +18,12 @@ The primary user is a group trip Owner or delegated Planner who needs to turn a 
 - Pinned places are stored as snapshots on timeline items.
 - Owners and Planners may generate an AI itinerary draft, preview it, and apply it as append or replace.
 - Timeline changes sync to other open clients within a short delay.
+- The app shell may show Memories and Expenses as approved visual surfaces, but Planning remains the first implementation priority.
 
 ## V1 Non-Goals
 
-- Expense tracking and settlement.
-- Photo memory timeline.
+- Full expense tracking, settlement, and payment reconciliation.
+- Full photo upload, storage, and memory timeline behavior.
 - Template export and import.
 - Public sharing or marketplace.
 - Map-first planning.
