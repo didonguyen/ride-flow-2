@@ -13,7 +13,7 @@ export function TripCard({ trip }: TripCardProps) {
     <Link
       aria-label={`Open ${trip.name}`}
       className="group relative flex min-h-[28rem] overflow-hidden rounded-2xl bg-slate-200 shadow-sm ring-1 ring-black/5 transition duration-200 hover:-translate-y-1 hover:shadow-xl focus:outline-none focus:ring-4 focus:ring-[#004853]/25 sm:min-h-[34rem]"
-      href={"/trips" as Route}
+      href={`/trips/${trip.id}` as Route}
       style={{
         backgroundImage: `linear-gradient(180deg, rgba(15, 23, 42, 0.02) 0%, rgba(15, 23, 42, 0.16) 72%, rgba(15, 23, 42, 0.28) 100%), url(${trip.imageUrl})`,
         backgroundPosition: "center",

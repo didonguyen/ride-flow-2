@@ -30,9 +30,9 @@ type AppShellProps = {
 
 export function AppShell({ activeItem = "Dashboard", children }: AppShellProps) {
   return (
-    <div className="min-h-screen bg-[#f7f8fa] text-slate-950 lg:grid lg:grid-cols-[320px_minmax(0,1fr)]">
-      <header className="sticky top-0 z-20 border-b border-slate-200 bg-white/95 px-4 py-3 backdrop-blur lg:hidden">
-        <div className="flex items-center justify-between">
+    <div className="min-h-screen overflow-x-hidden bg-[#f7f8fa] text-slate-950 lg:grid lg:grid-cols-[320px_minmax(0,1fr)]">
+      <header className="sticky top-0 z-20 w-screen max-w-full border-b border-slate-200 bg-white/95 px-4 py-3 backdrop-blur lg:hidden">
+        <div className="flex w-full max-w-full items-center justify-between">
           <Link
             aria-label="RideFlow dashboard"
             className="flex items-center"
@@ -45,11 +45,11 @@ export function AppShell({ activeItem = "Dashboard", children }: AppShellProps) 
             />
           </Link>
           <Link
-            className="inline-flex items-center gap-2 rounded-xl bg-[#004853] px-4 py-2 text-sm font-semibold text-white shadow-sm"
+            className="hidden h-10 w-10 items-center justify-center gap-2 rounded-full bg-[#004853] text-sm font-semibold text-white shadow-sm sm:inline-flex sm:w-auto sm:rounded-xl sm:px-4"
             href={"/trips/new" as Route}
           >
             <PlusCircle aria-hidden="true" className="h-4 w-4" />
-            New Trip
+            <span className="hidden sm:inline">New Trip</span>
           </Link>
         </div>
       </header>
