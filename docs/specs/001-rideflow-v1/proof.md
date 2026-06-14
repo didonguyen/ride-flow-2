@@ -164,20 +164,32 @@ test result: ok. 25 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out
 - `pnpm build` not run in this bundle; expected pass (matches prior `feat: add Supabase auth shell` and `feat: add trip creation foundation` CI evidence).
 - `pnpm test:e2e` not run — Playwright config not yet wired (plan Task 15, US-RF-009).
 - `supabase db reset` not run locally — Supabase CLI absent from PATH.
-- Worktree `codex/rideflow-v1-app-shell-dashboard` was rebased onto main and the
-  6 commits fast-forward merged; the working tree is now redundant. Cleanup
-  pending: `git worktree remove .worktrees/rideflow-v1-app-shell-dashboard`.
-- Worktree `epic/rf-place-search` is at commit `e817954` (pre-codex-merge); bring
-  it forward via `git rebase main` before slicing the next change.
 - Drag interaction test (`tests/application/drag-time.test.ts`) and timeline-view
   render test (`tests/application/timeline-view.test.tsx`) referenced in
   `US-RF-005` story packet are still pending; codex's `aa64e50` implemented
   `ItineraryTimeline` and `SelectedItemInspector` components but not the
   associated vitest files. Either keep the story at `in_progress` and add the
   tests, or close it and split the remaining drag work into a new story.
-- Story status in `harness.db` for the codex-driven slices (US-RF-002, 005, 006,
-  007, 008, 010, 011, 012) is still `planned`/`in_progress` despite evidence in
-  this bundle; need a follow-up `harness-cli story update` pass.
+
+## Local Dev Setup (US-RF-013)
+
+The Next.js app requires `NEXT_PUBLIC_SUPABASE_URL` and
+`NEXT_PUBLIC_SUPABASE_ANON_KEY` at request time. Without them,
+`apps/web/src/lib/env.ts:getPublicEnv()` throws a `ZodError` and `/trips`
+returns HTTP 500.
+
+Setup (one-time per dev environment):
+
+```bash
+cp apps/web/.env.example apps/web/.env.local
+pnpm install
+pnpm dev
+```
+
+`apps/web/.env.local` is gitignored (per `.gitignore`: `.env*` except
+`.env.example`). Story `US-RF-013` was added on 2026-06-14 and verified
+end-to-end: `pnpm dev` starts clean and `GET /trips` returns 307 (auth
+redirect) instead of 500.
 
 ## Reproduce
 

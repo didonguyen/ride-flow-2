@@ -59,6 +59,7 @@ under `docs/stories/epics/E04-rideflow-v1/` hold the details.
 | 20  | US-RF-004  | 8.x  | Supabase dashboard + planning data       | `apps/web/src/application/trips/supabase-dashboard-data.ts`, `supabase-planning-data.ts`, `infrastructure/supabase/repositories.ts` | implemented | `0bfa1a2`+`aa64e50` | supabase-dashboard-data 3 pass + supabase-planning-data 1 pass + supabase-repositories 7 pass |
 | 21  | US-RF-005  | 10.4 | Members panel UI (rebased)              | `apps/web/components/trips/members-panel.tsx`                                                          | implemented | `aa64e50`   | UI shipped in wire-planning-core commit       |
 | 22  | US-RF-005  | 10.5 | Selected item inspector UI (rebased)    | `apps/web/components/planning/selected-item-inspector.tsx`                                              | implemented | `aa64e50`   | UI shipped in wire-planning-core commit       |
+| 23  | US-RF-013  | —    | Local dev .env.local seed                | `apps/web/.env.local` (gitignored) copied from `apps/web/.env.example`                                  | implemented | uncommitted | `pnpm dev` start clean, `GET /trips` 307; story `story verify` pass |
 
 ## Notes
 
