@@ -8,6 +8,16 @@ type TripSectionTabsProps = {
 
 const tabs = ["Planning", "Memories", "Expenses"] as const;
 
+const tabHref = (tab: (typeof tabs)[number], tripId: string): Route => {
+  if (tab === "Planning") {
+    return `/trips/${tripId}` as Route;
+  }
+  if (tab === "Memories") {
+    return `/trips/${tripId}/memories` as Route;
+  }
+  return `/trips/${tripId}/expenses` as Route;
+};
+
 export function TripSectionTabs({ activeTab, tripId }: TripSectionTabsProps) {
   return (
     <nav
@@ -20,9 +30,11 @@ export function TripSectionTabs({ activeTab, tripId }: TripSectionTabsProps) {
             aria-current={tab === activeTab ? "page" : undefined}
             className={[
               "rounded-full px-2 py-1 transition hover:text-[#005a60]",
-              tab === activeTab ? "text-[#004853]" : "text-slate-500"
+              tab === activeTab
+                ? "text-[#004853] underline decoration-2 underline-offset-[10px]"
+                : "text-slate-500"
             ].join(" ")}
-            href={`/trips/${tripId}` as Route}
+            href={tabHref(tab, tripId)}
             key={tab}
           >
             {tab}

@@ -22,6 +22,11 @@ type UpdatePlanningAgendaItemInput = {
   >;
 };
 
+type PinPlaceInput = {
+  itemId: string;
+  place: NonNullable<PlanningAgendaItem["place"]>;
+};
+
 export function buildPlanningWorkspaceState(
   trip: PlanningTrip
 ): PlanningWorkspaceState {
@@ -130,6 +135,133 @@ export function deletePlanningAgendaItem(
     selectedItemId:
       state.selectedItemId === itemId ? agenda[0]?.id ?? null : state.selectedItemId,
     agenda,
+    mapPins
+  });
+}
+
+export function pinPlaceToAgendaItem(
+  state: PlanningWorkspaceState,
+  input: PinPlaceInput
+): PlanningWorkspaceState {
+  const agenda = state.agenda.map((item) =>
+    item.id === input.itemId
+      ? {
+          ...item,
+          place: input.place,
+          title: input.place.name,
+          imageUrl: input.place.imageUrl ?? item.imageUrl,
+          imageAlt: input.place.name
+        }
+      : item
+  );
+
+  const updatedItem = agenda.find((item) => item.id === input.itemId);
+  const mapPins = updatedItem
+    ? state.mapPins.map((pin) =>
+        pin.stop === updatedItem.stop
+          ? { ...pin, label: updatedItem.title }
+          : pin
+      )
+    : state.mapPins;
+
+  return withSelectedItem({
+    ...state,
+    agenda,
+    mapPins
+  });
+}
+
+export function clearPlaceFromAgendaItem(
+  state: PlanningWorkspaceState,
+  itemId: string
+): PlanningWorkspaceState {
+  const agenda = state.agenda.map((item) =>
+    item.id === itemId ? { ...item, place: undefined } : item
+  );
+
+  return withSelectedItem({ ...state, agenda });
+}
+
+export type ApplyAiDraftMode = "append" | "replace";
+
+type ApplyAiDraftInput = {
+  mode: ApplyAiDraftMode;
+  items: Array<{
+    startTime: string;
+    durationMinutes: number;
+    title: string;
+    notes?: string;
+    suggestedPlaceName?: string;
+  }>;
+};
+
+function toAgendaItem(
+  draftItem: ApplyAiDraftInput["items"][number],
+  index: number,
+  baseId: string
+): PlanningAgendaItem {
+  const startTime = formatTimeLabel(draftItem.startTime);
+  return {
+    id: `${baseId}-${index}`,
+    stop: 0,
+    time: startTime,
+    title: draftItem.title,
+    description: draftItem.notes ?? "",
+    category: "food",
+    imageUrl:
+      "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=520&q=85",
+    imageAlt: draftItem.title,
+    place: draftItem.suggestedPlaceName
+      ? {
+          id: `draft:${slugify(draftItem.suggestedPlaceName)}`,
+          source: "manual",
+          name: draftItem.suggestedPlaceName
+        }
+      : undefined
+  };
+}
+
+function formatTimeLabel(time: string) {
+  const [hours = "0", minutes = "0"] = time.split(":");
+  const hourNumber = Number(hours);
+  const minuteNumber = Number(minutes);
+  const period = hourNumber >= 12 ? "PM" : "AM";
+  const displayHour = ((hourNumber + 11) % 12) + 1;
+  const displayMinute = minuteNumber.toString().padStart(2, "0");
+  return `${displayHour}:${displayMinute} ${period}`;
+}
+
+function slugify(value: string) {
+  return value
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "") || "place";
+}
+
+export function applyAiDraftToAgenda(
+  state: PlanningWorkspaceState,
+  input: ApplyAiDraftInput
+): PlanningWorkspaceState {
+  const baseId = `ai-${Date.now().toString(36)}`;
+  const baseAgenda =
+    input.mode === "replace" ? [] : state.agenda;
+
+  const draftItems = input.items.map((item, index) =>
+    toAgendaItem(item, index, baseId)
+  );
+
+  const merged = renumberAgenda([...baseAgenda, ...draftItems]);
+
+  const mapPins = merged.map((item, index) => ({
+    stop: index + 1,
+    label: item.title,
+    x: Math.min(82, 34 + (index + 1) * 11),
+    y: Math.min(82, 28 + (index + 1) * 12)
+  }));
+
+  return withSelectedItem({
+    ...state,
+    agenda: merged,
     mapPins
   });
 }

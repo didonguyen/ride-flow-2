@@ -23,3 +23,9 @@ apps/*/node_modules/
 apps/*/.next/
 apps/*/out/
 apps/*/coverage/
+
+# Local environment files.
+.env*
+apps/*/.env*
+!.env.example
+!apps/*/.env.example

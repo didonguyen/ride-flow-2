@@ -1,9 +1,49 @@
 import Link from "next/link";
 import type { Route } from "next";
+import { redirect } from "next/navigation";
 import { NewTripForm } from "@/components/trips/new-trip-form";
+import { createTripFromFormData } from "@/src/application/trips/create-trip-action";
+import { createSupabaseServerClient } from "@/src/infrastructure/supabase/server";
+import {
+  createSupabaseTripRepository,
+  ensureSupabaseProfile,
+  type RideFlowSupabaseClient
+} from "@/src/infrastructure/supabase/repositories";
 
-async function createTripPlaceholderAction(_formData: FormData) {
+async function createTripAction(formData: FormData) {
   "use server";
+
+  const supabase = await createSupabaseServerClient();
+  const {
+    data: { user }
+  } = await supabase.auth.getUser();
+  const rideflowSupabase = supabase as unknown as RideFlowSupabaseClient;
+
+  if (!user) {
+    redirect("/sign-in?next=/trips/new" as Route);
+  }
+
+  await ensureSupabaseProfile(rideflowSupabase, {
+    userId: user.id,
+    email: user.email ?? "",
+    displayName: user.user_metadata?.display_name
+  });
+
+  const result = await createTripFromFormData({
+    formData,
+    getCurrentUser: async () => user,
+    repository: createSupabaseTripRepository(rideflowSupabase)
+  });
+
+  if (!result.ok) {
+    if (result.error === "auth_required") {
+      redirect("/sign-in?next=/trips/new" as Route);
+    }
+
+    redirect(`/trips/new?error=${result.error}` as Route);
+  }
+
+  redirect(`/trips/${result.value.id}` as Route);
 }
 
 export default function NewTripPage() {
@@ -23,13 +63,12 @@ export default function NewTripPage() {
               Create a trip
             </h1>
             <p className="text-sm text-slate-600">
-              Add the trip basics. Saving will be wired to persistence in a
-              later task.
+              Add the trip basics. Saving now creates the trip in Supabase V2.
             </p>
           </div>
 
           <div className="mt-6">
-            <NewTripForm action={createTripPlaceholderAction} />
+            <NewTripForm action={createTripAction} />
           </div>
         </div>
       </section>

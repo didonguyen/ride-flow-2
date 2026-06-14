@@ -17,6 +17,16 @@ export type PlanningAgendaItem = {
   imageUrl: string;
   imageAlt: string;
   rating?: string;
+  place?: {
+    id: string;
+    source: "seed" | "osm" | "manual" | "google";
+    name: string;
+    address?: string;
+    lat?: number;
+    lng?: number;
+    externalUrl?: string;
+    imageUrl?: string;
+  };
 };
 
 export type PlanningMapPin = {

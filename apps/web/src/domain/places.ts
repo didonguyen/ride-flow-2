@@ -11,6 +11,7 @@ export type PlaceSearchResult = {
   lng?: number;
   category?: string;
   externalUrl?: string;
+  imageUrl?: string;
   metadata?: Record<string, unknown>;
 };
 

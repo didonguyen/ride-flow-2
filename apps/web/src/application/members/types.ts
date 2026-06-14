@@ -42,9 +42,20 @@ export type PersistUpdateMemberRoleInput = {
   role: Exclude<TripRole, "owner">;
 };
 
+export type TripMemberRecord = {
+  id: string;
+  tripId: string;
+  email: string;
+  role: TripRole;
+  inviteStatus: "pending" | "accepted";
+  userId: string | null;
+};
+
 export type MemberRepository = {
   inviteMember(input: PersistInviteMemberInput): Promise<InvitedMember>;
   updateMemberRole(
     input: PersistUpdateMemberRoleInput
   ): Promise<UpdatedMemberRole>;
+  listMembers(tripId: string): Promise<TripMemberRecord[]>;
+  getViewerRole(tripId: string, userId: string): Promise<TripRole | null>;
 };

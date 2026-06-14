@@ -33,3 +33,16 @@ export type CreateTripError =
 export type TripRepository = {
   createTripWithDays(input: PersistTripWithDaysInput): Promise<CreatedTrip>;
 };
+
+export type TripQueryRepository = {
+  listDashboardTrips(): Promise<
+    {
+      id: string;
+      name: string;
+      destination: string;
+      startDate: string;
+      endDate: string;
+      createdAt: string;
+    }[]
+  >;
+};

@@ -1,21 +1,36 @@
 import type {
-  MemberRepository
+  MemberRepository,
+  TripMemberRecord
 } from "@/src/application/members/types";
+import type { TripRole } from "@/src/domain/permissions";
+import type { AiDraftRepository } from "@/src/application/ai/types";
+import type { ItineraryDraft } from "@/src/domain/ai-draft";
 import type {
   TimelineRepository
 } from "@/src/application/timeline/types";
 import type {
   CreatedTrip,
   CreatedTripDay,
+  TripQueryRepository,
   TripRepository
 } from "@/src/application/trips/types";
+import type {
+  SupabaseDashboardTripRow
+} from "@/src/application/trips/supabase-dashboard-data";
+import type {
+  SupabasePlanningDayRow,
+  SupabasePlanningTimelineRow,
+  SupabasePlanningTripRow
+} from "@/src/application/trips/supabase-planning-data";
 import type { PlaceSearchResult } from "@/src/domain/places";
 
-type RideFlowSupabaseClient = {
+export type RideFlowSupabaseClient = {
   from(table: string): {
     insert(payload: unknown): RideFlowSupabaseQuery;
+    select(columns?: string): RideFlowSupabaseQuery;
     update(payload: unknown): RideFlowSupabaseQuery;
     delete(): RideFlowSupabaseQuery;
+    upsert(payload: unknown): RideFlowSupabaseQuery;
   };
 };
 
@@ -24,6 +39,10 @@ type RideFlowSupabaseQuery = PromiseLike<{
   error?: SupabaseError | null;
 }> & {
   eq(column: string, value: string): RideFlowSupabaseQuery;
+  order(
+    column: string,
+    options?: { ascending?: boolean }
+  ): RideFlowSupabaseQuery;
   select(columns?: string): RideFlowSupabaseQuery;
   single(): Promise<{
     data?: unknown;
@@ -32,6 +51,7 @@ type RideFlowSupabaseQuery = PromiseLike<{
 };
 
 type SupabaseError = {
+  code?: string;
   message: string;
 };
 
@@ -42,6 +62,15 @@ type TripRow = {
   destination: string;
   start_date: string;
   end_date: string;
+};
+
+type DashboardTripRow = {
+  id: string;
+  name: string;
+  destination: string;
+  start_date: string;
+  end_date: string;
+  created_at: string;
 };
 
 type TripDayRow = {
@@ -61,6 +90,10 @@ type MemberRoleRow = {
   role: "planner" | "viewer";
 };
 
+type TripOwnerRow = {
+  owner_id: string;
+};
+
 type IdRow = {
   id: string;
 };
@@ -69,6 +102,14 @@ function throwIfSupabaseError(error: SupabaseError | null | undefined) {
   if (error) {
     throw new Error(error.message);
   }
+}
+
+function isNoRowsError(error: SupabaseError | null | undefined) {
+  return (
+    error?.code === "PGRST116" ||
+    error?.message.includes("multiple (or no) rows returned") ||
+    error?.message.includes("0 rows")
+  );
 }
 
 export function createSupabaseTripRepository(
@@ -118,6 +159,130 @@ export function createSupabaseTripRepository(
         endDate: createdTrip.end_date,
         days: ((days ?? []) as TripDayRow[]).map(mapTripDayRow)
       } satisfies CreatedTrip;
+    }
+  };
+}
+
+export async function ensureSupabaseProfile(
+  supabase: RideFlowSupabaseClient,
+  input: { displayName?: string; email: string; userId: string }
+) {
+  const { error } = await supabase
+    .from("profiles")
+    .upsert({
+      id: input.userId,
+      email: input.email,
+      display_name: input.displayName ?? ""
+    })
+    .select("id")
+    .single();
+
+  throwIfSupabaseError(error);
+}
+
+export async function getSupabasePlanningTripRows(
+  supabase: RideFlowSupabaseClient,
+  tripId: string
+): Promise<{
+  days: SupabasePlanningDayRow[];
+  timelineItems: SupabasePlanningTimelineRow[];
+  trip: SupabasePlanningTripRow;
+} | null> {
+  const { data: trip, error: tripError } = await supabase
+    .from("trips")
+    .select("id, name, destination, start_date, end_date")
+    .eq("id", tripId)
+    .single();
+
+  throwIfSupabaseError(tripError);
+
+  if (!trip) {
+    return null;
+  }
+
+  const { data: days, error: daysError } = await supabase
+    .from("trip_days")
+    .select("id, trip_id, date, day_index")
+    .eq("trip_id", tripId);
+
+  throwIfSupabaseError(daysError);
+
+  const { data: timelineItems, error: timelineError } = await supabase
+    .from("timeline_items")
+    .select(
+      "id, trip_id, trip_day_id, start_time, duration_minutes, title, notes, place_name, place_lat, place_lng"
+    )
+    .eq("trip_id", tripId);
+
+  throwIfSupabaseError(timelineError);
+
+  return {
+    trip: trip as SupabasePlanningTripRow,
+    days: (days ?? []) as SupabasePlanningDayRow[],
+    timelineItems: (timelineItems ?? []) as SupabasePlanningTimelineRow[]
+  };
+}
+
+export async function listDashboardTrips(
+  supabase: RideFlowSupabaseClient
+): Promise<SupabaseDashboardTripRow[]> {
+  const { data, error } = await supabase
+    .from("trips")
+    .select("id, name, destination, start_date, end_date, created_at")
+    .order("created_at", { ascending: false });
+
+  throwIfSupabaseError(error);
+
+  return (data ?? []) as SupabaseDashboardTripRow[];
+}
+
+export async function listSupabaseMembers(
+  supabase: RideFlowSupabaseClient,
+  tripId: string
+): Promise<TripMemberRecord[]> {
+  const { data, error } = await supabase
+    .from("trip_members")
+    .select("id, trip_id, user_id, invited_email, role, invite_status")
+    .eq("trip_id", tripId)
+    .order("created_at", { ascending: true });
+
+  throwIfSupabaseError(error);
+
+  return ((data ?? []) as Array<{
+    id: string;
+    trip_id: string;
+    user_id: string | null;
+    invited_email: string;
+    role: TripRole;
+    invite_status: "pending" | "accepted";
+  }>).map((member) => ({
+    id: member.id,
+    tripId: member.trip_id,
+    userId: member.user_id,
+    email: member.invited_email,
+    role: member.role,
+    inviteStatus: member.invite_status
+  }));
+}
+
+function mapDashboardTripRow(row: SupabaseDashboardTripRow) {
+  return {
+    id: row.id,
+    name: row.name,
+    destination: row.destination,
+    startDate: row.start_date,
+    endDate: row.end_date,
+    createdAt: row.created_at
+  };
+}
+
+export function createSupabaseTripQueryRepository(
+  supabase: RideFlowSupabaseClient
+): TripQueryRepository {
+  return {
+    async listDashboardTrips() {
+      const rows = await listDashboardTrips(supabase);
+      return rows.map(mapDashboardTripRow);
     }
   };
 }
@@ -235,6 +400,66 @@ export function createSupabaseMemberRepository(
         id: member.id,
         role: member.role
       };
+    },
+
+    async listMembers(tripId) {
+      const { data, error } = await supabase
+        .from("trip_members")
+        .select("id, trip_id, user_id, invited_email, role, invite_status")
+        .eq("trip_id", tripId)
+        .order("created_at", { ascending: true });
+
+      throwIfSupabaseError(error);
+
+      return ((data ?? []) as Array<{
+        id: string;
+        trip_id: string;
+        user_id: string | null;
+        invited_email: string;
+        role: TripRole;
+        invite_status: "pending" | "accepted";
+      }>).map((member) => ({
+        id: member.id,
+        tripId: member.trip_id,
+        userId: member.user_id,
+        email: member.invited_email,
+        role: member.role,
+        inviteStatus: member.invite_status
+      }));
+    },
+
+    async getViewerRole(tripId, userId) {
+      const { data, error } = await supabase
+        .from("trip_members")
+        .select("role, invite_status")
+        .eq("trip_id", tripId)
+        .eq("user_id", userId)
+        .single();
+
+      if (error && !isNoRowsError(error)) {
+        throwIfSupabaseError(error);
+      }
+
+      if (!data) {
+        const { data: trip, error: tripError } = await supabase
+          .from("trips")
+          .select("owner_id")
+          .eq("id", tripId)
+          .single();
+
+        if (tripError && !isNoRowsError(tripError)) {
+          throwIfSupabaseError(tripError);
+        }
+
+        if (!trip) {
+          return null;
+        }
+
+        return (trip as TripOwnerRow).owner_id === userId ? "owner" : null;
+      }
+
+      const row = data as { role: TripRole; invite_status: "pending" | "accepted" };
+      return row.invite_status === "accepted" ? row.role : null;
     }
   };
 }
@@ -257,5 +482,51 @@ function mapPlaceToTimelineColumns(place?: PlaceSearchResult) {
     place_lat: place?.lat ?? null,
     place_lng: place?.lng ?? null,
     place_external_url: place?.externalUrl ?? null
+  };
+}
+
+export function createSupabaseAiDraftRepository(
+  supabase: RideFlowSupabaseClient
+): AiDraftRepository {
+  return {
+    async recordRun(input) {
+      const { data, error } = await supabase
+        .from("ai_draft_runs")
+        .insert({
+          trip_id: input.tripId,
+          requested_by: input.requestedBy,
+          prompt: input.prompt,
+          status: input.status,
+          validated_summary: input.validatedSummary as unknown as ItineraryDraft,
+          raw_response: input.rawResponse
+        })
+        .select("id")
+        .single();
+
+      throwIfSupabaseError(error);
+
+      if (!data) {
+        throw new Error("AI draft run was not recorded");
+      }
+
+      return { id: (data as IdRow).id };
+    },
+
+    async updateRunStatus(runId, status) {
+      const { data, error } = await supabase
+        .from("ai_draft_runs")
+        .update({ status })
+        .eq("id", runId)
+        .select("id")
+        .single();
+
+      throwIfSupabaseError(error);
+
+      if (!data) {
+        throw new Error("AI draft run status was not updated");
+      }
+
+      return { id: (data as IdRow).id };
+    }
   };
 }

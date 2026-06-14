@@ -3,7 +3,10 @@ import { describe, expect, it, vi } from "vitest";
 import {
   createSupabaseMemberRepository,
   createSupabaseTimelineRepository,
-  createSupabaseTripRepository
+  createSupabaseTripQueryRepository,
+  createSupabaseTripRepository,
+  listDashboardTrips,
+  listSupabaseMembers
 } from "@/src/infrastructure/supabase/repositories";
 
 type QueryResponse = {
@@ -22,6 +25,10 @@ function createSupabaseMock(responses: Record<string, QueryResponse>) {
         calls.push({ table, operation: "insert", payload });
         return builder(table);
       },
+      upsert(payload: unknown) {
+        calls.push({ table, operation: "upsert", payload });
+        return builder(table);
+      },
       update(payload: unknown) {
         calls.push({ table, operation: "update", payload });
         return builder(table);
@@ -34,6 +41,9 @@ function createSupabaseMock(responses: Record<string, QueryResponse>) {
         return builder(table);
       },
       eq(_column: string, _value: string) {
+        return builder(table);
+      },
+      order(_column: string, _options?: { ascending?: boolean }) {
         return builder(table);
       },
       single: vi.fn(async () => response),
@@ -222,5 +232,116 @@ describe("Supabase repositories", () => {
       payload: { role: "viewer" }
     });
     expect(result).toEqual({ id: "member-1", role: "viewer" });
+  });
+
+  it("lists dashboard trips ordered by created_at descending", async () => {
+    const supabase = createSupabaseMock({
+      trips: {
+        data: [
+          {
+            id: "trip-2",
+            name: "Bali Surf",
+            destination: "Uluwatu, Indonesia",
+            start_date: "2026-02-14",
+            end_date: "2026-02-21",
+            created_at: "2026-06-14T00:00:00Z"
+          },
+          {
+            id: "trip-1",
+            name: "Da Nang Trip",
+            destination: "Da Nang, Vietnam",
+            start_date: "2026-05-10",
+            end_date: "2026-05-16",
+            created_at: "2026-06-13T00:00:00Z"
+          }
+        ]
+      }
+    });
+
+    const result = await listDashboardTrips(supabase.client);
+    expect(supabase.calls.some(
+      (call) => call.table === "trips" && call.operation === "select"
+    )).toBe(false);
+    expect(result).toHaveLength(2);
+    expect(result[0].id).toBe("trip-2");
+    expect(result[0].name).toBe("Bali Surf");
+
+    const repository = createSupabaseTripQueryRepository(supabase.client);
+    await expect(repository.listDashboardTrips()).resolves.toHaveLength(2);
+  });
+
+  it("lists trip members with camelCase fields", async () => {
+    const supabase = createSupabaseMock({
+      trip_members: {
+        data: [
+          {
+            id: "member-1",
+            trip_id: "trip-1",
+            user_id: "user-1",
+            invited_email: "owner@example.com",
+            role: "owner",
+            invite_status: "accepted"
+          },
+          {
+            id: "member-2",
+            trip_id: "trip-1",
+            user_id: null,
+            invited_email: "planner@example.com",
+            role: "planner",
+            invite_status: "pending"
+          }
+        ]
+      }
+    });
+
+    const members = await listSupabaseMembers(supabase.client, "trip-1");
+    expect(members).toHaveLength(2);
+    expect(members[0]).toMatchObject({
+      id: "member-1",
+      email: "owner@example.com",
+      role: "owner",
+      inviteStatus: "accepted"
+    });
+    expect(members[1].inviteStatus).toBe("pending");
+
+    const repository = createSupabaseMemberRepository(supabase.client);
+    const listed = await repository.listMembers("trip-1");
+    expect(listed).toEqual(members);
+  });
+
+  it("resolves the viewer's accepted role for a trip", async () => {
+    const supabase = createSupabaseMock({
+      trip_members: {
+        data: {
+          role: "planner",
+          invite_status: "accepted"
+        }
+      }
+    });
+
+    const repository = createSupabaseMemberRepository(supabase.client);
+    const role = await repository.getViewerRole("trip-1", "user-1");
+    expect(role).toBe("planner");
+  });
+
+  it("resolves the trip owner role from trips when no accepted member row exists", async () => {
+    const supabase = createSupabaseMock({
+      trip_members: {
+        data: null,
+        error: {
+          code: "PGRST116",
+          message: "JSON object requested, multiple (or no) rows returned"
+        }
+      },
+      trips: {
+        data: {
+          owner_id: "user-1"
+        }
+      }
+    });
+
+    const repository = createSupabaseMemberRepository(supabase.client);
+    const role = await repository.getViewerRole("trip-1", "user-1");
+    expect(role).toBe("owner");
   });
 });
