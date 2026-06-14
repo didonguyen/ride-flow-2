@@ -1,10 +1,16 @@
 import type { PlanningMapPin } from "@/src/application/trips/planning-data";
 
 type RouteMapPanelProps = {
+  onSelectStop?: (stop: number) => void;
   pins: PlanningMapPin[];
+  selectedStop?: number | null;
 };
 
-export function RouteMapPanel({ pins }: RouteMapPanelProps) {
+export function RouteMapPanel({
+  onSelectStop,
+  pins,
+  selectedStop
+}: RouteMapPanelProps) {
   return (
     <section
       aria-label="Route map preview"
@@ -31,18 +37,28 @@ export function RouteMapPanel({ pins }: RouteMapPanelProps) {
       </svg>
 
       {pins.map((pin) => (
-        <div
+        <button
+          aria-pressed={selectedStop === pin.stop ? "true" : "false"}
           className="absolute z-10 flex -translate-x-1/2 -translate-y-1/2 items-center"
           key={pin.stop}
+          onClick={() => onSelectStop?.(pin.stop)}
           style={{ left: `${pin.x}%`, top: `${pin.y}%` }}
+          type="button"
         >
-          <div className="flex h-14 w-12 items-center justify-center rounded-t-full rounded-bl-full bg-[#13848a] text-lg font-extrabold text-white shadow-lg shadow-slate-900/20 ring-4 ring-white/70">
+          <div
+            className={[
+              "flex h-14 w-12 items-center justify-center rounded-t-full rounded-bl-full text-lg font-extrabold text-white shadow-lg shadow-slate-900/20 ring-4 transition",
+              selectedStop === pin.stop
+                ? "bg-[#004853] ring-[#b9f5ea]"
+                : "bg-[#13848a] ring-white/70"
+            ].join(" ")}
+          >
             {pin.stop}
           </div>
           <div className="-ml-1 hidden rounded-r-full bg-white px-4 py-2 text-sm font-extrabold text-slate-600 shadow-md ring-1 ring-slate-200 xl:block">
             {pin.stop}. {pin.label}
           </div>
-        </div>
+        </button>
       ))}
 
       <div className="pointer-events-none absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-white via-white/75 to-transparent" />
