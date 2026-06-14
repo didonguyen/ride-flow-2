@@ -13,7 +13,7 @@ This specification consolidates the accepted product and visual direction from:
 - `docs/product/rideflow-v1.md`
 - `docs/superpowers/specs/2026-06-11-rideflow-v1-planning-core-design.md`
 - `docs/superpowers/specs/2026-06-12-rideflow-v1-ui-design.md`
-- `docs/superpowers/plans/2026-06-11-rideflow-v1-planning-core.md`
+- `plan.md` (same folder)
 - `publics/design/RideFlow_logo.png`
 - `publics/design/RideFlow_Dashboard.png`
 - `publics/design/Planning.png`
