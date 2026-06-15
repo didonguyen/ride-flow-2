@@ -1,7 +1,7 @@
 # Feature Specification: Public Landing Page
 
 **Feature ID:** 002-public-landing
-**Status:** Draft, awaiting sign-off
+**Status:** Superseded for the public landing visual surface by `docs/specs/003-visual-refresh-green/spec.md` (US-RF-015). This spec is retained for the original visual direction and acceptance test history. Active development should follow the new spec.
 **Created:** 2026-06-15
 **Owner:** RideFlow product
 **Primary implementation surface:** `apps/web`
