@@ -3,6 +3,10 @@ import type {
   PlanningMapPin,
   PlanningTrip
 } from "@/src/application/trips/planning-data";
+import {
+  minutesToTime,
+  timeToMinutes
+} from "@/src/domain/timeline";
 
 export type PlanningWorkspaceState = {
   tripId: string;
@@ -70,6 +74,36 @@ export function updatePlanningAgendaItem(
     ...state,
     agenda,
     mapPins
+  });
+}
+
+export function movePlanningAgendaItem(
+  state: PlanningWorkspaceState,
+  input: { itemId: string; minutesSinceMidnight: number }
+): PlanningWorkspaceState {
+  const targetIndex = state.agenda.findIndex((item) => item.id === input.itemId);
+  if (targetIndex < 0) {
+    return state;
+  }
+
+  const target = state.agenda[targetIndex];
+  const currentMinutes = agendaTimeMinutes(target);
+  if (currentMinutes === input.minutesSinceMidnight) {
+    return state;
+  }
+
+  const newTime = formatTimeLabel(minutesToTime(input.minutesSinceMidnight));
+  const withMovedTime = state.agenda.map((item, index) =>
+    index === targetIndex ? { ...item, time: newTime } : item
+  );
+  const sorted = [...withMovedTime].sort(
+    (a, b) => agendaTimeMinutes(a) - agendaTimeMinutes(b)
+  );
+  const renumbered = renumberAgenda(sorted);
+
+  return withSelectedItem({
+    ...state,
+    agenda: renumbered
   });
 }
 
@@ -236,6 +270,28 @@ function slugify(value: string) {
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-+|-+$/g, "") || "place";
+}
+
+function agendaTimeMinutes(item: PlanningAgendaItem): number {
+  const parsed = timeToMinutes(to24HourAgendaTime(item.time));
+  return parsed ?? 0;
+}
+
+function to24HourAgendaTime(label: string): string {
+  const match = /^(\d{1,2}):(\d{2})\s*(AM|PM)$/i.exec(label.trim());
+  if (!match) {
+    return label;
+  }
+  const hours = Number(match[1]);
+  const minutes = Number(match[2]);
+  const meridiem = match[3].toUpperCase();
+  let hour24 = hours % 12;
+  if (meridiem === "PM") {
+    hour24 += 12;
+  }
+  return `${hour24.toString().padStart(2, "0")}:${minutes
+    .toString()
+    .padStart(2, "0")}`;
 }
 
 export function applyAiDraftToAgenda(

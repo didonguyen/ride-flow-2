@@ -72,3 +72,24 @@ export function snapMinutesToTimeline(minutesSinceMidnight: number): number {
 
   return Math.max(0, Math.min(1439, snapped));
 }
+
+export type PixelDeltaInput = {
+  originalMinutes: number;
+  deltaY: number;
+  pixelsPerHour: number;
+};
+
+export function pixelDeltaToTimelineMinutes({
+  originalMinutes,
+  deltaY,
+  pixelsPerHour
+}: PixelDeltaInput): number {
+  if (!Number.isFinite(pixelsPerHour) || pixelsPerHour <= 0) {
+    return snapMinutesToTimeline(originalMinutes);
+  }
+
+  const minutesPerPixel = 60 / pixelsPerHour;
+  const proposed = originalMinutes + deltaY * minutesPerPixel;
+
+  return snapMinutesToTimeline(proposed);
+}

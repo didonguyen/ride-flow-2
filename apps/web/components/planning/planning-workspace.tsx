@@ -4,7 +4,7 @@ import { useMemo, useState } from "react";
 import { MapPin, Sparkles } from "lucide-react";
 
 import { AiDraftPanel } from "@/components/planning/ai-draft-panel";
-import { ItineraryTimeline } from "@/components/planning/itinerary-timeline";
+import { DraggableTimeline } from "@/components/planning/draggable-timeline";
 import { PlaceSearchPanel } from "@/components/planning/place-search-panel";
 import { RealtimeStatusPill, useTripRealtime } from "@/components/planning/realtime-status";
 import { RouteMapPanel } from "@/components/planning/route-map-panel";
@@ -18,6 +18,7 @@ import {
   applyAiDraftToAgenda,
   buildPlanningWorkspaceState,
   deletePlanningAgendaItem,
+  movePlanningAgendaItem,
   pinPlaceToAgendaItem,
   selectPlanningAgendaItem,
   updatePlanningAgendaItem
@@ -95,6 +96,13 @@ export function PlanningWorkspace({
     setSearchOpen(false);
   }
 
+  function handleMoveItem(input: {
+    itemId: string;
+    minutesSinceMidnight: number;
+  }) {
+    setWorkspaceState((state) => movePlanningAgendaItem(state, input));
+  }
+
   function handleApplyAiDraft(input: {
     items: ItineraryDraft["days"][number]["items"];
     mode: "append" | "replace";
@@ -137,8 +145,9 @@ export function PlanningWorkspace({
           </button>
         </div>
 
-        <ItineraryTimeline
+        <DraggableTimeline
           agenda={workspaceState.agenda}
+          onMoveItem={handleMoveItem}
           onSelectItem={(itemId) =>
             setWorkspaceState((state) => selectPlanningAgendaItem(state, itemId))
           }
