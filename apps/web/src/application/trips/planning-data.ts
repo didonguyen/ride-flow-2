@@ -39,18 +39,30 @@ export type PlanningMapPin = {
 export type PlanningTrip = {
   id: string;
   name: string;
+  destination?: string;
   dateRange: string;
   selectedDayId: string;
   days: PlanningDay[];
   agenda: PlanningAgendaItem[];
   mapPins: PlanningMapPin[];
+  coverImageUrl?: string;
+  gallery?: string[];
 };
 
 export const planningTrips: PlanningTrip[] = [
   {
     id: "da-nang",
     name: "Da Nang Trip",
+    destination: "Da Nang, Vietnam",
     dateRange: "Oct 26 - Oct 28, 2025",
+    coverImageUrl:
+      "https://images.unsplash.com/photo-1559592413-7cec4d0cae2b?auto=format&fit=crop&w=2000&q=85",
+    gallery: [
+      "https://images.unsplash.com/photo-1559592413-7cec4d0cae2b?auto=format&fit=crop&w=400&q=80",
+      "https://images.unsplash.com/photo-1540541338287-41700207dee6?auto=format&fit=crop&w=400&q=80",
+      "https://images.unsplash.com/photo-1559847844-5315695dadae?auto=format&fit=crop&w=400&q=80",
+      "https://images.unsplash.com/photo-1528127269322-539801943592?auto=format&fit=crop&w=400&q=80"
+    ],
     selectedDayId: "day-1",
     days: [
       {
@@ -125,4 +137,35 @@ export const planningTrips: PlanningTrip[] = [
 
 export function getPlanningTripById(tripId: string) {
   return planningTrips.find((trip) => trip.id === tripId);
+}
+
+const defaultCoverImages = [
+  "https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?auto=format&fit=crop&w=2000&q=85",
+  "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=2000&q=85",
+  "https://images.unsplash.com/photo-1502602898657-3e91760cbb34?auto=format&fit=crop&w=2000&q=85",
+  "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=2000&q=85"
+];
+
+const defaultGallery = [
+  "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=400&q=80",
+  "https://images.unsplash.com/photo-1483729558449-99ef09a8c325?auto=format&fit=crop&w=400&q=80",
+  "https://images.unsplash.com/photo-1483347756197-71ef80e95f73?auto=format&fit=crop&w=400&q=80",
+  "https://images.unsplash.com/photo-1489493585363-d69421e0edd3?auto=format&fit=crop&w=400&q=80"
+];
+
+function hashSeed(seed: string) {
+  let hash = 0;
+  for (let index = 0; index < seed.length; index += 1) {
+    hash = (hash * 31 + seed.charCodeAt(index)) >>> 0;
+  }
+  return hash;
+}
+
+export function pickTripCoverImage(seed: string) {
+  return defaultCoverImages[hashSeed(seed) % defaultCoverImages.length];
+}
+
+export function pickTripGallery(seed: string) {
+  const offset = hashSeed(seed) % defaultGallery.length;
+  return Array.from({ length: 4 }, (_, i) => defaultGallery[(offset + i) % defaultGallery.length]);
 }

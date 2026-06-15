@@ -6,6 +6,7 @@ export type DashboardTrip = {
   dateRange: string;
   imageUrl: string;
   imageAlt: string;
+  rating?: number;
 };
 
 export const dashboardTrips: DashboardTrip[] = [
@@ -17,7 +18,8 @@ export const dashboardTrips: DashboardTrip[] = [
     dateRange: "May 10 - May 16, 2025",
     imageUrl:
       "https://images.unsplash.com/photo-1559592413-7cec4d0cae2b?auto=format&fit=crop&w=900&q=85",
-    imageAlt: "Golden Bridge in Da Nang surrounded by misty mountains"
+    imageAlt: "Golden Bridge in Da Nang surrounded by misty mountains",
+    rating: 4.8
   },
   {
     id: "japan-spring",
@@ -27,7 +29,8 @@ export const dashboardTrips: DashboardTrip[] = [
     dateRange: "Apr 3 - Apr 12, 2025",
     imageUrl:
       "https://images.unsplash.com/photo-1522383225653-ed111181a951?auto=format&fit=crop&w=900&q=85",
-    imageAlt: "Cherry blossoms framing a spring Japan travel scene"
+    imageAlt: "Cherry blossoms framing a spring Japan travel scene",
+    rating: 4.9
   },
   {
     id: "bali-surf",
@@ -37,7 +40,8 @@ export const dashboardTrips: DashboardTrip[] = [
     dateRange: "Feb 14 - Feb 21, 2025",
     imageUrl:
       "https://images.unsplash.com/photo-1537996194471-e657df975ab4?auto=format&fit=crop&w=900&q=85",
-    imageAlt: "Palm trees beside a quiet tropical beach in Bali"
+    imageAlt: "Palm trees beside a quiet tropical beach in Bali",
+    rating: 4.7
   }
 ];
 

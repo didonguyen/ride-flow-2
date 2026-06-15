@@ -67,12 +67,12 @@ export function LandingFeatures() {
             const Icon = feature.icon;
             return (
               <li
-                className="flex flex-col gap-3 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition hover:shadow-md"
+                className="flex flex-col gap-3 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition duration-200 ease-out hover:-translate-y-1 hover:border-forest-500/30 hover:shadow-rideflow-card"
                 key={feature.title}
               >
                 <span
                   aria-hidden="true"
-                  className="inline-flex h-12 w-12 items-center justify-center rounded-xl bg-[#004853] text-white"
+                  className="inline-flex h-12 w-12 items-center justify-center rounded-xl bg-forest-700 text-white"
                 >
                   <Icon className="h-6 w-6" strokeWidth={2.2} />
                 </span>

@@ -5,7 +5,7 @@ export function LandingFinalCta() {
   return (
     <section
       aria-labelledby="landing-final-cta-heading"
-      className="bg-[#004853] py-20 sm:py-24"
+      className="bg-forest-700 py-20 sm:py-24"
     >
       <div className="mx-auto flex w-full max-w-4xl flex-col items-center gap-6 px-4 text-center sm:px-6 lg:px-8">
         <h2
@@ -19,7 +19,7 @@ export function LandingFinalCta() {
           minutes.
         </p>
         <Link
-          className="inline-flex items-center justify-center rounded-md bg-white px-6 py-3 text-sm font-semibold text-[#004853] shadow-sm transition hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-[#004853] sm:text-base"
+          className="inline-flex items-center justify-center rounded-full bg-white px-7 py-3 text-sm font-extrabold text-forest-900 shadow-sm transition hover:bg-cream-50 focus:outline-none focus:ring-2 focus:ring-mint-400 focus:ring-offset-2 focus:ring-offset-forest-700 sm:text-base"
           data-testid="landing-final-cta"
           href={"/sign-up?next=/trips" as Route}
         >

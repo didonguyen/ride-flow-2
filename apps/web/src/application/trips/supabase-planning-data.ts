@@ -3,6 +3,10 @@ import type {
   PlanningMapPin,
   PlanningTrip
 } from "@/src/application/trips/planning-data";
+import {
+  pickTripCoverImage,
+  pickTripGallery
+} from "@/src/application/trips/planning-data";
 
 export type SupabasePlanningTripRow = {
   destination: string;
@@ -55,6 +59,7 @@ export function mapSupabasePlanningTrip({
   return {
     id: trip.id,
     name: trip.name,
+    destination: trip.destination,
     dateRange: formatDateRange(trip.start_date, trip.end_date),
     selectedDayId,
     days: sortedDays.map((day) => ({
@@ -66,7 +71,9 @@ export function mapSupabasePlanningTrip({
       isSelected: day.id === selectedDayId
     })),
     agenda: selectedTimelineItems.map(mapTimelineItemToAgendaItem),
-    mapPins: selectedTimelineItems.map(mapTimelineItemToMapPin)
+    mapPins: selectedTimelineItems.map(mapTimelineItemToMapPin),
+    coverImageUrl: pickTripCoverImage(trip.id),
+    gallery: pickTripGallery(trip.id)
   };
 }
 

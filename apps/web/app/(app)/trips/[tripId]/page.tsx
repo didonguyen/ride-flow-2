@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { MembersPanel } from "@/components/trips/members-panel";
+import { TripCoverHeader } from "@/components/trips/trip-cover-header";
 import { AppShell } from "@/components/app/app-shell";
 import { DateRail } from "@/components/planning/date-rail";
 import { MobileTripHeader } from "@/components/planning/mobile-trip-header";
@@ -44,6 +45,12 @@ export default async function TripPlanningPage({
 
   return (
     <AppShell activeItem="Dashboard">
+      <TripCoverHeader
+        coverImageUrl={data.trip.coverImageUrl ?? ""}
+        destination={data.trip.destination ?? data.destination}
+        gallery={data.trip.gallery}
+        tripName={data.trip.name}
+      />
       <MobileTripHeader
         dateRange={data.trip.dateRange}
         name={data.trip.name}

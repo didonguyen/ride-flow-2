@@ -133,7 +133,7 @@ function renderRoleControl(
     return undefined;
   }
 
-  return (member: MemberListMember) => {
+  return function renderMemberRoleControl(member: MemberListMember) {
     if (member.role === "owner") {
       return undefined;
     }

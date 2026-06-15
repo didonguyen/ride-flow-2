@@ -1,32 +1,53 @@
 import { test, expect } from "@playwright/test";
 
-test.describe("Public landing page (US-RF-014)", () => {
-  test("anonymous visitor sees the hero, features, and CTAs", async ({ page }) => {
+test.describe("Public landing page (US-RF-015)", () => {
+  test("anonymous visitor sees the new forest hero, top destinations, and CTAs", async ({
+    page
+  }) => {
     await page.goto("/");
 
     await expect(
-      page.getByRole("heading", { level: 1, name: "Plan trips together, day by day." })
+      page.getByRole("heading", {
+        level: 1,
+        name: /Explore Your.*Favorite Journey/
+      })
+    ).toBeVisible();
+
+    await expect(page.getByText("Let's Make Our Life Better")).toBeVisible();
+
+    await expect(
+      page.getByRole("heading", {
+        level: 2,
+        name: "Top destinations right now"
+      })
     ).toBeVisible();
 
     await expect(
-      page.getByRole("heading", { level: 2, name: "Everything your group needs, in one workspace." })
+      page.getByRole("heading", {
+        level: 2,
+        name: "Everything your group needs, in one workspace."
+      })
     ).toBeVisible();
 
     await expect(
-      page.getByRole("heading", { level: 2, name: "How RideFlow works." })
+      page.getByRole("heading", {
+        level: 2,
+        name: "Ready to plan your next trip?"
+      })
     ).toBeVisible();
+  });
 
-    await expect(
-      page.getByRole("heading", { level: 2, name: "See the dashboard before you sign up." })
-    ).toBeVisible();
+  test("hero CTA pill is present and animates in", async ({ page }) => {
+    await page.goto("/");
 
-    await expect(
-      page.getByRole("heading", { level: 2, name: "Ready to plan your next trip?" })
-    ).toBeVisible();
+    const cta = page.getByTestId("landing-hero-cta");
+    await expect(cta).toBeVisible();
+    await expect(cta).toHaveAttribute("href", "/sign-up?next=/trips");
 
-    await expect(
-      page.getByRole("img", { name: "RideFlow dashboard preview showing three trip cards and a new-trip card." })
-    ).toBeVisible();
+    const animationName = await cta.evaluate(
+      (el) => getComputedStyle(el).animationName
+    );
+    expect(animationName).toContain("rideflow-hero-rise");
   });
 
   test("hero CTA navigates to sign-up with the next param", async ({ page }) => {
@@ -37,7 +58,9 @@ test.describe("Public landing page (US-RF-014)", () => {
     await expect(page).toHaveURL(/\/sign-up\?next=%2Ftrips$/);
   });
 
-  test("final CTA also navigates to sign-up with the next param", async ({ page }) => {
+  test("final CTA also navigates to sign-up with the next param", async ({
+    page
+  }) => {
     await page.goto("/");
 
     await page.getByTestId("landing-final-cta").click();
@@ -45,10 +68,15 @@ test.describe("Public landing page (US-RF-014)", () => {
     await expect(page).toHaveURL(/\/sign-up\?next=%2Ftrips$/);
   });
 
-  test("header Sign in link navigates to /sign-in with the next param", async ({ page }) => {
+  test("header Sign in link navigates to /sign-in with the next param", async ({
+    page
+  }) => {
     await page.goto("/");
 
-    await page.getByRole("navigation", { name: "Landing actions" }).getByRole("link", { name: "Sign in" }).click();
+    await page
+      .getByRole("navigation", { name: "Landing actions" })
+      .getByRole("link", { name: "Sign in" })
+      .click();
 
     await expect(page).toHaveURL(/\/sign-in\?next=%2Ftrips$/);
   });
@@ -59,13 +87,15 @@ test.describe("Public landing page (US-RF-014)", () => {
 
     const heading = page.getByRole("heading", {
       level: 1,
-      name: "Plan trips together, day by day."
+      name: /Explore Your.*Favorite Journey/
     });
     await expect(heading).toBeVisible();
 
-    const overflow = await page.evaluate(() => {
-      return document.documentElement.scrollWidth - document.documentElement.clientWidth;
-    });
+    const overflow = await page.evaluate(
+      () =>
+        document.documentElement.scrollWidth -
+        document.documentElement.clientWidth
+    );
     expect(overflow).toBeLessThanOrEqual(1);
   });
 });

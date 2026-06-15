@@ -1,15 +1,16 @@
 import Image from "next/image";
 import Link from "next/link";
 import type { Route } from "next";
+import { ChevronsUp } from "lucide-react";
 
 const HERO_IMAGE_URL =
-  "https://images.unsplash.com/photo-1502602898657-3e91760cbb34?auto=format&fit=crop&w=2400&q=80";
+  "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?auto=format&fit=crop&w=2400&q=80";
 
 export function LandingHero() {
   return (
     <section
       aria-labelledby="landing-hero-heading"
-      className="relative isolate flex min-h-[560px] items-center overflow-hidden sm:min-h-[640px] lg:min-h-[720px]"
+      className="relative isolate flex min-h-[100svh] items-center justify-center overflow-hidden bg-forest-900 sm:min-h-[640px] lg:min-h-[720px]"
     >
       <Image
         alt=""
@@ -22,39 +23,58 @@ export function LandingHero() {
       />
       <div
         aria-hidden="true"
-        className="absolute inset-0 -z-10 bg-gradient-to-b from-black/70 via-black/40 to-black/20"
+        className="absolute inset-0 -z-10 bg-gradient-to-b from-forest-900/80 via-forest-900/45 to-forest-900/20"
+      />
+      <div
+        aria-hidden="true"
+        className="absolute inset-x-0 bottom-0 -z-10 h-1/2 bg-gradient-to-t from-forest-900 via-forest-900/70 to-transparent"
       />
 
-      <div className="mx-auto flex w-full max-w-5xl flex-col items-start gap-6 px-4 py-20 sm:px-6 sm:py-28 lg:px-8">
-        <p className="rounded-full border border-white/30 bg-white/10 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-white backdrop-blur">
-          Collaborative trip planning
+      <div className="relative mx-auto flex w-full max-w-5xl flex-col items-center gap-5 px-4 pb-44 pt-20 text-center sm:items-start sm:px-6 sm:pb-40 sm:pt-20 sm:text-left lg:px-8">
+        <p className="rounded-full border border-white/20 bg-white/10 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.2em] text-white/85 backdrop-blur">
+          A calmer way to plan together
         </p>
         <h1
-          className="max-w-3xl text-4xl font-extrabold leading-tight tracking-tight text-white sm:text-5xl lg:text-6xl"
+          className="max-w-3xl text-balance text-5xl font-extrabold leading-[1.05] tracking-[-0.035em] text-white sm:text-6xl lg:text-7xl"
           id="landing-hero-heading"
         >
-          Plan trips together, day by day.
+          Explore Your
+          <br className="hidden sm:block" />{" "}
+          <span className="sm:inline">Favorite Journey</span>
         </h1>
-        <p className="max-w-2xl text-base text-white/85 sm:text-lg lg:text-xl">
-          RideFlow is a calm, image-led workspace for groups to build a shared
-          itinerary, pin places, and let AI draft the first version.
+        <p className="max-w-xl text-base text-white/85 sm:text-lg lg:text-xl">
+          Let&apos;s Make Our Life Better
         </p>
-        <div className="mt-2 flex flex-col gap-3 sm:flex-row sm:items-center">
-          <Link
-            className="inline-flex items-center justify-center rounded-md bg-[#004853] px-6 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-[#013a44] focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-black/40 sm:text-base"
-            data-testid="landing-hero-cta"
-            href={"/sign-up?next=/trips" as Route}
-          >
-            Get started
-          </Link>
-          <Link
-            className="text-sm font-medium text-white/90 underline-offset-4 transition hover:text-white hover:underline sm:text-base"
-            href={"/sign-in?next=/trips" as Route}
-          >
-            Already have an account? Sign in
-          </Link>
-        </div>
       </div>
+
+      <div className="pointer-events-none absolute inset-x-0 bottom-6 z-10 flex justify-center sm:bottom-8">
+        <Link
+          aria-label="Get started with RideFlow"
+          className="pointer-events-auto inline-flex animate-rideflow-hero-rise items-center gap-3 rounded-full border border-white/25 bg-white/10 px-2 py-2 pr-6 text-white shadow-2xl shadow-forest-900/40 backdrop-blur-xl transition hover:scale-[1.02] hover:bg-white/15 focus:outline-none focus:ring-2 focus:ring-mint-400 focus:ring-offset-2 focus:ring-offset-forest-900"
+          data-testid="landing-hero-cta"
+          href={"/sign-up?next=/trips" as Route}
+        >
+          <span
+            aria-hidden="true"
+            className="inline-flex h-12 w-12 items-center justify-center rounded-full bg-white text-forest-900 shadow-lg transition group-hover:translate-y-[-1px] sm:h-14 sm:w-14"
+          >
+            <ChevronsUp className="h-5 w-5 sm:h-6 sm:w-6" strokeWidth={2.4} />
+          </span>
+          <span className="flex flex-col items-start text-left">
+            <span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-white/70">
+              Tap to start
+            </span>
+            <span className="text-sm font-extrabold tracking-[-0.01em] text-white sm:text-base">
+              Go
+            </span>
+          </span>
+        </Link>
+      </div>
+
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-x-0 bottom-0 z-0 h-24 bg-gradient-to-t from-forest-900 to-transparent sm:hidden"
+      />
     </section>
   );
 }

@@ -9,6 +9,17 @@
   --rideflow-text: #101828;
   --rideflow-muted: #667085;
   --rideflow-teal: #004853;
+  --rideflow-forest-900: #0B2A1E;
+  --rideflow-forest-700: #1B3A2C;
+  --rideflow-forest-500: #2C5F3F;
+  --rideflow-mint-400: #4FD1C5;
+  --rideflow-amber-400: #F5B544;
+  --rideflow-cream-50: #FAF7F2;
+  --rideflow-ink-900: #0F172A;
+  --rideflow-ink-500: #475569;
+  --rideflow-line-200: #E7E5E4;
+  --rideflow-shadow-card: 0 12px 32px -12px rgba(11, 42, 30, 0.18);
+  --rideflow-shadow-card-hover: 0 24px 48px -16px rgba(11, 42, 30, 0.28);
 }
 
 html,
@@ -43,4 +54,15 @@ img {
 
 ::selection {
   background: rgba(0, 72, 83, 0.18);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }
