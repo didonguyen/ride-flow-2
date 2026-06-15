@@ -32,6 +32,7 @@ tests or validation evidence exist.
 | US-RF-010 Mobile Agenda | Mobile trip header + responsive layout | yes | yes | not run | not run | implemented | mobile-trip-header.tsx shipped; integration via planning workspace; viewport tests pending |
 | US-RF-011 Memories Shell | Memories tab surface + page route | yes | not run | not run | not run | implemented | memories-surface.tsx + memories/page.tsx present; PDF export stub |
 | US-RF-012 Expenses Shell | Expenses tab surface + page route | yes | not run | not run | not run | implemented | expenses-surface.tsx + expenses/page.tsx present; donut + table layout |
+| US-RF-014 Public Landing | `/` marketing page; anon redirect preserved; Unsplash hero image | yes (existing) | yes (next/image build) | required (spec landed; Playwright chromium unsupported on host) | not run | implemented | `pnpm build` pass; route `/` 5.34 kB; curl smoke 200 + 65 kB HTML; 96/96 existing tests still pass; spec `docs/specs/002-public-landing/spec.md`; proof `docs/specs/002-public-landing/proof.md` |
 | US-RF-000 Reconcile spec-driven + epic structure | Move plan.md, add tasks.md/proof.md, scaffold E04 | not run | not run | not run | not run | planned | doc-only initiative; 3 commits + 13 story packets shipped |
 
 ## Evidence Rules
