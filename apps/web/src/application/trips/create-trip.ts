@@ -30,6 +30,7 @@ export async function createTripUseCase(
 
   const trip = await repository.createTripWithDays({
     ownerId: input.ownerId,
+    ownerEmail: input.ownerEmail ?? null,
     name,
     destination,
     startDate: dateRange.value.startDate,

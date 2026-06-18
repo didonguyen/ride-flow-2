@@ -1,7 +1,7 @@
 import Image from "next/image";
-import Link from "next/link";
-import type { Route } from "next";
 import { ChevronsUp } from "lucide-react";
+
+import { LandingHeroCtaTrigger } from "@/components/landing/landing-cta-trigger";
 
 const HERO_IMAGE_URL =
   "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?auto=format&fit=crop&w=2400&q=80";
@@ -48,12 +48,7 @@ export function LandingHero() {
       </div>
 
       <div className="pointer-events-none absolute inset-x-0 bottom-6 z-10 flex justify-center sm:bottom-8">
-        <Link
-          aria-label="Get started with RideFlow"
-          className="pointer-events-auto inline-flex animate-rideflow-hero-rise items-center gap-3 rounded-full border border-white/25 bg-white/10 px-2 py-2 pr-6 text-white shadow-2xl shadow-forest-900/40 backdrop-blur-xl transition hover:scale-[1.02] hover:bg-white/15 focus:outline-none focus:ring-2 focus:ring-mint-400 focus:ring-offset-2 focus:ring-offset-forest-900"
-          data-testid="landing-hero-cta"
-          href={"/sign-up?next=/trips" as Route}
-        >
+        <LandingHeroCtaTrigger className="pointer-events-auto inline-flex animate-rideflow-hero-rise items-center gap-3 rounded-full border border-white/25 bg-white/10 px-2 py-2 pr-6 text-white shadow-2xl shadow-forest-900/40 backdrop-blur-xl transition hover:scale-[1.02] hover:bg-white/15 focus:outline-none focus:ring-2 focus:ring-mint-400 focus:ring-offset-2 focus:ring-offset-forest-900">
           <span
             aria-hidden="true"
             className="inline-flex h-12 w-12 items-center justify-center rounded-full bg-white text-forest-900 shadow-lg transition group-hover:translate-y-[-1px] sm:h-14 sm:w-14"
@@ -68,7 +63,7 @@ export function LandingHero() {
               Go
             </span>
           </span>
-        </Link>
+        </LandingHeroCtaTrigger>
       </div>
 
       <div

@@ -1,6 +1,6 @@
 import { test, expect } from "@playwright/test";
 
-test.describe("Public landing page (US-RF-015)", () => {
+test.describe("Public landing page (US-RF-014 / US-RF-016)", () => {
   test("anonymous visitor sees the new forest hero, top destinations, and CTAs", async ({
     page
   }) => {
@@ -42,7 +42,6 @@ test.describe("Public landing page (US-RF-015)", () => {
 
     const cta = page.getByTestId("landing-hero-cta");
     await expect(cta).toBeVisible();
-    await expect(cta).toHaveAttribute("href", "/sign-up?next=/trips");
 
     const animationName = await cta.evaluate(
       (el) => getComputedStyle(el).animationName
@@ -50,35 +49,38 @@ test.describe("Public landing page (US-RF-015)", () => {
     expect(animationName).toContain("rideflow-hero-rise");
   });
 
-  test("hero CTA navigates to sign-up with the next param", async ({ page }) => {
+  test("hero CTA opens the sign-up modal without route navigation", async ({
+    page
+  }) => {
     await page.goto("/");
 
     await page.getByTestId("landing-hero-cta").click();
 
-    await expect(page).toHaveURL(/\/sign-up\?next=%2Ftrips$/);
+    await expect(page).toHaveURL(/\/$/);
+    await expect(page.getByTestId("auth-modal-sign-up")).toBeVisible();
   });
 
-  test("final CTA also navigates to sign-up with the next param", async ({
+  test("final CTA opens the sign-up modal without route navigation", async ({
     page
   }) => {
     await page.goto("/");
 
     await page.getByTestId("landing-final-cta").click();
 
-    await expect(page).toHaveURL(/\/sign-up\?next=%2Ftrips$/);
+    await expect(page).toHaveURL(/\/$/);
+    await expect(page.getByTestId("auth-modal-sign-up")).toBeVisible();
   });
 
-  test("header Sign in link navigates to /sign-in with the next param", async ({
-    page
-  }) => {
+  test("header Sign in opens the sign-in modal on /", async ({ page }) => {
     await page.goto("/");
 
     await page
       .getByRole("navigation", { name: "Landing actions" })
-      .getByRole("link", { name: "Sign in" })
+      .getByTestId("open-auth-modal-sign-in")
       .click();
 
-    await expect(page).toHaveURL(/\/sign-in\?next=%2Ftrips$/);
+    await expect(page).toHaveURL(/\/$/);
+    await expect(page.getByTestId("auth-modal-sign-in")).toBeVisible();
   });
 
   test("hero copy remains readable on 360px width", async ({ page }) => {

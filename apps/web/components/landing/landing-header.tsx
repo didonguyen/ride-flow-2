@@ -2,6 +2,8 @@ import Link from "next/link";
 import Image from "next/image";
 import type { Route } from "next";
 
+import { AuthModalController } from "@/components/auth/auth-modal-controller";
+
 export function LandingHeader() {
   return (
     <header className="sticky top-0 z-30 w-full bg-forest-900/70 backdrop-blur supports-[backdrop-filter]:bg-forest-900/55">
@@ -22,18 +24,7 @@ export function LandingHeader() {
         </Link>
 
         <nav aria-label="Landing actions" className="flex items-center gap-2 sm:gap-3">
-          <Link
-            className="rounded-full px-3 py-2 text-sm font-medium text-white/85 transition hover:text-white focus:outline-none focus:ring-2 focus:ring-mint-400 focus:ring-offset-2 focus:ring-offset-forest-900 sm:px-4 sm:text-base"
-            href={"/sign-in?next=/trips" as Route}
-          >
-            Sign in
-          </Link>
-          <Link
-            className="rounded-full bg-mint-400 px-4 py-2 text-sm font-extrabold text-forest-900 shadow-sm transition hover:bg-mint-400/90 focus:outline-none focus:ring-2 focus:ring-mint-400 focus:ring-offset-2 focus:ring-offset-forest-900 sm:px-6 sm:text-base"
-            href={"/sign-up?next=/trips" as Route}
-          >
-            Get started
-          </Link>
+          <AuthModalController next="/trips" />
         </nav>
       </div>
     </header>

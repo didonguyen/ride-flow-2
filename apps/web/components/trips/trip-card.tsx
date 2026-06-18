@@ -1,8 +1,7 @@
 import Link from "next/link";
 import type { Route } from "next";
-import { PlusCircle, Star } from "lucide-react";
+import { Star } from "lucide-react";
 import type { DashboardTrip } from "@/src/application/trips/dashboard-data";
-import { dashboardCreateTripCta } from "@/src/application/trips/dashboard-data";
 
 type TripCardProps = {
   trip: DashboardTrip;
@@ -52,27 +51,6 @@ export function TripCard({ trip }: TripCardProps) {
           {trip.dateRange}
         </p>
       </div>
-    </Link>
-  );
-}
-
-export function NewTripCard() {
-  return (
-    <Link
-      className="flex min-h-[27rem] flex-col items-center justify-center rounded-3xl border-2 border-dashed border-forest-500/40 bg-white text-center transition hover:border-forest-500 hover:bg-cream-50 focus:outline-none focus:ring-4 focus:ring-mint-400/40 sm:min-h-[34rem]"
-      href={"/trips/new" as Route}
-    >
-      <PlusCircle
-        aria-hidden="true"
-        className="h-16 w-16 text-slate-400"
-        strokeWidth={1.8}
-      />
-      <h3 className="mt-8 text-2xl font-extrabold tracking-[-0.02em] text-slate-500">
-        {dashboardCreateTripCta.title}
-      </h3>
-      <p className="mt-5 text-lg font-medium text-slate-400">
-        {dashboardCreateTripCta.subtitle}
-      </p>
     </Link>
   );
 }

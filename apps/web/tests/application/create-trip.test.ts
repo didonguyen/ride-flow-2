@@ -31,6 +31,7 @@ describe("createTripUseCase", () => {
 
     expect(repository.createTripWithDays).toHaveBeenCalledWith({
       ownerId: "user-1",
+      ownerEmail: null,
       name: "Da Nang Food Trip",
       destination: "Da Nang",
       startDate: "2026-07-01",

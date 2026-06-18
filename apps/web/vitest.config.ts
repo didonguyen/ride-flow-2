@@ -7,6 +7,10 @@ export default defineConfig({
     setupFiles: ["./tests/setup.ts"],
     include: ["tests/**/*.test.ts", "tests/**/*.test.tsx"]
   },
+  esbuild: {
+    jsx: "automatic",
+    jsxImportSource: "react"
+  },
   resolve: {
     alias: {
       "@": new URL(".", import.meta.url).pathname,

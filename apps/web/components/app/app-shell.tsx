@@ -45,7 +45,7 @@ export function AppShell({ activeItem = "Dashboard", children }: AppShellProps) 
             />
           </Link>
           <Link
-            className="hidden h-10 w-10 items-center justify-center gap-2 rounded-full bg-[#004853] text-sm font-semibold text-white shadow-sm sm:inline-flex sm:w-auto sm:rounded-xl sm:px-4"
+            className="hidden h-10 w-10 items-center justify-center gap-2 rounded-full bg-forest-700 text-sm font-semibold text-white shadow-sm transition hover:bg-forest-500 sm:inline-flex sm:w-auto sm:rounded-xl sm:px-4"
             href={"/trips/new" as Route}
           >
             <PlusCircle aria-hidden="true" className="h-4 w-4" />
@@ -76,7 +76,7 @@ export function AppShell({ activeItem = "Dashboard", children }: AppShellProps) 
                 className={[
                   "flex items-center gap-5 rounded-lg px-6 py-4 text-xl font-semibold transition",
                   isActive
-                    ? "bg-[#004853] text-white shadow-sm"
+                    ? "bg-forest-700 text-white shadow-sm"
                     : "text-slate-500 hover:bg-slate-100 hover:text-slate-900"
                 ].join(" ")}
                 href={item.href}

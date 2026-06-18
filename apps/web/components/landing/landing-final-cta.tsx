@@ -1,5 +1,4 @@
-import Link from "next/link";
-import type { Route } from "next";
+import { LandingFinalCtaTrigger } from "@/components/landing/landing-cta-trigger";
 
 export function LandingFinalCta() {
   return (
@@ -18,13 +17,9 @@ export function LandingFinalCta() {
           Create a free RideFlow account and turn the idea into a shared plan in
           minutes.
         </p>
-        <Link
-          className="inline-flex items-center justify-center rounded-full bg-white px-7 py-3 text-sm font-extrabold text-forest-900 shadow-sm transition hover:bg-cream-50 focus:outline-none focus:ring-2 focus:ring-mint-400 focus:ring-offset-2 focus:ring-offset-forest-700 sm:text-base"
-          data-testid="landing-final-cta"
-          href={"/sign-up?next=/trips" as Route}
-        >
+        <LandingFinalCtaTrigger className="inline-flex items-center justify-center rounded-full bg-white px-7 py-3 text-sm font-extrabold text-forest-900 shadow-sm transition hover:bg-cream-50 focus:outline-none focus:ring-2 focus:ring-mint-400 focus:ring-offset-2 focus:ring-offset-forest-700 sm:text-base">
           Get started
-        </Link>
+        </LandingFinalCtaTrigger>
       </div>
     </section>
   );
