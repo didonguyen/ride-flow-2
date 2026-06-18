@@ -14,6 +14,10 @@ type QueryResponse = {
   error?: { message: string } | null;
 };
 
+function asUuid(value: string) {
+  return value as ReturnType<typeof crypto.randomUUID>;
+}
+
 function createSupabaseMock(responses: Record<string, QueryResponse>) {
   const calls: { table: string; operation: string; payload?: unknown }[] = [];
 
@@ -63,38 +67,17 @@ function createSupabaseMock(responses: Record<string, QueryResponse>) {
 
 describe("Supabase repositories", () => {
   it("creates a trip and its generated trip days", async () => {
-    const supabase = createSupabaseMock({
-      trips: {
-        data: {
-          id: "trip-1",
-          owner_id: "user-1",
-          name: "Da Nang",
-          destination: "Vietnam",
-          start_date: "2026-07-01",
-          end_date: "2026-07-02"
-        }
-      },
-      trip_days: {
-        data: [
-          {
-            id: "day-1",
-            trip_id: "trip-1",
-            date: "2026-07-01",
-            day_index: 1
-          },
-          {
-            id: "day-2",
-            trip_id: "trip-1",
-            date: "2026-07-02",
-            day_index: 2
-          }
-        ]
-      }
-    });
+    const randomUuid = vi
+      .spyOn(crypto, "randomUUID")
+      .mockReturnValueOnce(asUuid("trip-1"))
+      .mockReturnValueOnce(asUuid("day-1"))
+      .mockReturnValueOnce(asUuid("day-2"));
+    const supabase = createSupabaseMock({});
 
     const repository = createSupabaseTripRepository(supabase.client);
     const result = await repository.createTripWithDays({
       ownerId: "user-1",
+      ownerEmail: "owner@example.com",
       name: "Da Nang",
       destination: "Vietnam",
       startDate: "2026-07-01",
@@ -109,6 +92,7 @@ describe("Supabase repositories", () => {
       table: "trips",
       operation: "insert",
       payload: {
+        id: "trip-1",
         owner_id: "user-1",
         name: "Da Nang",
         destination: "Vietnam",
@@ -117,14 +101,28 @@ describe("Supabase repositories", () => {
       }
     });
     expect(supabase.calls[1]).toMatchObject({
+      table: "trip_members",
+      operation: "insert",
+      payload: {
+        trip_id: "trip-1",
+        user_id: "user-1",
+        invited_email: "owner@example.com",
+        role: "owner",
+        invite_status: "accepted",
+        accepted_at: expect.any(String)
+      }
+    });
+    expect(supabase.calls[2]).toMatchObject({
       table: "trip_days",
       operation: "insert",
       payload: [
-        { trip_id: "trip-1", date: "2026-07-01", day_index: 1 },
-        { trip_id: "trip-1", date: "2026-07-02", day_index: 2 }
+        { id: "day-1", trip_id: "trip-1", date: "2026-07-01", day_index: 1 },
+        { id: "day-2", trip_id: "trip-1", date: "2026-07-02", day_index: 2 }
       ]
     });
+    expect(result.id).toBe("trip-1");
     expect(result.days).toHaveLength(2);
+    randomUuid.mockRestore();
   });
 
   it("persists timeline add, move, and delete mutations", async () => {

@@ -42,6 +42,7 @@ describe("createTripFromFormData", () => {
 
     expect(repository.createTripWithDays).toHaveBeenCalledWith({
       ownerId: "user-1",
+      ownerEmail: "owner@example.com",
       name: "Da Nang Trip",
       destination: "Da Nang",
       startDate: "2026-07-01",

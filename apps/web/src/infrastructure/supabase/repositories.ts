@@ -117,36 +117,57 @@ export function createSupabaseTripRepository(
 ): TripRepository {
   return {
     async createTripWithDays(input) {
-      const { data: trip, error: tripError } = await supabase
+      const createdTrip: TripRow = {
+        id: crypto.randomUUID(),
+        owner_id: input.ownerId,
+        name: input.name,
+        destination: input.destination,
+        start_date: input.startDate,
+        end_date: input.endDate
+      };
+      const createdDays: TripDayRow[] = input.days.map((day) => ({
+        id: crypto.randomUUID(),
+        trip_id: createdTrip.id,
+        date: day.date,
+        day_index: day.dayIndex
+      }));
+
+      const { error: tripError } = await supabase
         .from("trips")
         .insert({
-          owner_id: input.ownerId,
-          name: input.name,
-          destination: input.destination,
-          start_date: input.startDate,
-          end_date: input.endDate
-        })
-        .select("id, owner_id, name, destination, start_date, end_date")
-        .single();
+          id: createdTrip.id,
+          owner_id: createdTrip.owner_id,
+          name: createdTrip.name,
+          destination: createdTrip.destination,
+          start_date: createdTrip.start_date,
+          end_date: createdTrip.end_date
+        });
 
       throwIfSupabaseError(tripError);
 
-      if (!trip) {
-        throw new Error("Trip was not created");
-      }
+      const { error: ownerMemberError } = await supabase
+        .from("trip_members")
+        .insert({
+          trip_id: createdTrip.id,
+          user_id: input.ownerId,
+          invited_email: input.ownerEmail ?? "",
+          role: "owner",
+          invite_status: "accepted",
+          accepted_at: new Date().toISOString()
+        });
 
-      const createdTrip = trip as TripRow;
+      throwIfSupabaseError(ownerMemberError);
 
-      const { data: days, error: daysError } = await supabase
+      const { error: daysError } = await supabase
         .from("trip_days")
         .insert(
-          input.days.map((day) => ({
-            trip_id: createdTrip.id,
+          createdDays.map((day) => ({
+            id: day.id,
+            trip_id: day.trip_id,
             date: day.date,
-            day_index: day.dayIndex
+            day_index: day.day_index
           }))
-        )
-        .select("id, trip_id, date, day_index");
+        );
 
       throwIfSupabaseError(daysError);
 
@@ -157,7 +178,7 @@ export function createSupabaseTripRepository(
         destination: createdTrip.destination,
         startDate: createdTrip.start_date,
         endDate: createdTrip.end_date,
-        days: ((days ?? []) as TripDayRow[]).map(mapTripDayRow)
+        days: createdDays.map(mapTripDayRow)
       } satisfies CreatedTrip;
     }
   };

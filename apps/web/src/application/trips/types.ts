@@ -1,11 +1,15 @@
 import type { TripDayDraft } from "@/src/domain/trips";
 
-export type CreateTripInput = {
+type TripBaseInput = {
   ownerId: string;
   name: string;
   destination: string;
   startDate: string;
   endDate: string;
+};
+
+export type CreateTripInput = TripBaseInput & {
+  ownerEmail?: string | null;
 };
 
 export type PersistTripWithDaysInput = CreateTripInput & {
@@ -19,7 +23,7 @@ export type CreatedTripDay = {
   dayIndex: number;
 };
 
-export type CreatedTrip = CreateTripInput & {
+export type CreatedTrip = TripBaseInput & {
   id: string;
   days: CreatedTripDay[];
 };

@@ -34,6 +34,7 @@ export async function createTripFromFormData({
 
   return createTripUseCase(repository, {
     ownerId: user.id,
+    ownerEmail: user.email ?? null,
     name: getStringField(formData, "name"),
     destination: getStringField(formData, "destination"),
     startDate: getStringField(formData, "startDate"),
