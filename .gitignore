@@ -25,6 +25,7 @@ apps/*/out/
 apps/*/coverage/
 apps/*/test-results/
 apps/*/playwright-report/
+apps/*/*.tsbuildinfo
 
 # Local environment files.
 .env*

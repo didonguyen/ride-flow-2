@@ -24,9 +24,15 @@ export async function createSupabaseServerClient() {
             options: CookieOptions;
           }[]
         ) {
-          cookiesToSet.forEach(({ name, value, options }) => {
-            cookieStore.set(name, value, options);
-          });
+          try {
+            cookiesToSet.forEach(({ name, value, options }) => {
+              cookieStore.set(name, value, options);
+            });
+          } catch {
+            // Server Components cannot write cookies. Server Actions and Route
+            // Handlers still can, and Supabase may call setAll while reading a
+            // session during render.
+          }
         }
       }
     }
