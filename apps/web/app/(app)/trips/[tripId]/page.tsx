@@ -3,12 +3,10 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { MembersPanel } from "@/components/trips/members-panel";
-import { TripCoverHeader } from "@/components/trips/trip-cover-header";
-import { AppShell } from "@/components/app/app-shell";
-import { DateRail } from "@/components/planning/date-rail";
-import { MobileTripHeader } from "@/components/planning/mobile-trip-header";
-import { PlanningWorkspace } from "@/components/planning/planning-workspace";
-import { TripSectionTabs } from "@/components/planning/trip-section-tabs";
+import { PlanningSurface } from "@/components/trips/planning-surface";
+import { TripAppShell } from "@/components/trip/trip-app-shell";
+import { TripCoverHeader } from "@/components/trip/trip-cover-header";
+import { TripSectionTabs } from "@/components/trip/trip-section-tabs";
 import type { MemberListMember } from "@/components/trips/member-list";
 import { getPlanningTripById } from "@/src/application/trips/planning-data";
 import { mapSupabasePlanningTrip } from "@/src/application/trips/supabase-planning-data";
@@ -44,46 +42,34 @@ export default async function TripPlanningPage({
   }
 
   return (
-    <AppShell activeItem="Dashboard">
+    <TripAppShell activeItem="My Trips">
       <TripCoverHeader
         coverImageUrl={data.trip.coverImageUrl ?? ""}
+        dateRange={data.trip.dateRange}
+        days={`${data.trip.days.length} Days`}
         destination={data.trip.destination ?? data.destination}
-        gallery={data.trip.gallery}
+        transport="Motorcycle"
         tripName={data.trip.name}
       />
-      <MobileTripHeader
-        dateRange={data.trip.dateRange}
-        name={data.trip.name}
-        tripId={data.trip.id}
-      />
-      <div className="-mx-5 -mt-8 bg-white sm:-mx-8 lg:-mx-12 lg:-mt-9">
-        <TripSectionTabs activeTab="Planning" tripId={data.trip.id} />
-        <DateRail days={data.trip.days} />
-        <PlanningWorkspace
-          destination={data.destination}
-          endDate={data.endDate}
-          startDate={data.startDate}
-          trip={data.trip}
+      <TripSectionTabs activeTab="Planning" tripId={data.trip.id} />
+      <PlanningSurface trip={data.trip} />
+      <div className="border-t border-paper-200 bg-paper-50 px-5 py-8 sm:px-8 lg:px-12">
+        <MembersPanel
+          errorCode={search.members_error ?? null}
+          members={data.members}
           tripId={data.trip.id}
+          viewerRole={data.viewerRole}
         />
-        <div className="px-5 pb-12 sm:px-8 lg:px-12">
-          <MembersPanel
-            errorCode={search.members_error ?? null}
-            members={data.members}
-            tripId={data.trip.id}
-            viewerRole={data.viewerRole}
-          />
-        </div>
-        <div className="border-t border-slate-200 bg-white px-5 py-6 text-center text-xs text-slate-500 sm:px-8 lg:px-12">
-          <Link
-            className="text-xs font-extrabold uppercase tracking-[0.18em] text-[#00565b] hover:underline"
-            href={`/trips/${data.trip.id}#members` as Route}
-          >
-            Open members panel
-          </Link>
-        </div>
       </div>
-    </AppShell>
+      <div className="border-t border-paper-200 bg-paper-50 px-5 py-6 text-center text-xs text-ink-500 sm:px-8 lg:px-12">
+        <Link
+          className="text-xs font-semibold uppercase tracking-[0.18em] text-forest-800 hover:underline"
+          href={`/trips/${data.trip.id}#members` as Route}
+        >
+          Open members panel
+        </Link>
+      </div>
+    </TripAppShell>
   );
 }
 
@@ -114,8 +100,7 @@ async function getTripData(tripId: string): Promise<TripData | null> {
       viewerRole: user ? "owner" : null,
       destination: fallback.name,
       startDate: fallback.days[0]?.date ?? "",
-      endDate:
-        fallback.days[fallback.days.length - 1]?.date ?? ""
+      endDate: fallback.days[fallback.days.length - 1]?.date ?? ""
     };
   }
 
@@ -136,12 +121,14 @@ async function getTripData(tripId: string): Promise<TripData | null> {
 
   return {
     trip: mapSupabasePlanningTrip(rows),
-    members: members.map((member: import("@/src/application/members/types").TripMemberRecord) => ({
-      id: member.id,
-      email: member.email,
-      role: member.role,
-      inviteStatus: member.inviteStatus
-    })),
+    members: members.map(
+      (member: import("@/src/application/members/types").TripMemberRecord) => ({
+        id: member.id,
+        email: member.email,
+        role: member.role,
+        inviteStatus: member.inviteStatus
+      })
+    ),
     viewerRole,
     destination: rows.trip.destination,
     startDate: rows.trip.start_date,

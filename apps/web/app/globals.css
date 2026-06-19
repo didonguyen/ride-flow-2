@@ -9,17 +9,32 @@
   --rideflow-text: #101828;
   --rideflow-muted: #667085;
   --rideflow-teal: #004853;
-  --rideflow-forest-900: #0B2A1E;
-  --rideflow-forest-700: #1B3A2C;
-  --rideflow-forest-500: #2C5F3F;
-  --rideflow-mint-400: #4FD1C5;
-  --rideflow-amber-400: #F5B544;
-  --rideflow-cream-50: #FAF7F2;
-  --rideflow-ink-900: #0F172A;
-  --rideflow-ink-500: #475569;
-  --rideflow-line-200: #E7E5E4;
+  --rideflow-forest-900: #003527;
+  --rideflow-forest-800: #064e3b;
+  --rideflow-forest-700: #1b3a2c;
+  --rideflow-forest-500: #2b6954;
+  --rideflow-mint-400: #4fd1c5;
+  --rideflow-amber-400: #f5b544;
+  --rideflow-amber-100: #ffedc2;
+  --rideflow-cream-50: #faf7f2;
+  --rideflow-ink-900: #0f172a;
+  --rideflow-ink-950: #191c1b;
+  --rideflow-ink-700: #404944;
+  --rideflow-ink-500: #707974;
+  --rideflow-line-200: #e7e5e4;
+  --rideflow-paper-50: #f8faf6;
+  --rideflow-paper-100: #f2f4f1;
+  --rideflow-paper-200: #eceeeb;
+  --rideflow-sage-100: #e7f2ec;
+  --rideflow-sage-200: #c3ecd7;
+  --rideflow-sage-300: #a8cfbc;
+  --rideflow-sage-400: #80bea6;
+  --rideflow-terracotta-100: #fbe9e0;
+  --rideflow-terracotta-200: #f2cfbf;
+  --rideflow-terracotta-500: #b65a3a;
   --rideflow-shadow-card: 0 12px 32px -12px rgba(11, 42, 30, 0.18);
   --rideflow-shadow-card-hover: 0 24px 48px -16px rgba(11, 42, 30, 0.28);
+  --rideflow-shadow-editorial: 0 12px 32px -12px rgba(0, 53, 39, 0.18);
 }
 
 html,
@@ -30,13 +45,21 @@ body {
 
 body {
   margin: 0;
-  background: var(--rideflow-bg);
-  color: var(--rideflow-text);
+  background: var(--rideflow-paper-50);
+  color: var(--rideflow-ink-950);
   font-family:
     Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
     sans-serif;
   -webkit-font-smoothing: antialiased;
   text-rendering: geometricPrecision;
+}
+
+.font-display {
+  font-family:
+    Montserrat, Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
+    "Segoe UI", sans-serif;
+  font-weight: 700;
+  letter-spacing: -0.02em;
 }
 
 * {
@@ -53,7 +76,7 @@ img {
 }
 
 ::selection {
-  background: rgba(0, 72, 83, 0.18);
+  background: rgba(0, 53, 39, 0.18);
 }
 
 @media (prefers-reduced-motion: reduce) {

@@ -10,26 +10,79 @@ const config: Config = {
     extend: {
       colors: {
         forest: {
-          900: "#0B2A1E",
+          900: "#003527",
+          800: "#064E3B",
           700: "#1B3A2C",
-          500: "#2C5F3F"
+          500: "#2B6954"
         },
         mint: {
           400: "#4FD1C5"
         },
+        sage: {
+          100: "#E7F2EC",
+          200: "#C3ECD7",
+          300: "#A8CFBC",
+          400: "#80BEA6"
+        },
+        terracotta: {
+          100: "#FBE9E0",
+          200: "#F2CFBF",
+          500: "#B65A3A"
+        },
         amber: {
-          400: "#F5B544"
+          100: "#FFEDC2",
+          400: "#F5B544",
+          500: "#E89A2C"
+        },
+        ink: {
+          950: "#191C1B",
+          700: "#404944",
+          500: "#707974"
+        },
+        paper: {
+          50: "#F8FAF6",
+          100: "#F2F4F1",
+          200: "#ECEEEB"
         },
         cream: {
           50: "#FAF7F2"
         }
       },
-      boxShadow: {
-        "rideflow-card": "0 12px 32px -12px rgba(11, 42, 30, 0.18)",
-        "rideflow-card-hover": "0 24px 48px -16px rgba(11, 42, 30, 0.28)"
+      fontFamily: {
+        montserrat: [
+          "Montserrat",
+          "ui-sans-serif",
+          "system-ui",
+          "-apple-system",
+          "BlinkMacSystemFont",
+          "Segoe UI",
+          "sans-serif"
+        ],
+        inter: [
+          "Inter",
+          "ui-sans-serif",
+          "system-ui",
+          "-apple-system",
+          "BlinkMacSystemFont",
+          "Segoe UI",
+          "sans-serif"
+        ]
       },
       borderRadius: {
-        "4xl": "32px"
+        "4xl": "32px",
+        "rideflow-sm": "0.5rem",
+        "rideflow-md": "0.75rem",
+        "rideflow-lg": "1rem",
+        "rideflow-xl": "1.5rem",
+        "rideflow-2xl": "2rem"
+      },
+      boxShadow: {
+        "rideflow-card": "0 12px 32px -12px rgba(11, 42, 30, 0.18)",
+        "rideflow-card-hover": "0 24px 48px -16px rgba(11, 42, 30, 0.28)",
+        "rideflow-editorial-card": "0 12px 32px -12px rgba(0, 53, 39, 0.18)",
+        "rideflow-editorial-card-hover":
+          "0 24px 48px -16px rgba(0, 53, 39, 0.28)",
+        "rideflow-chip": "0 4px 14px -6px rgba(0, 53, 39, 0.18)"
       },
       keyframes: {
         "rideflow-card-lift": {

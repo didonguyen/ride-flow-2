@@ -1,9 +1,9 @@
 import { notFound } from "next/navigation";
 
-import { AppShell } from "@/components/app/app-shell";
-import { MobileTripHeader } from "@/components/planning/mobile-trip-header";
-import { TripSectionTabs } from "@/components/planning/trip-section-tabs";
 import { MemoriesSurface } from "@/components/trips/memories-surface";
+import { TripAppShell } from "@/components/trip/trip-app-shell";
+import { TripCoverHeader } from "@/components/trip/trip-cover-header";
+import { TripSectionTabs } from "@/components/trip/trip-section-tabs";
 import { getPlanningTripById } from "@/src/application/trips/planning-data";
 import { mapSupabasePlanningTrip } from "@/src/application/trips/supabase-planning-data";
 import { createSupabaseServerClient } from "@/src/infrastructure/supabase/server";
@@ -29,17 +29,18 @@ export default async function TripMemoriesPage({ params }: MemoriesPageProps) {
   }
 
   return (
-    <AppShell activeItem="Dashboard">
-      <MobileTripHeader
+    <TripAppShell activeItem="My Trips">
+      <TripCoverHeader
+        coverImageUrl={trip.coverImageUrl ?? ""}
         dateRange={trip.dateRange}
-        name={trip.name}
-        tripId={trip.id}
+        days={`${trip.days.length} Days`}
+        destination={trip.destination ?? trip.name}
+        transport="Motorcycle"
+        tripName={trip.name}
       />
-      <div className="-mx-5 -mt-8 bg-white sm:-mx-8 lg:-mx-12 lg:-mt-9">
-        <TripSectionTabs activeTab="Memories" tripId={trip.id} />
-        <MemoriesSurface tripId={trip.id} tripName={trip.name} />
-      </div>
-    </AppShell>
+      <TripSectionTabs activeTab="Memories" tripId={trip.id} />
+      <MemoriesSurface tripId={trip.id} tripName={trip.name} />
+    </TripAppShell>
   );
 }
 

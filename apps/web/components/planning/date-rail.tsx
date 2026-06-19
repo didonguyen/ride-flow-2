@@ -8,7 +8,7 @@ type DateRailProps = {
 
 export function DateRail({ days }: DateRailProps) {
   return (
-    <section className="bg-[#00565b] px-5 py-7 text-white shadow-sm sm:px-8 lg:px-9">
+    <section className="bg-forest-800 px-5 py-7 text-white shadow-sm sm:px-8 lg:px-9">
       <div className="mx-auto flex max-w-[1280px] items-center gap-5">
         <button
           aria-label="Previous day"
@@ -38,7 +38,7 @@ export function DateRail({ days }: DateRailProps) {
                   <span
                     className={[
                       "text-sm font-extrabold uppercase tracking-[0.16em]",
-                      day.isSelected ? "text-[#00565b]" : "text-white/80"
+                      day.isSelected ? "text-forest-800" : "text-white/80"
                     ].join(" ")}
                   >
                     {day.label}

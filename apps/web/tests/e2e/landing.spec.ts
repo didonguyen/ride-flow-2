@@ -1,52 +1,47 @@
 import { test, expect } from "@playwright/test";
 
-test.describe("Public landing page (US-RF-014 / US-RF-016)", () => {
-  test("anonymous visitor sees the new forest hero, top destinations, and CTAs", async ({
+test.describe("Editorial landing page (US-RF-018)", () => {
+  test("anonymous visitor sees the Vietnam hero, discover section, and CTAs", async ({
     page
   }) => {
     await page.goto("/");
 
     await expect(
-      page.getByRole("heading", {
-        level: 1,
-        name: /Explore Your.*Favorite Journey/
-      })
+      page.getByRole("heading", { level: 1, name: "Vietnam" })
     ).toBeVisible();
-
-    await expect(page.getByText("Let's Make Our Life Better")).toBeVisible();
 
     await expect(
       page.getByRole("heading", {
         level: 2,
-        name: "Top destinations right now"
+        name: "Discover Vietnam"
       })
     ).toBeVisible();
 
     await expect(
       page.getByRole("heading", {
         level: 2,
-        name: "Everything your group needs, in one workspace."
+        name: "The Modern Explorer toolkit"
       })
     ).toBeVisible();
 
     await expect(
       page.getByRole("heading", {
         level: 2,
-        name: "Ready to plan your next trip?"
+        name: "Plan your next journey"
       })
     ).toBeVisible();
   });
 
-  test("hero CTA pill is present and animates in", async ({ page }) => {
+  test("header Sign in opens the sign-in modal on /", async ({ page }) => {
     await page.goto("/");
 
-    const cta = page.getByTestId("landing-hero-cta");
-    await expect(cta).toBeVisible();
+    await page
+      .getByRole("navigation", { name: "Landing actions" })
+      .getByTestId("open-auth-modal-sign-in")
+      .click();
 
-    const animationName = await cta.evaluate(
-      (el) => getComputedStyle(el).animationName
-    );
-    expect(animationName).toContain("rideflow-hero-rise");
+    await expect(page).toHaveURL(/\/$/);
+    await expect(page.getByTestId("auth-modal-sign-in")).toBeVisible();
   });
 
   test("hero CTA opens the sign-up modal without route navigation", async ({
@@ -71,26 +66,11 @@ test.describe("Public landing page (US-RF-014 / US-RF-016)", () => {
     await expect(page.getByTestId("auth-modal-sign-up")).toBeVisible();
   });
 
-  test("header Sign in opens the sign-in modal on /", async ({ page }) => {
-    await page.goto("/");
-
-    await page
-      .getByRole("navigation", { name: "Landing actions" })
-      .getByTestId("open-auth-modal-sign-in")
-      .click();
-
-    await expect(page).toHaveURL(/\/$/);
-    await expect(page.getByTestId("auth-modal-sign-in")).toBeVisible();
-  });
-
   test("hero copy remains readable on 360px width", async ({ page }) => {
     await page.setViewportSize({ width: 360, height: 800 });
     await page.goto("/");
 
-    const heading = page.getByRole("heading", {
-      level: 1,
-      name: /Explore Your.*Favorite Journey/
-    });
+    const heading = page.getByRole("heading", { level: 1, name: "Vietnam" });
     await expect(heading).toBeVisible();
 
     const overflow = await page.evaluate(
