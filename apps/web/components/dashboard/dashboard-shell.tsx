@@ -36,7 +36,7 @@ export function DashboardShell({
 
   return (
     <div
-      className="mx-auto flex w-full max-w-[1180px] flex-col gap-10 px-5 py-10 sm:px-8 lg:px-12 lg:py-12"
+      className="mx-auto flex w-full max-w-[1180px] flex-col gap-8 px-5 py-8 sm:px-8 sm:py-10 lg:px-10 lg:py-12"
       data-member-name={memberName ?? "the-modern-explorer"}
       data-member-tier={memberTier ?? "premium-member"}
       data-testid="dashboard-shell"
@@ -51,8 +51,8 @@ export function DashboardShell({
         subtitle="The road is calling. Let’s get planning."
       />
 
-      <div className="grid gap-6 lg:grid-cols-[minmax(0,1.7fr)_minmax(0,1fr)]">
-        <div className="flex flex-col gap-6">
+      <div className="grid gap-8 lg:grid-cols-[minmax(0,1.7fr)_minmax(0,1fr)]">
+        <div className="flex flex-col gap-10">
           {upcoming ? (
             <DashboardUpcomingAdventure
               href={`/trips/${firstTripId}` as Route}

@@ -27,7 +27,7 @@ export default async function TripsPage() {
   const trips = mapSupabaseDashboardTrips(rows);
 
   return (
-    <TripAppShell activeItem="My Trips">
+    <TripAppShell activeItem="Dashboard" pageTitle="Dashboard">
       <DashboardShell trips={trips} />
     </TripAppShell>
   );

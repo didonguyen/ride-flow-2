@@ -1,12 +1,20 @@
 import type { Route } from "next";
 import Image from "next/image";
 import Link from "next/link";
+import { Bike, Users } from "lucide-react";
 
 import type { DashboardCompletedTrip } from "@/src/application/trips/dashboard-summary-data";
 
 type DashboardRecentJourneysProps = {
   trips: DashboardCompletedTrip[];
 };
+
+function metaIcon(label: string) {
+  if (label.toLowerCase().includes("mi") || label.toLowerCase().includes("km")) {
+    return Bike;
+  }
+  return Users;
+}
 
 export function DashboardRecentJourneys({ trips }: DashboardRecentJourneysProps) {
   if (trips.length === 0) {
@@ -33,7 +41,7 @@ export function DashboardRecentJourneys({ trips }: DashboardRecentJourneysProps)
           View all
         </a>
       </div>
-      <ul className="grid gap-4 sm:grid-cols-2">
+      <ul className="grid gap-5 sm:grid-cols-2">
         {trips.map((trip) => (
           <li key={trip.id}>
             <Link
@@ -50,17 +58,25 @@ export function DashboardRecentJourneys({ trips }: DashboardRecentJourneysProps)
                   src={trip.imageUrl}
                 />
               </div>
-              <div className="flex flex-col gap-2 p-4">
+              <div className="flex flex-col gap-2 p-5">
                 <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-ink-500">
                   {trip.completedLabel}
                 </span>
-                <h3 className="font-display text-lg text-ink-950">
-                  {trip.name}
-                </h3>
-                <ul className="flex items-center gap-3 text-xs font-semibold text-ink-500">
-                  {trip.meta.map((line) => (
-                    <li key={line}>{line}</li>
-                  ))}
+                <h3 className="font-display text-xl text-ink-950">{trip.name}</h3>
+                <ul className="mt-1 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs font-semibold text-ink-700">
+                  {trip.meta.map((line) => {
+                    const Icon = metaIcon(line);
+                    return (
+                      <li
+                        className="inline-flex items-center gap-1.5"
+                        data-testid={`recent-meta-${trip.id}-${line.toLowerCase().replace(/\s+/g, "-")}`}
+                        key={line}
+                      >
+                        <Icon aria-hidden="true" className="h-3.5 w-3.5" />
+                        {line}
+                      </li>
+                    );
+                  })}
                 </ul>
               </div>
             </Link>
