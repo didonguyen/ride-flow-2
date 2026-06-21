@@ -1,4 +1,4 @@
-export type Json =
+﻿export type Json =
   | string
   | number
   | boolean
@@ -38,6 +38,9 @@ export type Database = {
           start_date: string;
           end_date: string;
           owner_id: string;
+          cover_image_url: string | null;
+          cover_image_path: string | null;
+          transport: string;
           created_at: string;
           updated_at: string;
         };
@@ -48,6 +51,9 @@ export type Database = {
           start_date: string;
           end_date: string;
           owner_id: string;
+          cover_image_url?: string | null;
+          cover_image_path?: string | null;
+          transport?: string;
           created_at?: string;
           updated_at?: string;
         };
@@ -156,6 +162,102 @@ export type Database = {
           created_at?: string;
         };
         Update: Partial<Database["public"]["Tables"]["ai_draft_runs"]["Insert"]>;
+      };
+      memory_entries: {
+        Row: {
+          id: string;
+          trip_id: string;
+          created_by: string;
+          title: string;
+          content: string;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          trip_id: string;
+          created_by: string;
+          title?: string;
+          content?: string;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["memory_entries"]["Insert"]>;
+      };
+      memory_assets: {
+        Row: {
+          id: string;
+          memory_entry_id: string;
+          trip_id: string;
+          uploaded_by: string;
+          image_url: string;
+          image_path: string;
+          alt_text: string;
+          sort_order: number;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          memory_entry_id: string;
+          trip_id: string;
+          uploaded_by: string;
+          image_url: string;
+          image_path: string;
+          alt_text?: string;
+          sort_order?: number;
+          created_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["memory_assets"]["Insert"]>;
+      };
+      expense_entries: {
+        Row: {
+          id: string;
+          trip_id: string;
+          title: string;
+          amount: number;
+          currency: string;
+          category: string;
+          paid_by_member_id: string;
+          expense_date: string;
+          notes: string;
+          created_by: string;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          trip_id: string;
+          title: string;
+          amount: number;
+          currency?: string;
+          category: string;
+          paid_by_member_id: string;
+          expense_date: string;
+          notes?: string;
+          created_by: string;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["expense_entries"]["Insert"]>;
+      };
+      expense_participants: {
+        Row: {
+          id: string;
+          expense_id: string;
+          trip_id: string;
+          trip_member_id: string;
+          share_amount: number;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          expense_id: string;
+          trip_id: string;
+          trip_member_id: string;
+          share_amount: number;
+          created_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["expense_participants"]["Insert"]>;
       };
     };
     Functions: {

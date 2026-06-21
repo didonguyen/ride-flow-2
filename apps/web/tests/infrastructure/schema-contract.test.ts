@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+﻿import { describe, expect, it } from "vitest";
 import type { Database } from "@/src/infrastructure/supabase/database.types";
 
 describe("database type contract", () => {
@@ -11,10 +11,14 @@ describe("database type contract", () => {
       "trip_members",
       "trip_days",
       "timeline_items",
-      "ai_draft_runs"
+      "ai_draft_runs",
+      "memory_entries",
+      "memory_assets",
+      "expense_entries",
+      "expense_participants"
     ] satisfies Array<keyof Tables>;
 
-    expect(tableNames).toHaveLength(6);
+    expect(tableNames).toHaveLength(10);
   });
 
   it("exposes enum values used by RideFlow schema contracts", () => {
@@ -29,6 +33,37 @@ describe("database type contract", () => {
     expect(inviteStatuses).toContain("accepted");
     expect(placeSources).toContain("manual");
     expect(draftStatuses).toContain("failed");
+  });
+
+  it("exposes trip cover and transport columns without trip budget fields", () => {
+    type TripRow = Database["public"]["Tables"]["trips"]["Row"];
+    type TripInsert = Database["public"]["Tables"]["trips"]["Insert"];
+
+    const trip = {
+      id: "trip-1",
+      name: "Da Nang",
+      destination: "Da Nang",
+      start_date: "2026-07-01",
+      end_date: "2026-07-03",
+      owner_id: "user-1",
+      cover_image_url: "https://example.com/cover.jpg",
+      cover_image_path: "trips/trip-1/user-1/cover.jpg",
+      transport: "Motorcycle",
+      created_at: "2026-06-11T00:00:00Z",
+      updated_at: "2026-06-11T00:00:00Z"
+    } satisfies TripRow;
+
+    const tripInsert = {
+      name: "Da Nang",
+      destination: "Da Nang",
+      start_date: "2026-07-01",
+      end_date: "2026-07-03",
+      owner_id: "user-1",
+      transport: "Motorcycle"
+    } satisfies TripInsert;
+
+    expect(trip.cover_image_path).toContain("trip-1");
+    expect(tripInsert).not.toHaveProperty("budget_currency");
   });
 
   it("exposes trip member row states", () => {
@@ -93,6 +128,66 @@ describe("database type contract", () => {
     } satisfies TimelineItem;
 
     expect(item.place_source).toBe("manual");
+  });
+
+  it("exposes memory rows with image assets", () => {
+    type MemoryEntry = Database["public"]["Tables"]["memory_entries"]["Row"];
+    type MemoryAsset = Database["public"]["Tables"]["memory_assets"]["Row"];
+
+    const memory = {
+      id: "memory-1",
+      trip_id: "trip-1",
+      created_by: "user-1",
+      title: "Morning ride",
+      content: "Cool air and an early start.",
+      created_at: "2026-06-11T00:00:00Z",
+      updated_at: "2026-06-11T00:00:00Z"
+    } satisfies MemoryEntry;
+
+    const asset = {
+      id: "asset-1",
+      memory_entry_id: "memory-1",
+      trip_id: "trip-1",
+      uploaded_by: "user-1",
+      image_url: "https://example.com/memory.jpg",
+      image_path: "trips/trip-1/user-1/memory.jpg",
+      alt_text: "Morning ride",
+      sort_order: 0,
+      created_at: "2026-06-11T00:00:00Z"
+    } satisfies MemoryAsset;
+
+    expect(memory.trip_id).toBe(asset.trip_id);
+  });
+
+  it("exposes expense rows with participant shares", () => {
+    type Expense = Database["public"]["Tables"]["expense_entries"]["Row"];
+    type Participant = Database["public"]["Tables"]["expense_participants"]["Row"];
+
+    const expense = {
+      id: "expense-1",
+      trip_id: "trip-1",
+      title: "Coffee stop",
+      amount: 120000,
+      currency: "VND",
+      category: "food",
+      paid_by_member_id: "member-1",
+      expense_date: "2026-07-01",
+      notes: "Morning coffee",
+      created_by: "user-1",
+      created_at: "2026-06-11T00:00:00Z",
+      updated_at: "2026-06-11T00:00:00Z"
+    } satisfies Expense;
+
+    const participant = {
+      id: "participant-1",
+      expense_id: "expense-1",
+      trip_id: "trip-1",
+      trip_member_id: "member-2",
+      share_amount: 60000,
+      created_at: "2026-06-11T00:00:00Z"
+    } satisfies Participant;
+
+    expect(expense.id).toBe(participant.expense_id);
   });
 
   it("exposes accept_trip_invite function shape", () => {
