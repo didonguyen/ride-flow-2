@@ -1,35 +1,55 @@
-import { describe, expect, it } from "vitest";
+﻿import { describe, expect, it } from "vitest";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 
 import { MemoriesSurface } from "@/components/trips/memories-surface";
+import { getTripMemories } from "@/src/application/trips/memories-data";
 
-describe("MemoriesSurface (pixel-perfect)", () => {
-  it("renders the memories timeline with two entries", () => {
-    render(<MemoriesSurface tripId="nam-cat-tien" tripName="Nam Cát Tiên Exploration" />);
-    const timeline = screen.getByTestId("memories-timeline");
-    expect(timeline).toBeInTheDocument();
+describe("MemoriesSurface", () => {
+  it("renders trip-level memories without a day rail", () => {
+    render(
+      <MemoriesSurface
+        memories={getTripMemories()}
+        tripId="nam-cat-tien"
+        tripName="Nam Cát Tiên Exploration"
+      />
+    );
+
+    expect(screen.getByTestId("memories-timeline")).toBeInTheDocument();
     expect(screen.getByTestId("memories-entry-mem-1")).toBeInTheDocument();
-    expect(screen.getByTestId("memories-entry-mem-2")).toBeInTheDocument();
+    expect(screen.queryByTestId("trip-day-rail")).not.toBeInTheDocument();
     expect(screen.getByTestId("trip-vault-card")).toBeInTheDocument();
   });
 
-  it("shows the add memory confirmation when Add Memory is clicked", async () => {
-    render(<MemoriesSurface tripId="nam-cat-tien" tripName="Nam Cát Tiên Exploration" />);
+  it("shows the add memory form when Add Memory is clicked", async () => {
+    render(
+      <MemoriesSurface
+        memories={getTripMemories()}
+        tripId="nam-cat-tien"
+        tripName="Nam Cát Tiên Exploration"
+      />
+    );
+
     await userEvent.click(screen.getByTestId("trip-vault-add"));
-    expect(screen.getByTestId("memories-add-confirmation")).toBeInTheDocument();
+    expect(screen.getByTestId("memories-add-form")).toBeInTheDocument();
+    expect(screen.getByLabelText("Title")).toBeInTheDocument();
+    expect(screen.getByLabelText("Content")).toBeInTheDocument();
+    expect(screen.getByLabelText("Images")).toHaveAttribute("multiple");
     await userEvent.click(screen.getByTestId("memories-add-dismiss"));
-    expect(
-      screen.queryByTestId("memories-add-confirmation")
-    ).not.toBeInTheDocument();
+    expect(screen.queryByTestId("memories-add-form")).not.toBeInTheDocument();
   });
 
-  it("adds a new day when the day rail Add Day is clicked", async () => {
-    render(<MemoriesSurface tripId="nam-cat-tien" tripName="Nam Cát Tiên Exploration" />);
-    const initialDayButtons = screen.getAllByTestId(/^trip-day-rail-day-/);
-    expect(initialDayButtons).toHaveLength(2);
-    await userEvent.click(screen.getByTestId("trip-day-rail-add"));
-    const afterDayButtons = screen.getAllByTestId(/^trip-day-rail-day-/);
-    expect(afterDayButtons).toHaveLength(3);
+  it("shows an empty state when there are no memories", () => {
+    render(
+      <MemoriesSurface
+        memories={[]}
+        tripId="trip-1"
+        tripName="Da Nang"
+      />
+    );
+
+    expect(screen.getByTestId("memories-empty")).toHaveTextContent(
+      "No memories yet"
+    );
   });
 });
