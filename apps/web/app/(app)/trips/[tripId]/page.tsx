@@ -3,6 +3,12 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { MembersPanel } from "@/components/trips/members-panel";
+import {
+  addPlanningDayAction,
+  addPlanningStopAction,
+  deletePlanningStopAction,
+  updatePlanningStopAction
+} from "@/src/application/trips/planning-actions";
 import { PlanningSurface } from "@/components/trips/planning-surface";
 import { TripAppShell } from "@/components/trip/trip-app-shell";
 import { TripCoverHeader } from "@/components/trip/trip-cover-header";
@@ -56,7 +62,13 @@ export default async function TripPlanningPage({
         tripName={data.trip.name}
       />
       <TripSectionTabs activeTab="Planning" tripId={data.trip.id} />
-      <PlanningSurface trip={data.trip} />
+      <PlanningSurface
+        addDayAction={addPlanningDayAction}
+        addStopAction={addPlanningStopAction}
+        deleteStopAction={deletePlanningStopAction}
+        trip={data.trip}
+        updateStopAction={updatePlanningStopAction}
+      />
       <div className="border-t border-paper-200 bg-paper-50 px-5 py-8 sm:px-8 lg:px-10">
         <MembersPanel
           errorCode={search.members_error ?? null}
