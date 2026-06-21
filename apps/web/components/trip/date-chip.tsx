@@ -17,7 +17,7 @@ export function DateChip({
   return (
     <div
       className={cn(
-        "flex w-full min-w-[112px] items-center gap-2 rounded-2xl border px-3.5 py-2.5 text-center transition",
+        "flex w-[124px] items-center justify-center gap-2 rounded-full border px-4 py-2.5 text-center transition",
         isSelected
           ? "border-forest-800 bg-sage-100 text-forest-800"
           : "border-paper-200 bg-paper-50 text-ink-700 hover:border-sage-300",
@@ -27,12 +27,7 @@ export function DateChip({
       data-testid="date-chip"
       {...rest}
     >
-      <span
-        className={cn(
-          "text-[11px] font-semibold uppercase tracking-[0.18em]",
-          isSelected ? "text-forest-800" : "text-ink-500"
-        )}
-      >
+      <span className="text-xs font-semibold uppercase tracking-[0.16em]">
         {label}
       </span>
       <span
@@ -42,7 +37,7 @@ export function DateChip({
           isSelected ? "bg-forest-800/30" : "bg-paper-200"
         )}
       />
-      <span className="text-sm font-semibold leading-tight">{date}</span>
+      <span className="text-xs font-semibold tracking-[0.04em]">{date}</span>
     </div>
   );
 }

@@ -1,4 +1,4 @@
-import { Bed, Map, Plane, Star, Utensils } from "lucide-react";
+import { Bed, Fuel, Map, Mountain, Plane, Star, Utensils } from "lucide-react";
 import type { ReactNode } from "react";
 
 import type { PlanningAgendaItem } from "@/src/application/trips/planning-data";
@@ -13,7 +13,10 @@ type ItineraryTimelineProps = {
 const categoryIcons = {
   flight: Plane,
   hotel: Bed,
-  food: Utensils
+  food: Utensils,
+  fuel: Fuel,
+  activity: Mountain,
+  stop: Map
 } as const;
 
 export function ItineraryTimeline({

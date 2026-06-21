@@ -31,12 +31,12 @@ export function TripSectionTabs({
     <nav
       aria-label="Trip sections"
       className={cn(
-        "flex w-full items-center justify-center border-b border-paper-200 bg-paper-50 px-4 py-4",
+        "flex w-full items-center justify-center border-b border-paper-200 bg-paper-50 px-4",
         className
       )}
       data-testid="trip-section-tabs"
     >
-      <ul className="flex items-center gap-8 text-sm font-semibold">
+      <ul className="flex items-end gap-10 text-base font-semibold">
         {TABS.map((tab) => {
           const isActive = tab === activeTab;
           return (
@@ -44,7 +44,7 @@ export function TripSectionTabs({
               <Link
                 aria-current={isActive ? "page" : undefined}
                 className={cn(
-                  "relative inline-flex items-center pb-1 text-base transition",
+                  "relative inline-flex items-center py-4 text-[15px] transition",
                   isActive
                     ? "text-forest-800"
                     : "text-ink-500 hover:text-ink-700"
@@ -56,7 +56,7 @@ export function TripSectionTabs({
                 {isActive ? (
                   <span
                     aria-hidden="true"
-                    className="absolute -bottom-1 left-0 right-0 h-0.5 rounded-full bg-forest-800"
+                    className="absolute inset-x-0 -bottom-px h-0.5 rounded-full bg-forest-800"
                   />
                 ) : null}
               </Link>

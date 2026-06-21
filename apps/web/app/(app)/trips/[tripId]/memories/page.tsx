@@ -34,7 +34,6 @@ export default async function TripMemoriesPage({ params }: MemoriesPageProps) {
         coverImageUrl={trip.coverImageUrl ?? ""}
         dateRange={trip.dateRange}
         days={`${trip.days.length} Days`}
-        destination={trip.destination ?? trip.name}
         transport="Motorcycle"
         tripName={trip.name}
       />

@@ -5,7 +5,6 @@ import { cn } from "@/src/lib/utils";
 
 type TripCoverHeaderProps = {
   tripName: string;
-  destination?: string;
   coverImageUrl: string;
   dateRange: string;
   days: string;
@@ -18,7 +17,6 @@ const FALLBACK_COVER =
 
 export function TripCoverHeader({
   tripName,
-  destination,
   coverImageUrl,
   dateRange,
   days,
@@ -49,17 +47,13 @@ export function TripCoverHeader({
       />
       <div className="absolute inset-x-5 bottom-5 z-10 sm:inset-x-8 lg:inset-x-10 lg:bottom-7">
         <h1
-          className="font-display text-2xl text-white sm:text-3xl"
+          className="font-display text-2xl text-white sm:text-[28px]"
           data-testid="trip-cover-title"
+          style={{ letterSpacing: "-0.02em" }}
         >
           {tripName}
         </h1>
-        {destination ? (
-          <p className="mt-1 text-sm font-medium text-white/75 sm:text-base">
-            {destination}
-          </p>
-        ) : null}
-        <ul className="mt-3 flex flex-wrap items-center gap-x-2 gap-y-1.5 text-xs font-semibold text-white/85">
+        <ul className="mt-3 flex flex-wrap items-center gap-x-2.5 gap-y-1.5 text-xs font-semibold text-white/85">
           <li className="inline-flex items-center gap-1.5">
             <CalendarDays aria-hidden="true" className="h-3.5 w-3.5" />
             {dateRange}

@@ -21,8 +21,8 @@ describe("TripTimeline (pixel-perfect)", () => {
     render(
       <TripTimelineItem
         item={baseItem}
-        status="confirmed"
-        statusLabel="Confirmed"
+        statusLabelOverride="Confirmed"
+        statusOverride="confirmed"
       />
     );
     const item = screen.getByTestId("trip-timeline-item");

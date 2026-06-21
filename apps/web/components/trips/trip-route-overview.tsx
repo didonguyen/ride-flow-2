@@ -36,12 +36,14 @@ export function TripRouteOverview({
           </defs>
           <rect fill="url(#route-bg)" height="100" width="200" />
           <path
-            d="M30 70 Q 90 20 170 50"
+            d="M30 70 Q 90 25 170 50"
             fill="none"
             stroke="#003527"
             strokeDasharray="4 4"
             strokeWidth="2"
           />
+          <circle cx="30" cy="70" fill="#003527" r="4" />
+          <circle cx="170" cy="50" fill="#003527" r="4" />
         </svg>
         <span className="absolute right-3 top-3 inline-flex items-center gap-1 rounded-full bg-paper-50 px-2.5 py-1 text-[11px] font-semibold text-ink-700 shadow-rideflow-chip">
           {distance} • {duration}
@@ -49,7 +51,12 @@ export function TripRouteOverview({
       </div>
       <div className="flex items-start justify-between gap-2">
         <div>
-          <h3 className="font-display text-lg text-ink-950">Route Overview</h3>
+          <h3
+            className="font-display text-lg text-ink-950"
+            style={{ letterSpacing: "-0.01em" }}
+          >
+            Route Overview
+          </h3>
           <p className="mt-0.5 text-xs text-ink-500">
             {start.label} to {end.label}
           </p>

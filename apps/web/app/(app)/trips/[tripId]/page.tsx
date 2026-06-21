@@ -52,7 +52,6 @@ export default async function TripPlanningPage({
         coverImageUrl={data.trip.coverImageUrl ?? ""}
         dateRange={data.trip.dateRange}
         days={`${data.trip.days.length} Days`}
-        destination={data.trip.destination ?? data.destination}
         transport="Motorcycle"
         tripName={data.trip.name}
       />
@@ -103,7 +102,7 @@ async function getTripData(tripId: string): Promise<TripData | null> {
       trip: fallback,
       members: [],
       viewerRole: user ? "owner" : null,
-      destination: fallback.name,
+      destination: fallback.destination ?? fallback.name,
       startDate: fallback.days[0]?.date ?? "",
       endDate: fallback.days[fallback.days.length - 1]?.date ?? ""
     };

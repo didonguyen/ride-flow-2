@@ -1,14 +1,16 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { ChevronRight, Star } from "lucide-react";
+import { ChevronRight } from "lucide-react";
 
 import { AiAssistantCard } from "@/components/trip/ai-assistant-card";
 import { TripDayRail, type DayRailDay } from "@/components/trip/trip-day-rail";
 import { TripRouteOverview } from "@/components/trips/trip-route-overview";
 import { TripTimeline } from "@/components/trips/trip-timeline";
-import type { PlanningTrip } from "@/src/application/trips/planning-data";
-import { buildPlanningWorkspaceState } from "@/src/application/trips/planning-workspace-state";
+import {
+  agendaForDay,
+  type PlanningTrip
+} from "@/src/application/trips/planning-data";
 
 type PlanningSurfaceProps = {
   trip: PlanningTrip;
@@ -29,34 +31,43 @@ const NIGHT_ALTERNATIVES = [
 ];
 
 export function PlanningSurface({ trip, onDismissAssistant }: PlanningSurfaceProps) {
-  const workspace = useMemo(() => buildPlanningWorkspaceState(trip), [trip]);
-  const [selectedItemId, setSelectedItemId] = useState<string | null>(
-    workspace.agenda[0]?.id ?? null
+  const [selectedDayId, setSelectedDayId] = useState<string>(
+    trip.selectedDayId
   );
-  const [days, setDays] = useState<DayRailDay[]>(
-    trip.days.map((day, index) => ({
-      id: day.id,
-      label: day.label,
-      date: day.date,
-      isSelected: index === 0
-    }))
+  const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
+
+  const days: DayRailDay[] = useMemo(
+    () =>
+      trip.days.map((day) => ({
+        id: day.id,
+        label: day.label,
+        date: day.date,
+        isSelected: day.id === selectedDayId
+      })),
+    [trip.days, selectedDayId]
+  );
+
+  const dayItems = useMemo(
+    () => agendaForDay(trip, selectedDayId),
+    [trip, selectedDayId]
   );
 
   return (
     <div
-      className="grid gap-6 px-5 py-8 sm:px-8 lg:grid-cols-[200px_minmax(0,1fr)_340px] lg:gap-8 lg:px-10 lg:py-10"
+      className="grid gap-8 px-5 py-8 sm:px-8 lg:grid-cols-[180px_minmax(0,1fr)_340px] lg:gap-10 lg:px-10 lg:py-10"
       data-testid="planning-surface"
     >
       <TripDayRail
         days={days}
         onAddDay={() => undefined}
-        onSelectDay={(id) =>
-          setDays((prev) => prev.map((d) => ({ ...d, isSelected: d.id === id })))
-        }
+        onSelectDay={(id) => {
+          setSelectedDayId(id);
+          setSelectedItemId(null);
+        }}
       />
       <div className="flex flex-col gap-2">
         <TripTimeline
-          items={workspace.agenda}
+          items={dayItems}
           onConfirmItem={() => undefined}
           onSelectItem={setSelectedItemId}
           selectedItemId={selectedItemId}
@@ -99,15 +110,8 @@ export function PlanningSurface({ trip, onDismissAssistant }: PlanningSurfacePro
                   <span className="truncate text-sm font-semibold text-ink-950">
                     {alt.name}
                   </span>
-                  <span className="inline-flex items-center gap-1 text-xs text-ink-500">
+                  <span className="truncate text-xs text-ink-500">
                     {alt.meta}
-                    {alt.meta.includes("★") ? null : (
-                      <Star
-                        aria-hidden="true"
-                        className="h-3.5 w-3.5 text-amber-500"
-                        fill="currentColor"
-                      />
-                    )}
                   </span>
                 </div>
                 <ChevronRight
