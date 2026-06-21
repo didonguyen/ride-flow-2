@@ -5,6 +5,7 @@ import Image from "next/image";
 import type { ReactNode } from "react";
 import type { Route } from "next";
 import {
+  ArrowLeft,
   Bell,
   Compass,
   Gauge,
@@ -12,6 +13,7 @@ import {
   LayoutGrid,
   Map as MapIcon,
   Plus,
+  Search as SearchIcon,
   Settings as SettingsIcon,
   UserRound
 } from "lucide-react";
@@ -42,6 +44,9 @@ type TripAppShellProps = {
   activeItem?: "Dashboard" | "My Trips" | "New Trip" | "Settings" | "Help Center";
   pageTitle?: string;
   pageIcon?: LucideIcon;
+  backHref?: Route;
+  onBackClick?: () => void;
+  showSearch?: boolean;
   pageActions?: ReactNode;
   memberName?: string;
   memberTier?: string;
@@ -55,6 +60,9 @@ export function TripAppShell({
   activeItem = "Dashboard",
   pageTitle,
   pageIcon: PageIcon = Compass,
+  backHref,
+  onBackClick,
+  showSearch = false,
   pageActions,
   memberName = "The Modern Explorer",
   memberTier = "Premium Member",
@@ -185,12 +193,24 @@ export function TripAppShell({
           data-testid="trip-app-topbar"
         >
           <div className="flex items-center gap-3">
-            <span
-              aria-hidden="true"
-              className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-sage-100 text-forest-800"
-            >
-              <PageIcon aria-hidden="true" className="h-5 w-5" />
-            </span>
+            {backHref ? (
+              <Link
+                aria-label="Back"
+                className="inline-flex h-10 w-10 items-center justify-center rounded-xl text-ink-700 transition hover:bg-paper-100 hover:text-ink-950 focus:outline-none focus:ring-2 focus:ring-forest-800/40"
+                data-testid="trip-app-back"
+                href={backHref}
+                onClick={onBackClick}
+              >
+                <ArrowLeft aria-hidden="true" className="h-5 w-5" />
+              </Link>
+            ) : (
+              <span
+                aria-hidden="true"
+                className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-sage-100 text-forest-800"
+              >
+                <PageIcon aria-hidden="true" className="h-5 w-5" />
+              </span>
+            )}
             <h1
               className="font-display text-2xl text-forest-800"
               data-testid="trip-app-page-title"
@@ -200,6 +220,16 @@ export function TripAppShell({
           </div>
           <div className="flex items-center gap-2">
             {pageActions}
+            {showSearch ? (
+              <button
+                aria-label="Search"
+                className="inline-flex h-10 w-10 items-center justify-center rounded-full text-ink-700 transition hover:bg-paper-100 hover:text-ink-950 focus:outline-none focus:ring-2 focus:ring-forest-800/40"
+                data-testid="trip-app-search"
+                type="button"
+              >
+                <SearchIcon aria-hidden="true" className="h-5 w-5" />
+              </button>
+            ) : null}
             <button
               aria-label="Notifications"
               className="inline-flex h-10 w-10 items-center justify-center rounded-full text-ink-700 transition hover:bg-paper-100 hover:text-ink-950 focus:outline-none focus:ring-2 focus:ring-forest-800/40"

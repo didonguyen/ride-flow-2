@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { ChevronRight, Star } from "lucide-react";
 
 import { AiAssistantCard } from "@/components/trip/ai-assistant-card";
 import { TripDayRail, type DayRailDay } from "@/components/trip/trip-day-rail";
@@ -13,6 +14,19 @@ type PlanningSurfaceProps = {
   trip: PlanningTrip;
   onDismissAssistant?: () => void;
 };
+
+const NIGHT_ALTERNATIVES = [
+  {
+    id: "green-hope",
+    name: "Green Hope Lodge",
+    meta: "Forest cabin · 4.6 ★"
+  },
+  {
+    id: "nam-cat-tien-bay",
+    name: "Nam Cát Tiên Bay Stay",
+    meta: "Lakeside rooms · 4.4 ★"
+  }
+];
 
 export function PlanningSurface({ trip, onDismissAssistant }: PlanningSurfaceProps) {
   const workspace = useMemo(() => buildPlanningWorkspaceState(trip), [trip]);
@@ -30,7 +44,7 @@ export function PlanningSurface({ trip, onDismissAssistant }: PlanningSurfacePro
 
   return (
     <div
-      className="grid gap-6 px-5 py-8 sm:px-8 lg:grid-cols-[220px_minmax(0,1fr)_320px] lg:gap-8 lg:px-12 lg:py-10"
+      className="grid gap-6 px-5 py-8 sm:px-8 lg:grid-cols-[200px_minmax(0,1fr)_340px] lg:gap-8 lg:px-10 lg:py-10"
       data-testid="planning-surface"
     >
       <TripDayRail
@@ -40,7 +54,7 @@ export function PlanningSurface({ trip, onDismissAssistant }: PlanningSurfacePro
           setDays((prev) => prev.map((d) => ({ ...d, isSelected: d.id === id })))
         }
       />
-      <div className="flex flex-col gap-4">
+      <div className="flex flex-col gap-2">
         <TripTimeline
           items={workspace.agenda}
           onConfirmItem={() => undefined}
@@ -48,7 +62,7 @@ export function PlanningSurface({ trip, onDismissAssistant }: PlanningSurfacePro
           selectedItemId={selectedItemId}
         />
       </div>
-      <div className="flex flex-col gap-4">
+      <div className="flex flex-col gap-5">
         <TripRouteOverview
           distance="142 km"
           duration="3h 15m"
@@ -68,22 +82,41 @@ export function PlanningSurface({ trip, onDismissAssistant }: PlanningSurfacePro
           <h3 className="text-base font-semibold text-ink-950">
             Need alternatives for the night?
           </h3>
-          <div className="flex items-center gap-3 rounded-2xl bg-paper-100 p-3">
-            <span
-              aria-hidden="true"
-              className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-sage-200 text-forest-800"
-            >
-              🌿
-            </span>
-            <div className="flex flex-col">
-              <span className="text-sm font-semibold text-ink-950">
-                Green Hope Lodge
-              </span>
-              <span className="text-xs font-medium text-ink-500">
-                Forest cabin · 4.6 ★
-              </span>
-            </div>
-          </div>
+          <ul className="flex flex-col gap-2">
+            {NIGHT_ALTERNATIVES.map((alt) => (
+              <li
+                className="flex items-center gap-3 rounded-2xl bg-paper-100 p-3"
+                data-testid={`planning-night-alternative-${alt.id}`}
+                key={alt.id}
+              >
+                <span
+                  aria-hidden="true"
+                  className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-sage-200 text-forest-800"
+                >
+                  🌿
+                </span>
+                <div className="flex min-w-0 flex-1 flex-col">
+                  <span className="truncate text-sm font-semibold text-ink-950">
+                    {alt.name}
+                  </span>
+                  <span className="inline-flex items-center gap-1 text-xs text-ink-500">
+                    {alt.meta}
+                    {alt.meta.includes("★") ? null : (
+                      <Star
+                        aria-hidden="true"
+                        className="h-3.5 w-3.5 text-amber-500"
+                        fill="currentColor"
+                      />
+                    )}
+                  </span>
+                </div>
+                <ChevronRight
+                  aria-hidden="true"
+                  className="h-4 w-4 text-ink-500"
+                />
+              </li>
+            ))}
+          </ul>
         </article>
       </div>
     </div>

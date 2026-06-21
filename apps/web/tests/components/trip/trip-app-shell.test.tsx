@@ -4,7 +4,7 @@ import userEvent from "@testing-library/user-event";
 
 import { TripAppShell } from "@/components/trip/trip-app-shell";
 
-describe("TripAppShell (pixel-perfect dashboard)", () => {
+describe("TripAppShell (pixel-perfect)", () => {
   it("renders the sidebar profile, Upgrade to Pro pill, and active Dashboard nav", () => {
     render(
       <TripAppShell activeItem="Dashboard" pageTitle="Dashboard">
@@ -30,6 +30,29 @@ describe("TripAppShell (pixel-perfect dashboard)", () => {
     expect(screen.getByTestId("trip-app-page-title")).toHaveTextContent("Dashboard");
     expect(screen.getByTestId("trip-app-bell")).toBeInTheDocument();
     expect(screen.getByTestId("trip-app-account")).toBeInTheDocument();
+  });
+
+  it("renders the back link and search button on the trip details top bar", () => {
+    render(
+      <TripAppShell
+        activeItem="My Trips"
+        backHref={"/trips" as never}
+        pageTitle="Nam Cát Tiên Exploration"
+        showSearch
+      >
+        <div>body</div>
+      </TripAppShell>
+    );
+    const back = screen.getByTestId("trip-app-back");
+    expect(back).toHaveAttribute("href", "/trips");
+    expect(screen.getByTestId("trip-app-page-title")).toHaveTextContent(
+      "Nam Cát Tiên Exploration"
+    );
+    expect(screen.getByTestId("trip-app-search")).toBeInTheDocument();
+    expect(screen.getByTestId("nav-my-trips")).toHaveAttribute(
+      "aria-current",
+      "page"
+    );
   });
 
   it("invokes onUpgradeClick when the Upgrade to Pro button is pressed", async () => {

@@ -42,7 +42,12 @@ export default async function TripPlanningPage({
   }
 
   return (
-    <TripAppShell activeItem="My Trips">
+    <TripAppShell
+      activeItem="My Trips"
+      backHref={"/trips" as Route}
+      pageTitle={data.trip.name}
+      showSearch
+    >
       <TripCoverHeader
         coverImageUrl={data.trip.coverImageUrl ?? ""}
         dateRange={data.trip.dateRange}
@@ -53,7 +58,7 @@ export default async function TripPlanningPage({
       />
       <TripSectionTabs activeTab="Planning" tripId={data.trip.id} />
       <PlanningSurface trip={data.trip} />
-      <div className="border-t border-paper-200 bg-paper-50 px-5 py-8 sm:px-8 lg:px-12">
+      <div className="border-t border-paper-200 bg-paper-50 px-5 py-8 sm:px-8 lg:px-10">
         <MembersPanel
           errorCode={search.members_error ?? null}
           members={data.members}
@@ -61,7 +66,7 @@ export default async function TripPlanningPage({
           viewerRole={data.viewerRole}
         />
       </div>
-      <div className="border-t border-paper-200 bg-paper-50 px-5 py-6 text-center text-xs text-ink-500 sm:px-8 lg:px-12">
+      <div className="border-t border-paper-200 bg-paper-50 px-5 py-6 text-center text-xs text-ink-500 sm:px-8 lg:px-10">
         <Link
           className="text-xs font-semibold uppercase tracking-[0.18em] text-forest-800 hover:underline"
           href={`/trips/${data.trip.id}#members` as Route}

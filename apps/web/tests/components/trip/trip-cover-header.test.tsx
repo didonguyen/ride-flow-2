@@ -3,8 +3,8 @@ import { render, screen } from "@testing-library/react";
 
 import { TripCoverHeader } from "@/components/trip/trip-cover-header";
 
-describe("TripCoverHeader", () => {
-  it("renders the trip name, three metadata pills, and a back link", () => {
+describe("TripCoverHeader (pixel-perfect)", () => {
+  it("renders the trip name and three metadata pills without a back link", () => {
     render(
       <TripCoverHeader
         coverImageUrl="https://example.com/cover.jpg"
@@ -17,12 +17,10 @@ describe("TripCoverHeader", () => {
     );
     const header = screen.getByTestId("trip-cover-header");
     expect(header).toHaveTextContent("Nam Cát Tiên Exploration");
+    expect(header).toHaveTextContent("Nam Cát Tiên, Vietnam");
     expect(header).toHaveTextContent("Oct 14-15");
     expect(header).toHaveTextContent("2 Days");
     expect(header).toHaveTextContent("Motorcycle");
-    expect(screen.getByTestId("trip-cover-back")).toHaveAttribute(
-      "href",
-      "/trips"
-    );
+    expect(screen.queryByTestId("trip-cover-back")).not.toBeInTheDocument();
   });
 });

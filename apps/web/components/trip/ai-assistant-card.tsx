@@ -34,7 +34,7 @@ export function AiAssistantCard({
         >
           <Sparkles aria-hidden="true" className="h-3.5 w-3.5" />
         </span>
-        <h3 className="text-sm font-semibold uppercase tracking-[0.16em] text-amber-500">
+        <h3 className="text-[11px] font-semibold uppercase tracking-[0.18em] text-amber-500">
           {title}
         </h3>
       </div>
@@ -44,7 +44,7 @@ export function AiAssistantCard({
         <div className="flex flex-wrap items-center gap-2">
           {primaryAction ? (
             <button
-              className="inline-flex items-center justify-center rounded-full bg-forest-800 px-4 py-2 text-xs font-semibold text-white transition hover:bg-forest-700"
+              className="inline-flex items-center justify-center gap-2 rounded-full bg-forest-800 px-4 py-2 text-xs font-semibold text-white transition hover:bg-forest-700"
               data-testid="ai-assistant-primary"
               type="button"
               onClick={primaryAction.onClick}
@@ -54,7 +54,7 @@ export function AiAssistantCard({
           ) : null}
           {secondaryAction ? (
             <button
-              className="inline-flex items-center justify-center rounded-full border border-forest-800/30 bg-paper-50 px-4 py-2 text-xs font-semibold text-forest-800 transition hover:border-forest-800/60"
+              className="inline-flex items-center justify-center rounded-full border border-forest-800/30 bg-paper-50 px-4 py-2 text-xs font-semibold text-ink-700 transition hover:border-forest-800/60 hover:text-forest-800"
               data-testid="ai-assistant-secondary"
               type="button"
               onClick={secondaryAction.onClick}
