@@ -1,43 +1,107 @@
-import { describe, expect, it, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { describe, expect, it, vi } from "vitest";
 
 import { ExpensesSurface } from "@/components/trips/expenses-surface";
+import type { TripMemberRecord } from "@/src/application/members/types";
+import { getTripExpenseSummary } from "@/src/application/trips/expenses-data";
+import type { ExpenseRecord } from "@/src/application/trips/types";
 
-describe("ExpensesSurface (pixel-perfect)", () => {
-  it("toggles Split equally when the button is clicked", async () => {
-    render(<ExpensesSurface tripId="nam-cat-tien" tripName="Nam Cát Tiên Exploration" />);
-    const split = screen.getByTestId("expenses-split-equally");
-    expect(split).toHaveAttribute("aria-pressed", "false");
-    await userEvent.click(split);
-    expect(split).toHaveAttribute("aria-pressed", "true");
-  });
+const members: TripMemberRecord[] = [
+  {
+    id: "member-1",
+    tripId: "trip-1",
+    userId: "user-1",
+    email: "an@example.com",
+    role: "owner",
+    inviteStatus: "accepted"
+  },
+  {
+    id: "member-2",
+    tripId: "trip-1",
+    userId: null,
+    email: "binh@example.com",
+    role: "planner",
+    inviteStatus: "pending"
+  }
+];
 
-  it("shows the add expense confirmation when Add expense is clicked", async () => {
-    render(<ExpensesSurface tripId="nam-cat-tien" tripName="Nam Cát Tiên Exploration" />);
+const expenses: ExpenseRecord[] = [
+  {
+    id: "expense-1",
+    tripId: "trip-1",
+    title: "Fuel refill",
+    amount: 68000,
+    currency: "VND",
+    category: "fuel",
+    paidByMemberId: "member-1",
+    date: "2026-07-10",
+    notes: "Highway stop",
+    createdBy: "user-1",
+    participants: [
+      { memberId: "member-1", shareAmount: 34000 },
+      { memberId: "member-2", shareAmount: 34000 }
+    ]
+  }
+];
+
+function renderSurface(overrides?: {
+  expenses?: ExpenseRecord[];
+  members?: TripMemberRecord[];
+}) {
+  const activeMembers = overrides?.members ?? members;
+  return render(
+    <ExpensesSurface
+      addExpenseAction={vi.fn()}
+      deleteExpenseAction={vi.fn()}
+      members={activeMembers}
+      summary={getTripExpenseSummary({
+        expenses: overrides?.expenses ?? expenses,
+        members: activeMembers
+      })}
+      tripId="trip-1"
+      tripName="Nam Cat Tien Exploration"
+      updateExpenseAction={vi.fn()}
+    />
+  );
+}
+
+describe("ExpensesSurface", () => {
+  it("opens a real add-expense form with payer and participant controls", async () => {
+    renderSurface();
+
     await userEvent.click(screen.getByTestId("expenses-add"));
-    expect(screen.getByTestId("expenses-add-confirmation")).toBeInTheDocument();
+
+    expect(screen.getByTestId("expenses-add-form")).toBeInTheDocument();
+    expect(screen.getByLabelText("Paid by")).toHaveValue("member-1");
+    expect(screen.getByLabelText("an@example.com")).toBeChecked();
+    expect(screen.getByLabelText("binh@example.com")).toBeChecked();
+    expect(screen.queryByText("Trip Budget")).not.toBeInTheDocument();
   });
 
-  it("toggles Edit Details", async () => {
-    render(<ExpensesSurface tripId="nam-cat-tien" tripName="Nam Cát Tiên Exploration" />);
-    const edit = screen.getByTestId("expenses-edit-details");
-    expect(edit).toHaveTextContent("Edit Details");
-    await userEvent.click(edit);
-    expect(edit).toHaveTextContent("Editing…");
-  });
+  it("opens the edit form for an existing expense", async () => {
+    renderSurface();
 
-  it("toggles Start Ride", async () => {
-    render(<ExpensesSurface tripId="nam-cat-tien" tripName="Nam Cát Tiên Exploration" />);
-    const ride = screen.getByTestId("expenses-start-ride");
-    expect(ride).toHaveTextContent("Start Ride");
-    await userEvent.click(ride);
-    expect(ride).toHaveTextContent("Riding…");
+    await userEvent.click(screen.getByTestId("expenses-edit-expense-1"));
+
+    expect(screen.getByTestId("expenses-edit-form")).toBeInTheDocument();
+    expect(screen.getByDisplayValue("Fuel refill")).toBeInTheDocument();
+    expect(screen.getByDisplayValue("2026-07-10")).toBeInTheDocument();
   });
 
   it("shows the settle confirmation when Settle all balances is clicked", async () => {
-    render(<ExpensesSurface tripId="nam-cat-tien" tripName="Nam Cát Tiên Exploration" />);
+    renderSurface();
+
     await userEvent.click(screen.getByTestId("expenses-settle-all"));
+
     expect(screen.getByTestId("expenses-settle-confirmation")).toBeInTheDocument();
+  });
+
+  it("shows an empty state when the trip has no expenses", () => {
+    renderSurface({ expenses: [] });
+
+    expect(screen.getByTestId("expenses-empty")).toHaveTextContent(
+      "No expenses recorded yet."
+    );
   });
 });

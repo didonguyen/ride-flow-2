@@ -1,14 +1,22 @@
-﻿import { notFound } from "next/navigation";
+import { notFound } from "next/navigation";
 
 import { ExpensesSurface } from "@/components/trips/expenses-surface";
 import { TripAppShell } from "@/components/trip/trip-app-shell";
 import { TripCoverHeader } from "@/components/trip/trip-cover-header";
 import { TripSectionTabs } from "@/components/trip/trip-section-tabs";
+import {
+  addExpenseAction,
+  deleteExpenseAction,
+  updateExpenseAction
+} from "@/src/application/trips/expense-actions";
+import { getTripExpenseSummary } from "@/src/application/trips/expenses-data";
 import { getPlanningTripById } from "@/src/application/trips/planning-data";
 import { mapSupabasePlanningTrip } from "@/src/application/trips/supabase-planning-data";
 import { createSupabaseServerClient } from "@/src/infrastructure/supabase/server";
 import {
+  createSupabaseExpenseRepository,
   getSupabasePlanningTripRows,
+  listSupabaseMembers,
   type RideFlowSupabaseClient
 } from "@/src/infrastructure/supabase/repositories";
 
@@ -22,9 +30,9 @@ type ExpensesPageProps = {
 
 export default async function TripExpensesPage({ params }: ExpensesPageProps) {
   const { tripId } = await params;
-  const trip = await getTripForSurface(tripId);
+  const data = await getExpensesPageData(tripId);
 
-  if (!trip) {
+  if (!data) {
     notFound();
   }
 
@@ -32,33 +40,60 @@ export default async function TripExpensesPage({ params }: ExpensesPageProps) {
     <TripAppShell
       activeItem="My Trips"
       backHref={"/trips" as never}
-      pageTitle={trip.name}
+      pageTitle={data.trip.name}
       showSearch
     >
       <TripCoverHeader
-        coverImageUrl={trip.coverImageUrl ?? ""}
-        dateRange={trip.dateRange}
-        days={`${trip.days.length} Days`}
-        transport={trip.transport ?? "Motorcycle"}
-        tripName={trip.name}
+        coverImageUrl={data.trip.coverImageUrl ?? ""}
+        dateRange={data.trip.dateRange}
+        days={`${data.trip.days.length} Days`}
+        transport={data.trip.transport ?? "Motorcycle"}
+        tripName={data.trip.name}
       />
-      <TripSectionTabs activeTab="Expenses" tripId={trip.id} />
-      <ExpensesSurface tripId={trip.id} tripName={trip.name} />
+      <TripSectionTabs activeTab="Expenses" tripId={data.trip.id} />
+      <ExpensesSurface
+        addExpenseAction={addExpenseAction}
+        deleteExpenseAction={deleteExpenseAction}
+        members={data.members}
+        summary={data.summary}
+        tripId={data.trip.id}
+        tripName={data.trip.name}
+        updateExpenseAction={updateExpenseAction}
+      />
     </TripAppShell>
   );
 }
 
-async function getTripForSurface(tripId: string) {
+async function getExpensesPageData(tripId: string) {
   const supabase = await createSupabaseServerClient();
   const rideflowSupabase = supabase as unknown as RideFlowSupabaseClient;
 
   if (!isUuid(tripId)) {
     const fallback = getPlanningTripById(tripId);
-    return fallback ?? null;
+    return fallback
+      ? {
+          trip: fallback,
+          members: [],
+          summary: getTripExpenseSummary()
+        }
+      : null;
   }
 
   const rows = await getSupabasePlanningTripRows(rideflowSupabase, tripId);
-  return rows ? mapSupabasePlanningTrip(rows) : null;
+  if (!rows) {
+    return null;
+  }
+
+  const [members, expenses] = await Promise.all([
+    listSupabaseMembers(rideflowSupabase, tripId),
+    createSupabaseExpenseRepository(rideflowSupabase).listExpenses(tripId)
+  ]);
+
+  return {
+    trip: mapSupabasePlanningTrip(rows),
+    members,
+    summary: getTripExpenseSummary({ expenses, members })
+  };
 }
 
 function isUuid(value: string) {

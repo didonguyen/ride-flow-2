@@ -1,29 +1,41 @@
 "use client";
 
 import { useState } from "react";
-import { Pencil, Play, Plus } from "lucide-react";
+import { Pencil, Plus, Trash2, Wallet } from "lucide-react";
 
 import { AiInsightCard } from "@/components/trip/ai-insight-card";
 import { BudgetUsageBar } from "@/components/trip/budget-usage-bar";
 import { MemberBalanceRow } from "@/components/trip/member-balance-row";
-import { SettlementRow } from "@/components/trip/settlement-row";
-import { TransactionRow } from "@/components/trip/transaction-row";
 import { TripStatCard } from "@/components/trip/trip-stat-card";
-import { getTripExpenseSummary } from "@/src/application/trips/expenses-data";
-import { Wallet } from "lucide-react";
+import type { TripMemberRecord } from "@/src/application/members/types";
+import type {
+  TripExpense,
+  TripExpenseSummary
+} from "@/src/application/trips/expenses-data";
 
 type ExpensesSurfaceProps = {
+  addExpenseAction?: (formData: FormData) => Promise<void> | void;
+  deleteExpenseAction?: (formData: FormData) => Promise<void> | void;
+  members?: TripMemberRecord[];
+  summary: TripExpenseSummary;
   tripId: string;
   tripName: string;
+  updateExpenseAction?: (formData: FormData) => Promise<void> | void;
 };
 
-export function ExpensesSurface({ tripId, tripName }: ExpensesSurfaceProps) {
-  const summary = getTripExpenseSummary();
-  const [splitEqually, setSplitEqually] = useState(false);
+export function ExpensesSurface({
+  addExpenseAction,
+  deleteExpenseAction,
+  members = [],
+  summary,
+  tripId,
+  tripName,
+  updateExpenseAction
+}: ExpensesSurfaceProps) {
   const [showAddExpense, setShowAddExpense] = useState(false);
+  const [editingExpenseId, setEditingExpenseId] = useState<string | null>(null);
   const [showSettle, setShowSettle] = useState(false);
-  const [editingDetails, setEditingDetails] = useState(false);
-  const [riding, setRiding] = useState(false);
+  const activeBalances = summary.balances.filter(isActiveBalance);
 
   return (
     <section
@@ -32,23 +44,6 @@ export function ExpensesSurface({ tripId, tripName }: ExpensesSurfaceProps) {
       data-testid="expenses-surface"
       data-trip-id={tripId}
     >
-      <input
-        aria-label="Edit trip details"
-        checked={editingDetails}
-        className="sr-only"
-        data-testid="expenses-edit-toggle"
-        onChange={(event) => setEditingDetails(event.target.checked)}
-        readOnly={false}
-        type="checkbox"
-      />
-      <input
-        aria-label="Toggle ride mode"
-        checked={riding}
-        className="sr-only"
-        data-testid="expenses-ride-toggle"
-        onChange={(event) => setRiding(event.target.checked)}
-        type="checkbox"
-      />
       <div
         className="flex flex-wrap items-center justify-between gap-3 rounded-2xl bg-forest-800/95 px-5 py-4 text-white shadow-rideflow-editorial-card"
         data-testid="expenses-cover-actions"
@@ -58,29 +53,18 @@ export function ExpensesSurface({ tripId, tripName }: ExpensesSurfaceProps) {
             Expenses for {tripName}
           </p>
           <p className="text-sm text-white/80">
-            Track who paid, settle up at the end of the ride.
+            Track who paid and who joined each shared cost.
           </p>
         </div>
-        <div className="flex flex-wrap items-center gap-2">
-          <button
-            className="inline-flex items-center gap-2 rounded-full border border-white/30 bg-white/10 px-4 py-2 text-xs font-semibold text-white transition hover:bg-white/20"
-            data-testid="expenses-edit-details"
-            type="button"
-            onClick={() => setEditingDetails((value) => !value)}
-          >
-            <Pencil aria-hidden="true" className="h-3.5 w-3.5" />
-            {editingDetails ? "Editing…" : "Edit Details"}
-          </button>
-          <button
-            className="inline-flex items-center gap-2 rounded-full bg-amber-400 px-4 py-2 text-xs font-semibold text-ink-950 shadow-rideflow-editorial-card transition hover:bg-amber-500"
-            data-testid="expenses-start-ride"
-            type="button"
-            onClick={() => setRiding((value) => !value)}
-          >
-            <Play aria-hidden="true" className="h-3.5 w-3.5" />
-            {riding ? "Riding…" : "Start Ride"}
-          </button>
-        </div>
+        <button
+          className="inline-flex items-center gap-2 rounded-full bg-amber-400 px-4 py-2 text-xs font-semibold text-ink-950 shadow-rideflow-editorial-card transition hover:bg-amber-500"
+          data-testid="expenses-add"
+          type="button"
+          onClick={() => setShowAddExpense((value) => !value)}
+        >
+          <Plus aria-hidden="true" className="h-3.5 w-3.5" />
+          Add expense
+        </button>
       </div>
 
       <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -88,29 +72,29 @@ export function ExpensesSurface({ tripId, tripName }: ExpensesSurfaceProps) {
           <TripStatCard
             icon={Wallet}
             label="Total Spent"
-            value={`$${summary.totalSpent}`}
+            value={formatMoney(summary.totalSpent, summary.currency)}
           />
         </li>
         <li>
           <TripStatCard
             icon={Wallet}
-            label="Trip Budget"
-            value={`$${summary.budget}`}
+            label="Expenses"
+            value={`${summary.transactions.length}`}
           />
         </li>
         <li>
           <TripStatCard
             icon={Wallet}
-            label="Pending"
+            label="Members"
             tone="pending"
-            value={`$${summary.pending}`}
+            value={`${summary.memberCount}`}
           />
         </li>
         <li>
           <TripStatCard
             icon={Wallet}
             label="Per Person"
-            value={`$${summary.perPerson}`}
+            value={formatMoney(summary.perPerson, summary.currency)}
           />
         </li>
       </ul>
@@ -118,20 +102,20 @@ export function ExpensesSurface({ tripId, tripName }: ExpensesSurfaceProps) {
       <div className="grid gap-6 lg:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]">
         <div className="flex flex-col gap-6">
           <article
-            aria-label="Budget usage"
+            aria-label="Category usage"
             className="flex flex-col gap-4 rounded-2xl bg-paper-50 p-5 shadow-rideflow-editorial-card ring-1 ring-paper-200"
-            data-testid="expenses-budget-usage"
+            data-testid="expenses-category-usage"
           >
             <div className="flex items-center justify-between">
-              <h2 className="font-display text-xl text-ink-950">Budget Usage</h2>
+              <h2 className="font-display text-xl text-ink-950">Category Usage</h2>
               <span className="text-xs font-semibold uppercase tracking-[0.18em] text-ink-500">
-                {Math.round((summary.totalSpent / summary.budget) * 100)}% of $
-                {summary.budget} used
+                {formatMoney(summary.totalSpent, summary.currency)} recorded
               </span>
             </div>
             <BudgetUsageBar
+              caption="Based on recorded expenses only."
               slices={summary.breakdown}
-              total={summary.budget}
+              total={summary.totalSpent}
             />
           </article>
 
@@ -140,62 +124,44 @@ export function ExpensesSurface({ tripId, tripName }: ExpensesSurfaceProps) {
             className="flex flex-col gap-4 rounded-2xl bg-paper-50 p-5 shadow-rideflow-editorial-card ring-1 ring-paper-200"
             data-testid="expenses-recent"
           >
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between gap-3">
               <h2 className="font-display text-xl text-ink-950">Recent Expenses</h2>
-              <div className="flex items-center gap-2">
-                <button
-                  aria-pressed={splitEqually}
-                  className={cn(
-                    "inline-flex items-center justify-center rounded-full border px-3 py-1.5 text-xs font-semibold transition",
-                    splitEqually
-                      ? "border-forest-800 bg-forest-800 text-white"
-                      : "border-paper-200 bg-paper-50 text-ink-700 hover:border-forest-800/40"
-                  )}
-                  data-testid="expenses-split-equally"
-                  type="button"
-                  onClick={() => setSplitEqually((value) => !value)}
-                >
-                  Split equally
-                </button>
-                <button
-                  className="inline-flex items-center justify-center gap-1.5 rounded-full bg-forest-800 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-forest-700"
-                  data-testid="expenses-add"
-                  type="button"
-                  onClick={() => setShowAddExpense((value) => !value)}
-                >
-                  <Plus aria-hidden="true" className="h-3.5 w-3.5" />
-                  Add expense
-                </button>
-              </div>
             </div>
             {showAddExpense ? (
-              <p
-                className="rounded-2xl bg-sage-100 px-4 py-3 text-xs font-semibold text-forest-800"
-                data-testid="expenses-add-confirmation"
-              >
-                Draft expense form will open here. Closing this confirmation for now.
-              </p>
+              <ExpenseForm
+                action={addExpenseAction}
+                members={members}
+                submitLabel="Save expense"
+                tripId={tripId}
+              />
             ) : null}
-            <div className="flex flex-col gap-3">
-              {summary.transactions.map((transaction) => (
-                <TransactionRow
-                  amount={transaction.amount}
-                  category={transaction.category}
-                  date={transaction.date}
-                  key={transaction.id}
-                  paidBy={transaction.paidBy}
-                  status={transaction.status}
-                  title={transaction.title}
-                />
-              ))}
-            </div>
-            <button
-              className="text-center text-sm font-semibold text-forest-800 underline-offset-4 hover:underline"
-              data-testid="expenses-view-all"
-              type="button"
-            >
-              View all expenses
-            </button>
+            {summary.transactions.length === 0 ? (
+              <p
+                className="rounded-2xl border border-dashed border-paper-200 bg-paper-50 px-4 py-6 text-center text-sm text-ink-500"
+                data-testid="expenses-empty"
+              >
+                No expenses recorded yet.
+              </p>
+            ) : (
+              <div className="flex flex-col gap-3">
+                {summary.transactions.map((transaction) => (
+                  <ExpenseRow
+                    deleteAction={deleteExpenseAction}
+                    editing={editingExpenseId === transaction.id}
+                    key={transaction.id}
+                    members={members}
+                    onEdit={() =>
+                      setEditingExpenseId((current) =>
+                        current === transaction.id ? null : transaction.id
+                      )
+                    }
+                    transaction={transaction}
+                    tripId={tripId}
+                    updateAction={updateExpenseAction}
+                  />
+                ))}
+              </div>
+            )}
           </article>
         </div>
 
@@ -208,19 +174,8 @@ export function ExpensesSurface({ tripId, tripName }: ExpensesSurfaceProps) {
             <div className="flex items-center justify-between">
               <h2 className="font-display text-xl text-ink-950">Settlement</h2>
               <span aria-hidden="true" className="text-forest-800">
-                ↔
+                -&gt;
               </span>
-            </div>
-            <div className="flex flex-col gap-3">
-              {summary.settlements.map((settlement) => (
-                <SettlementRow
-                  amount={settlement.amount}
-                  creditorName={settlement.creditorName}
-                  debtorInitial={settlement.debtorInitial}
-                  debtorName={settlement.debtorName}
-                  key={settlement.id}
-                />
-              ))}
             </div>
             <button
               className="inline-flex w-full items-center justify-center rounded-full bg-forest-800 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-forest-700"
@@ -228,15 +183,15 @@ export function ExpensesSurface({ tripId, tripName }: ExpensesSurfaceProps) {
               type="button"
               onClick={() => setShowSettle((value) => !value)}
             >
-              {showSettle ? "Settling…" : "Settle all balances"}
+              {showSettle ? "Settlement noted" : "Settle all balances"}
             </button>
             {showSettle ? (
               <p
                 className="rounded-2xl bg-sage-100 px-4 py-3 text-xs font-semibold text-forest-800"
                 data-testid="expenses-settle-confirmation"
               >
-                We sent a settlement nudge to every member. Mark all balances as
-                paid when the transfers land.
+                Payment settlement is not connected yet. Use the balances below
+                as the current shared-expense guide.
               </p>
             ) : null}
           </article>
@@ -247,18 +202,24 @@ export function ExpensesSurface({ tripId, tripName }: ExpensesSurfaceProps) {
             data-testid="expenses-member-balances"
           >
             <h2 className="font-display text-xl text-ink-950">Member Balances</h2>
-            <ul className="divide-y divide-paper-200">
-              {summary.balances.map((balance) => (
-                <li key={balance.id}>
-                  <MemberBalanceRow
-                    amount={balance.amount}
-                    initial={balance.initial}
-                    name={balance.name}
-                    tone={balance.tone}
-                  />
-                </li>
-              ))}
-            </ul>
+            {activeBalances.length === 0 ? (
+              <p className="py-3 text-sm font-medium text-ink-500">
+                Everyone is settled.
+              </p>
+            ) : (
+              <ul className="divide-y divide-paper-200">
+                {activeBalances.map((balance) => (
+                  <li key={balance.id}>
+                    <MemberBalanceRow
+                      amount={balance.amount}
+                      initial={balance.initial}
+                      name={balance.name}
+                      tone={balance.tone}
+                    />
+                  </li>
+                ))}
+              </ul>
+            )}
           </article>
 
           <AiInsightCard
@@ -272,6 +233,240 @@ export function ExpensesSurface({ tripId, tripName }: ExpensesSurfaceProps) {
   );
 }
 
-function cn(...classes: (string | false | null | undefined)[]) {
-  return classes.filter(Boolean).join(" ");
+function ExpenseRow({
+  deleteAction,
+  editing,
+  members,
+  onEdit,
+  transaction,
+  tripId,
+  updateAction
+}: {
+  deleteAction?: (formData: FormData) => Promise<void> | void;
+  editing: boolean;
+  members: TripMemberRecord[];
+  onEdit: () => void;
+  transaction: TripExpense;
+  tripId: string;
+  updateAction?: (formData: FormData) => Promise<void> | void;
+}) {
+  return (
+    <article
+      className="flex flex-col gap-3 rounded-2xl bg-paper-50 p-4 ring-1 ring-paper-200"
+      data-testid="transaction-row"
+    >
+      <div className="flex items-center gap-4">
+        <span className="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-sage-100 text-forest-800">
+          <Wallet aria-hidden="true" className="h-5 w-5" />
+        </span>
+        <div className="min-w-0 flex-1">
+          <h3 className="truncate text-base font-semibold text-ink-950">
+            {transaction.title}
+          </h3>
+          <p className="text-xs font-medium text-ink-500">
+            Paid by {transaction.paidBy} - {transaction.date} - {transaction.category}
+          </p>
+        </div>
+        <span className="text-base font-semibold text-ink-950">
+          {formatMoney(transaction.amount, transaction.currency)}
+        </span>
+        <button
+          aria-label={`Edit ${transaction.title}`}
+          className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-paper-100 text-ink-700 transition hover:bg-sage-100"
+          data-testid={`expenses-edit-${transaction.id}`}
+          type="button"
+          onClick={onEdit}
+        >
+          <Pencil aria-hidden="true" className="h-4 w-4" />
+        </button>
+        <form action={deleteAction}>
+          <input name="tripId" type="hidden" value={tripId} />
+          <input name="expenseId" type="hidden" value={transaction.id} />
+          <button
+            aria-label={`Delete ${transaction.title}`}
+            className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-red-50 text-red-700 transition hover:bg-red-100"
+            data-testid={`expenses-delete-${transaction.id}`}
+            type="submit"
+          >
+            <Trash2 aria-hidden="true" className="h-4 w-4" />
+          </button>
+        </form>
+      </div>
+      {editing ? (
+        <ExpenseForm
+          action={updateAction}
+          expense={transaction}
+          members={members}
+          submitLabel="Update expense"
+          tripId={tripId}
+        />
+      ) : null}
+    </article>
+  );
+}
+
+function ExpenseForm({
+  action,
+  expense,
+  members,
+  submitLabel,
+  tripId
+}: {
+  action?: (formData: FormData) => Promise<void> | void;
+  expense?: TripExpense;
+  members: TripMemberRecord[];
+  submitLabel: string;
+  tripId: string;
+}) {
+  const defaultPaidBy = expense?.paidByMemberId ?? members[0]?.id ?? "";
+  const selectedParticipants = new Set(
+    expense?.participantIds ?? members.map((member) => member.id)
+  );
+
+  return (
+    <form
+      action={action}
+      className="grid gap-3 rounded-2xl bg-sage-100 p-4"
+      data-testid={expense ? "expenses-edit-form" : "expenses-add-form"}
+    >
+      <input name="tripId" type="hidden" value={tripId} />
+      {expense ? <input name="expenseId" type="hidden" value={expense.id} /> : null}
+      <div className="grid gap-3 sm:grid-cols-2">
+        <label className="flex flex-col gap-1 text-xs font-semibold uppercase tracking-[0.14em] text-forest-800">
+          Title
+          <input
+            className="rounded-xl border border-paper-200 bg-white px-3 py-2 text-sm normal-case tracking-normal text-ink-950 outline-none focus:border-forest-800"
+            defaultValue={expense?.title ?? ""}
+            name="title"
+            required
+          />
+        </label>
+        <label className="flex flex-col gap-1 text-xs font-semibold uppercase tracking-[0.14em] text-forest-800">
+          Amount
+          <input
+            className="rounded-xl border border-paper-200 bg-white px-3 py-2 text-sm normal-case tracking-normal text-ink-950 outline-none focus:border-forest-800"
+            defaultValue={expense?.amount ?? ""}
+            min="0.01"
+            name="amount"
+            required
+            step="0.01"
+            type="number"
+          />
+        </label>
+        <label className="flex flex-col gap-1 text-xs font-semibold uppercase tracking-[0.14em] text-forest-800">
+          Currency
+          <input
+            className="rounded-xl border border-paper-200 bg-white px-3 py-2 text-sm uppercase text-ink-950 outline-none focus:border-forest-800"
+            defaultValue={expense?.currency ?? "VND"}
+            maxLength={3}
+            name="currency"
+            required
+          />
+        </label>
+        <label className="flex flex-col gap-1 text-xs font-semibold uppercase tracking-[0.14em] text-forest-800">
+          Category
+          <select
+            className="rounded-xl border border-paper-200 bg-white px-3 py-2 text-sm normal-case tracking-normal text-ink-950 outline-none focus:border-forest-800"
+            defaultValue={expense?.category ?? "food"}
+            name="category"
+          >
+            {["food", "fuel", "stay", "tickets", "transport", "other"].map(
+              (category) => (
+                <option key={category} value={category}>
+                  {category}
+                </option>
+              )
+            )}
+          </select>
+        </label>
+        <label className="flex flex-col gap-1 text-xs font-semibold uppercase tracking-[0.14em] text-forest-800">
+          Date
+          <input
+            className="rounded-xl border border-paper-200 bg-white px-3 py-2 text-sm normal-case tracking-normal text-ink-950 outline-none focus:border-forest-800"
+            defaultValue={toDateInputValue(expense?.dateValue)}
+            name="date"
+            type="date"
+          />
+        </label>
+        <label className="flex flex-col gap-1 text-xs font-semibold uppercase tracking-[0.14em] text-forest-800">
+          Paid by
+          <select
+            className="rounded-xl border border-paper-200 bg-white px-3 py-2 text-sm normal-case tracking-normal text-ink-950 outline-none focus:border-forest-800"
+            defaultValue={defaultPaidBy}
+            name="paidByMemberId"
+          >
+            {members.map((member) => (
+              <option key={member.id} value={member.id}>
+                {member.email}
+              </option>
+            ))}
+          </select>
+        </label>
+      </div>
+      <label className="flex flex-col gap-1 text-xs font-semibold uppercase tracking-[0.14em] text-forest-800">
+        Notes
+        <textarea
+          className="min-h-20 rounded-xl border border-paper-200 bg-white px-3 py-2 text-sm normal-case tracking-normal text-ink-950 outline-none focus:border-forest-800"
+          defaultValue={expense?.notes ?? ""}
+          name="notes"
+        />
+      </label>
+      <fieldset className="grid gap-2">
+        <legend className="text-xs font-semibold uppercase tracking-[0.14em] text-forest-800">
+          Joined this expense
+        </legend>
+        {members.length === 0 ? (
+          <p className="rounded-xl bg-white px-3 py-2 text-sm font-medium text-ink-500">
+            Invite trip members before adding shared expenses.
+          </p>
+        ) : null}
+        <div className="grid gap-2 sm:grid-cols-2">
+          {members.map((member) => (
+            <label
+              className="flex items-center gap-2 rounded-xl bg-white px-3 py-2 text-sm font-medium text-ink-700"
+              key={member.id}
+            >
+              <input
+                defaultChecked={selectedParticipants.has(member.id)}
+                name="participantIds"
+                type="checkbox"
+                value={member.id}
+              />
+              {member.email}
+            </label>
+          ))}
+        </div>
+      </fieldset>
+      <button
+        className="inline-flex w-fit items-center justify-center rounded-full bg-forest-800 px-4 py-2 text-sm font-semibold text-white transition hover:bg-forest-700 disabled:cursor-not-allowed disabled:bg-ink-300"
+        data-testid={expense ? "expenses-edit-submit" : "expenses-add-submit"}
+        disabled={members.length === 0}
+        type="submit"
+      >
+        {submitLabel}
+      </button>
+    </form>
+  );
+}
+
+function formatMoney(amount: number, currency: string) {
+  const safeCurrency = /^[A-Z]{3}$/.test(currency) ? currency : "VND";
+
+  return new Intl.NumberFormat("vi-VN", {
+    currency: safeCurrency,
+    maximumFractionDigits: safeCurrency === "VND" ? 0 : 2,
+    style: "currency"
+  }).format(amount);
+}
+
+function toDateInputValue(value?: string) {
+  if (!value) return new Date().toISOString().slice(0, 10);
+  if (/^\d{4}-\d{2}-\d{2}$/.test(value)) return value;
+  return new Date().toISOString().slice(0, 10);
+}
+
+function isActiveBalance(
+  balance: TripExpenseSummary["balances"][number]
+): balance is TripExpenseSummary["balances"][number] & { tone: "gets" | "owes" } {
+  return balance.tone !== "settled";
 }

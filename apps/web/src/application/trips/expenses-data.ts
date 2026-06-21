@@ -1,135 +1,206 @@
+import type { TripMemberRecord } from "@/src/application/members/types";
+import type { ExpenseRecord } from "@/src/application/trips/types";
+import { calculateExpenseBalances } from "@/src/domain/expenses";
+
 export type TripExpense = {
-  id: string;
-  title: string;
-  paidBy: string;
-  date: string;
   amount: number;
   category: "fuel" | "food" | "stay" | "tickets" | "transport" | "other";
-  status: "settled" | "pending" | "needs-transfer";
+  currency: string;
+  date: string;
+  dateValue: string;
+  id: string;
+  notes: string;
+  paidBy: string;
+  paidByMemberId: string;
+  participantIds: string[];
+  title: string;
 };
 
-export type TripBudgetSlice = {
-  name: string;
+export type TripCategorySlice = {
   amount: number;
   color: string;
-};
-
-export type TripSettlement = {
-  id: string;
-  debtorName: string;
-  debtorInitial: string;
-  creditorName: string;
-  amount: number;
+  name: string;
 };
 
 export type TripMemberBalance = {
-  id: string;
-  name: string;
-  initial: string;
   amount: number;
-  tone: "gets" | "owes";
+  id: string;
+  initial: string;
+  name: string;
+  tone: "gets" | "owes" | "settled";
 };
 
 export type TripExpenseSummary = {
-  totalSpent: number;
-  budget: number;
-  pending: number;
-  perPerson: number;
-  breakdown: TripBudgetSlice[];
-  transactions: TripExpense[];
-  settlements: TripSettlement[];
   balances: TripMemberBalance[];
-  insight: { title: string; body: string; actionLabel: string };
+  breakdown: TripCategorySlice[];
+  currency: string;
+  insight: { actionLabel: string; body: string; title: string };
+  memberCount: number;
+  perPerson: number;
+  totalSpent: number;
+  transactions: TripExpense[];
 };
 
-const DEFAULT_BUDGET_SLICES: TripBudgetSlice[] = [
-  { name: "Accommodation", amount: 150, color: "#003527" },
-  { name: "Food", amount: 120, color: "#2B6954" },
-  { name: "Fuel", amount: 90, color: "#80BEA6" },
-  { name: "Tickets", amount: 60, color: "#F2CFBF" },
-  { name: "Misc", amount: 30, color: "#B65A3A" }
-];
-
-const DEFAULT_TRANSACTIONS: TripExpense[] = [
-  {
-    id: "tx-1",
-    title: "Fuel refill",
-    paidBy: "Nhut",
-    date: "Jul 10",
-    amount: 68,
-    category: "fuel",
-    status: "settled"
-  },
-  {
-    id: "tx-2",
-    title: "Coffee stop",
-    paidBy: "Minh",
-    date: "Jul 10",
-    amount: 24,
-    category: "food",
-    status: "pending"
-  },
-  {
-    id: "tx-3",
-    title: "Green Bamboo Lodge",
-    paidBy: "An",
-    date: "Jul 10",
-    amount: 180,
-    category: "stay",
-    status: "needs-transfer"
-  },
-  {
-    id: "tx-4",
-    title: "National park entrance",
-    paidBy: "Binh",
-    date: "Jul 11",
-    amount: 42,
-    category: "tickets",
-    status: "pending"
-  }
-];
-
-const DEFAULT_SETTLEMENTS: TripSettlement[] = [
-  {
-    id: "stl-1",
-    debtorName: "Minh",
-    debtorInitial: "M",
-    creditorName: "Nhut",
-    amount: 18
-  },
-  {
-    id: "stl-2",
-    debtorName: "Binh",
-    debtorInitial: "B",
-    creditorName: "An",
-    amount: 32
-  }
-];
-
-const DEFAULT_BALANCES: TripMemberBalance[] = [
-  { id: "b-1", name: "An", initial: "A", amount: 45, tone: "gets" },
-  { id: "b-2", name: "Nhut", initial: "N", amount: 12, tone: "gets" },
-  { id: "b-3", name: "Minh", initial: "M", amount: 25, tone: "owes" },
-  { id: "b-4", name: "Binh", initial: "B", amount: 32, tone: "owes" }
-];
-
-const DEFAULT_INSIGHT = {
-  title: "AI Insight",
-  body:
-    "Your accommodation costs are running 15% higher than typical for Đồng Nai region. Consider booking standard lodges to keep within your $600 total budget.",
-  actionLabel: "Review alternatives"
+const CATEGORY_COLORS: Record<string, string> = {
+  fuel: "#B65A3A",
+  food: "#2B6954",
+  stay: "#003527",
+  tickets: "#F2CFBF",
+  transport: "#80BEA6",
+  other: "#64748b"
 };
 
-export function getTripExpenseSummary(): TripExpenseSummary {
+export function getTripExpenseSummary(input?: {
+  expenses: ExpenseRecord[];
+  members: TripMemberRecord[];
+}): TripExpenseSummary {
+  if (!input) {
+    return getDefaultExpenseSummary();
+  }
+
+  const memberNameById = new Map(
+    input.members.map((member) => [member.id, displayMemberName(member)])
+  );
+  const transactions = input.expenses.map((expense) => ({
+    id: expense.id,
+    title: expense.title,
+    paidBy: memberNameById.get(expense.paidByMemberId) ?? "Unknown",
+    paidByMemberId: expense.paidByMemberId,
+    participantIds: expense.participants.map((participant) => participant.memberId),
+    date: formatDate(expense.date),
+    dateValue: expense.date,
+    amount: expense.amount,
+    currency: expense.currency,
+    category: normalizeCategory(expense.category),
+    notes: expense.notes
+  }));
+  const totalSpent = input.expenses.reduce(
+    (sum, expense) => sum + expense.amount,
+    0
+  );
+  const breakdown = buildBreakdown(transactions);
+  const balances = calculateExpenseBalances({
+    expenses: input.expenses.map((expense) => ({
+      amount: expense.amount,
+      paidByMemberId: expense.paidByMemberId,
+      participants: expense.participants
+    })),
+    members: input.members.map((member) => ({
+      id: member.id,
+      name: displayMemberName(member)
+    }))
+  }).map((balance) => ({
+    id: balance.memberId,
+    name: balance.name,
+    initial: initialFor(balance.name),
+    amount: balance.amount,
+    tone: balance.tone
+  }));
+
   return {
-    totalSpent: 450,
-    budget: 600,
-    pending: 128,
-    perPerson: 75,
-    breakdown: DEFAULT_BUDGET_SLICES,
-    transactions: DEFAULT_TRANSACTIONS,
-    settlements: DEFAULT_SETTLEMENTS,
-    balances: DEFAULT_BALANCES,
-    insight: DEFAULT_INSIGHT
+    totalSpent,
+    currency: transactions[0]?.currency ?? "VND",
+    memberCount: input.members.length,
+    perPerson: input.members.length > 0 ? roundMoney(totalSpent / input.members.length) : 0,
+    breakdown,
+    transactions,
+    balances,
+    insight: {
+      title: "Expense Insight",
+      body:
+        transactions.length === 0
+          ? "No expenses recorded yet. Add the first shared cost to start balances."
+          : `${transactions.length} expenses are being shared across ${input.members.length} trip members.`,
+      actionLabel: "Review expenses"
+    }
   };
+}
+
+function getDefaultExpenseSummary(): TripExpenseSummary {
+  const members: TripMemberRecord[] = [
+    {
+      id: "member-1",
+      tripId: "trip-1",
+      userId: "user-1",
+      email: "an@example.com",
+      role: "owner",
+      inviteStatus: "accepted"
+    },
+    {
+      id: "member-2",
+      tripId: "trip-1",
+      userId: null,
+      email: "binh@example.com",
+      role: "planner",
+      inviteStatus: "pending"
+    }
+  ];
+  return getTripExpenseSummary({
+    members,
+    expenses: [
+      {
+        id: "tx-1",
+        tripId: "trip-1",
+        title: "Fuel refill",
+        amount: 68000,
+        currency: "VND",
+        category: "fuel",
+        paidByMemberId: "member-1",
+        date: "2026-07-10",
+        notes: "Highway stop",
+        createdBy: "user-1",
+        participants: [
+          { memberId: "member-1", shareAmount: 34000 },
+          { memberId: "member-2", shareAmount: 34000 }
+        ]
+      }
+    ]
+  });
+}
+
+function buildBreakdown(transactions: TripExpense[]): TripCategorySlice[] {
+  const byCategory = new Map<string, number>();
+  for (const transaction of transactions) {
+    byCategory.set(
+      transaction.category,
+      (byCategory.get(transaction.category) ?? 0) + transaction.amount
+    );
+  }
+
+  return Array.from(byCategory.entries()).map(([name, amount]) => ({
+    name,
+    amount,
+    color: CATEGORY_COLORS[name] ?? CATEGORY_COLORS.other
+  }));
+}
+
+function displayMemberName(member: TripMemberRecord) {
+  return member.email.split("@")[0] || member.role;
+}
+
+function formatDate(value: string) {
+  const date = new Date(`${value}T00:00:00.000Z`);
+  if (Number.isNaN(date.getTime())) {
+    return value;
+  }
+  return date.toLocaleDateString("en-US", {
+    day: "numeric",
+    month: "short",
+    timeZone: "UTC"
+  });
+}
+
+function initialFor(name: string) {
+  return name.trim().charAt(0).toUpperCase() || "?";
+}
+
+function normalizeCategory(value: string): TripExpense["category"] {
+  if (["fuel", "food", "stay", "tickets", "transport"].includes(value)) {
+    return value as TripExpense["category"];
+  }
+  return "other";
+}
+
+function roundMoney(value: number) {
+  return Math.round(value * 100) / 100;
 }
