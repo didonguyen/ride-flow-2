@@ -1,4 +1,4 @@
-import type {
+﻿import type {
   PlanningAgendaItem,
   PlanningMapPin,
   PlanningTrip
@@ -9,11 +9,13 @@ import {
 } from "@/src/application/trips/planning-data";
 
 export type SupabasePlanningTripRow = {
+  cover_image_url?: string | null;
   destination: string;
   end_date: string;
   id: string;
   name: string;
   start_date: string;
+  transport?: string | null;
 };
 
 export type SupabasePlanningDayRow = {
@@ -27,9 +29,13 @@ export type SupabasePlanningTimelineRow = {
   duration_minutes: number;
   id: string;
   notes: string;
+  place_address?: string | null;
+  place_external_url?: string | null;
   place_lat: number | null;
   place_lng: number | null;
   place_name: string | null;
+  place_source?: "seed" | "osm" | "manual" | "google" | null;
+  place_source_id?: string | null;
   start_time: string;
   title: string;
   trip_day_id: string;
@@ -52,9 +58,11 @@ export function mapSupabasePlanningTrip({
 }: MapSupabasePlanningTripInput): PlanningTrip {
   const sortedDays = [...days].sort((a, b) => a.day_index - b.day_index);
   const selectedDayId = sortedDays[0]?.id ?? "";
-  const selectedTimelineItems = timelineItems
-    .filter((item) => item.trip_day_id === selectedDayId)
-    .sort((a, b) => a.start_time.localeCompare(b.start_time));
+  const sortedTimelineItems = [...timelineItems].sort((a, b) => {
+    const dayA = sortedDays.find((day) => day.id === a.trip_day_id)?.day_index ?? 0;
+    const dayB = sortedDays.find((day) => day.id === b.trip_day_id)?.day_index ?? 0;
+    return dayA - dayB || a.start_time.localeCompare(b.start_time);
+  });
 
   return {
     id: trip.id,
@@ -70,9 +78,12 @@ export function mapSupabasePlanningTrip({
       temperature: day.day_index === 1 ? "72°F" : "68°F",
       isSelected: day.id === selectedDayId
     })),
-    agenda: selectedTimelineItems.map(mapTimelineItemToAgendaItem),
-    mapPins: selectedTimelineItems.map(mapTimelineItemToMapPin),
-    coverImageUrl: pickTripCoverImage(trip.id),
+    agenda: sortedTimelineItems.map((item, index) =>
+      mapTimelineItemToAgendaItem(item, index)
+    ),
+    mapPins: sortedTimelineItems.map(mapTimelineItemToMapPin),
+    coverImageUrl: trip.cover_image_url || pickTripCoverImage(trip.id),
+    transport: trip.transport || "Motorcycle",
     gallery: pickTripGallery(trip.id)
   };
 }
@@ -83,13 +94,25 @@ function mapTimelineItemToAgendaItem(
 ): PlanningAgendaItem {
   return {
     id: item.id,
+    dayId: item.trip_day_id,
     stop: index + 1,
     time: formatTimeLabel(item.start_time),
     title: item.title,
     description: item.notes,
     category: "food",
     imageUrl: defaultTimelineImageUrl,
-    imageAlt: `${item.title} travel stop`
+    imageAlt: `${item.title} travel stop`,
+    place: item.place_name
+      ? {
+          id: item.place_source_id ?? item.place_name,
+          source: item.place_source ?? "manual",
+          name: item.place_name,
+          address: item.place_address ?? undefined,
+          lat: item.place_lat ?? undefined,
+          lng: item.place_lng ?? undefined,
+          externalUrl: item.place_external_url ?? undefined
+        }
+      : undefined
   };
 }
 

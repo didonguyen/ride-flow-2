@@ -1,4 +1,4 @@
-import { notFound } from "next/navigation";
+﻿import { notFound } from "next/navigation";
 
 import { ExpensesSurface } from "@/components/trips/expenses-surface";
 import { TripAppShell } from "@/components/trip/trip-app-shell";
@@ -39,7 +39,7 @@ export default async function TripExpensesPage({ params }: ExpensesPageProps) {
         coverImageUrl={trip.coverImageUrl ?? ""}
         dateRange={trip.dateRange}
         days={`${trip.days.length} Days`}
-        transport="Motorcycle"
+        transport={trip.transport ?? "Motorcycle"}
         tripName={trip.name}
       />
       <TripSectionTabs activeTab="Expenses" tripId={trip.id} />

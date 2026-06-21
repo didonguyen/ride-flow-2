@@ -1,4 +1,4 @@
-import { createTripDays, validateTripDateRange } from "@/src/domain/trips";
+﻿import { createTripDays, validateTripDateRange } from "@/src/domain/trips";
 import { err, type Result } from "@/src/lib/result";
 import type {
   CreatedTrip,
@@ -13,6 +13,7 @@ export async function createTripUseCase(
 ): Promise<Result<CreatedTrip, CreateTripError>> {
   const name = input.name.trim();
   const destination = input.destination.trim();
+  const transport = input.transport?.trim() || "Motorcycle";
 
   if (!name) {
     return err("trip_name_required");
@@ -35,6 +36,9 @@ export async function createTripUseCase(
     destination,
     startDate: dateRange.value.startDate,
     endDate: dateRange.value.endDate,
+    transport,
+    coverImagePath: input.coverImagePath ?? null,
+    coverImageUrl: input.coverImageUrl ?? null,
     days: createTripDays(dateRange.value.startDate, dateRange.value.endDate)
   });
 

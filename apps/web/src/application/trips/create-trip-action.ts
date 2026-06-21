@@ -1,4 +1,4 @@
-import { createTripUseCase } from "@/src/application/trips/create-trip";
+﻿import { createTripUseCase } from "@/src/application/trips/create-trip";
 import type {
   CreatedTrip,
   CreateTripError,
@@ -38,7 +38,8 @@ export async function createTripFromFormData({
     name: getStringField(formData, "name"),
     destination: getStringField(formData, "destination"),
     startDate: getStringField(formData, "startDate"),
-    endDate: getStringField(formData, "endDate")
+    endDate: getStringField(formData, "endDate"),
+    transport: getStringField(formData, "transport")
   });
 }
 

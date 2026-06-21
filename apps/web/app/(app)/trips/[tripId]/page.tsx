@@ -1,4 +1,4 @@
-import type { Route } from "next";
+﻿import type { Route } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
@@ -52,7 +52,7 @@ export default async function TripPlanningPage({
         coverImageUrl={data.trip.coverImageUrl ?? ""}
         dateRange={data.trip.dateRange}
         days={`${data.trip.days.length} Days`}
-        transport="Motorcycle"
+        transport={data.trip.transport ?? "Motorcycle"}
         tripName={data.trip.name}
       />
       <TripSectionTabs activeTab="Planning" tripId={data.trip.id} />

@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { forwardRef, useState, type FormEvent } from "react";
 
@@ -48,7 +48,7 @@ export const CreateTripPanel = forwardRef<HTMLDivElement, CreateTripPanelProps>(
             Create a trip
           </h1>
           <p className="text-sm text-slate-500">
-            Add the trip basics. Saving now creates the trip in Supabase V2.
+            Add the trip basics, cover image, and travel mode.
           </p>
         </div>
 
@@ -61,6 +61,7 @@ export const CreateTripPanel = forwardRef<HTMLDivElement, CreateTripPanelProps>(
         <form
           action={action}
           className={formClassName ?? "space-y-4"}
+          encType="multipart/form-data"
           onSubmit={handleSubmit}
         >
           <div className="space-y-2">
@@ -95,6 +96,29 @@ export const CreateTripPanel = forwardRef<HTMLDivElement, CreateTripPanelProps>(
             <div className="space-y-2">
               <Label htmlFor="endDate">End date</Label>
               <Input id="endDate" name="endDate" required type="date" />
+            </div>
+          </div>
+
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div className="space-y-2">
+              <Label htmlFor="transport">Transport</Label>
+              <Input
+                autoComplete="off"
+                defaultValue="Motorcycle"
+                id="transport"
+                name="transport"
+                placeholder="Motorcycle"
+                type="text"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="coverImage">Cover image</Label>
+              <Input
+                accept="image/*"
+                id="coverImage"
+                name="coverImage"
+                type="file"
+              />
             </div>
           </div>
 

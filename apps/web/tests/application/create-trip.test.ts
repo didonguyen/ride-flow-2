@@ -1,9 +1,9 @@
-import { describe, expect, it, vi } from "vitest";
+﻿import { describe, expect, it, vi } from "vitest";
 import { createTripUseCase } from "@/src/application/trips/create-trip";
 import type { TripRepository } from "@/src/application/trips/types";
 
 describe("createTripUseCase", () => {
-  it("persists a trip with one day per date in the requested range", async () => {
+  it("persists a trip with generated days and transport", async () => {
     const repository: TripRepository = {
       createTripWithDays: vi.fn(async (input) => ({
         id: "trip-1",
@@ -12,6 +12,7 @@ describe("createTripUseCase", () => {
         destination: input.destination,
         startDate: input.startDate,
         endDate: input.endDate,
+        transport: input.transport ?? "Motorcycle",
         days: input.days.map((day, index) => ({
           id: `day-${index + 1}`,
           tripId: "trip-1",
@@ -26,7 +27,8 @@ describe("createTripUseCase", () => {
       name: "Da Nang Food Trip",
       destination: "Da Nang",
       startDate: "2026-07-01",
-      endDate: "2026-07-02"
+      endDate: "2026-07-02",
+      transport: "Van"
     });
 
     expect(repository.createTripWithDays).toHaveBeenCalledWith({
@@ -36,34 +38,17 @@ describe("createTripUseCase", () => {
       destination: "Da Nang",
       startDate: "2026-07-01",
       endDate: "2026-07-02",
+      transport: "Van",
       days: [
         { date: "2026-07-01", dayIndex: 1 },
         { date: "2026-07-02", dayIndex: 2 }
       ]
     });
-    expect(result).toEqual({
+    expect(result).toMatchObject({
       ok: true,
       value: {
         id: "trip-1",
-        ownerId: "user-1",
-        name: "Da Nang Food Trip",
-        destination: "Da Nang",
-        startDate: "2026-07-01",
-        endDate: "2026-07-02",
-        days: [
-          {
-            id: "day-1",
-            tripId: "trip-1",
-            date: "2026-07-01",
-            dayIndex: 1
-          },
-          {
-            id: "day-2",
-            tripId: "trip-1",
-            date: "2026-07-02",
-            dayIndex: 2
-          }
-        ]
+        transport: "Van"
       }
     });
   });

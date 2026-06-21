@@ -1,17 +1,20 @@
-import { render, screen } from "@testing-library/react";
+﻿import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
 
 import { CreateTripPanel } from "@/components/trips/create-trip-panel";
 
 describe("CreateTripPanel", () => {
-  it("renders all required trip fields", () => {
+  it("renders all required trip fields without budget fields", () => {
     render(<CreateTripPanel action={vi.fn(async () => undefined)} />);
 
     expect(screen.getByLabelText("Trip name")).toBeInTheDocument();
     expect(screen.getByLabelText("Destination")).toBeInTheDocument();
     expect(screen.getByLabelText("Start date")).toBeInTheDocument();
     expect(screen.getByLabelText("End date")).toBeInTheDocument();
+    expect(screen.getByLabelText("Transport")).toBeInTheDocument();
+    expect(screen.getByLabelText("Cover image")).toBeInTheDocument();
+    expect(screen.queryByLabelText(/budget/i)).not.toBeInTheDocument();
     expect(screen.getByTestId("create-trip-panel-submit")).toBeInTheDocument();
   });
 
@@ -25,6 +28,8 @@ describe("CreateTripPanel", () => {
     await user.type(screen.getByLabelText("Destination"), "Da Nang");
     await user.type(screen.getByLabelText("Start date"), "2026-07-01");
     await user.type(screen.getByLabelText("End date"), "2026-07-05");
+    await user.clear(screen.getByLabelText("Transport"));
+    await user.type(screen.getByLabelText("Transport"), "Van");
     await user.click(screen.getByTestId("create-trip-panel-submit"));
 
     const submitted = action.mock.calls[0][0] as FormData;
@@ -32,6 +37,7 @@ describe("CreateTripPanel", () => {
     expect(submitted.get("destination")).toBe("Da Nang");
     expect(submitted.get("startDate")).toBe("2026-07-01");
     expect(submitted.get("endDate")).toBe("2026-07-05");
+    expect(submitted.get("transport")).toBe("Van");
   });
 
   it("renders an alert when the action returns a validation error", () => {

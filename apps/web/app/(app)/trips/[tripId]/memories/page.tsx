@@ -1,4 +1,4 @@
-import { notFound } from "next/navigation";
+﻿import { notFound } from "next/navigation";
 
 import { MemoriesSurface } from "@/components/trips/memories-surface";
 import { TripAppShell } from "@/components/trip/trip-app-shell";
@@ -34,7 +34,7 @@ export default async function TripMemoriesPage({ params }: MemoriesPageProps) {
         coverImageUrl={trip.coverImageUrl ?? ""}
         dateRange={trip.dateRange}
         days={`${trip.days.length} Days`}
-        transport="Motorcycle"
+        transport={trip.transport ?? "Motorcycle"}
         tripName={trip.name}
       />
       <TripSectionTabs activeTab="Memories" tripId={trip.id} />
