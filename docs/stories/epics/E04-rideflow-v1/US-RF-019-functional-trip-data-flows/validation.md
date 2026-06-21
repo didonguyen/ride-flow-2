@@ -23,8 +23,8 @@ with the existing Vitest suite. Run a build before claiming completion.
 - One seeded trip with cover image.
 - Three trip days.
 - Timeline items across multiple days.
-- Three memories with image assets.
-- Five or six expenses with participants.
+- Two trip-level memories with three image assets.
+- Two expenses with participants and split shares.
 
 ## Commands
 
@@ -35,5 +35,16 @@ pnpm --dir apps/web build
 
 ## Acceptance Evidence
 
-To be filled after implementation and verification.
-
+- `git diff --check` passed after normalizing edited files.
+- Focused WSL test/typecheck attempts were blocked by the local runtime:
+  - `./node_modules/.bin/tsc --noEmit` failed with `exec: node: not found`.
+  - `./node_modules/.bin/vitest run ...` failed with `exec: node: not found`.
+  - Bundled Windows Node fallback could not resolve WSL/UNC pnpm package paths.
+- Implementation commits:
+  - `ff99e35 feat: add functional trip data schema`
+  - `23fe43f feat: add memory and expense domain rules`
+  - `0128fa3 feat: add functional trip repositories`
+  - `066158c feat: add trip cover and transport flow`
+  - `36bd482 feat: wire planning day and stop actions`
+  - `5eae830 feat: wire trip memories crud surface`
+  - `610df58 feat: wire trip expenses crud flow`
