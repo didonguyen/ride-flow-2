@@ -18,12 +18,20 @@ The primary user is a group trip Owner or delegated Planner who needs to turn a 
 - Pinned places are stored as snapshots on timeline items.
 - Owners and Planners may generate an AI itinerary draft, preview it, and apply it as append or replace.
 - Timeline changes sync to other open clients within a short delay.
-- The app shell may show Memories and Expenses as approved visual surfaces, but Planning remains the first implementation priority.
+- Owners and Planners can add shared trip-level memories with optional title,
+  optional content, and one or more images.
+- Owners and Planners can add, edit, and delete expenses, choose who paid, and
+  choose which trip members joined the expense.
+- Expenses can show derived category totals, recent transactions, per-person
+  averages, and basic member balances.
+- Trip creation does not collect or store trip-level budget or trip-level budget
+  currency.
 
 ## V1 Non-Goals
 
-- Full expense tracking, settlement, and payment reconciliation.
-- Full photo upload, storage, and memory timeline behavior.
+- Payment settlement and payment reconciliation.
+- Per-day memory grouping and advanced memory timeline behavior.
+- Trip-level budget planning.
 - Template export and import.
 - Public sharing or marketplace.
 - Map-first planning.
