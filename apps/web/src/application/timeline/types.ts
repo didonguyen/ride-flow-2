@@ -1,4 +1,4 @@
-import type { PlaceSearchResult } from "@/src/domain/places";
+﻿import type { PlaceSearchResult } from "@/src/domain/places";
 import type { TripRole } from "@/src/domain/permissions";
 import type { TimelineValidationError } from "@/src/domain/timeline";
 
@@ -21,6 +21,14 @@ export type PersistTimelineItemInput = {
   durationMinutes: number;
   notes: string;
   place?: PlaceSearchResult;
+};
+
+export type UpdateTimelineItemInput = {
+  itemId: string;
+  notes?: string;
+  place?: PlaceSearchResult | null;
+  startTime?: string;
+  title?: string;
 };
 
 export type MoveTimelineItemInput = {
@@ -47,6 +55,10 @@ export type DeletedTimelineItem = {
   id: string;
 };
 
+export type UpdatedTimelineItem = {
+  id: string;
+};
+
 export type TimelineMutationError =
   | "timeline_mutation_forbidden"
   | TimelineValidationError;
@@ -57,9 +69,10 @@ export type AddTimelineItemError =
 
 export type TimelineRepository = {
   addItem(input: PersistTimelineItemInput): Promise<AddedTimelineItem>;
+  deleteItem(input: { itemId: string }): Promise<DeletedTimelineItem>;
   moveItem(input: {
     itemId: string;
     startTime: string;
   }): Promise<MovedTimelineItem>;
-  deleteItem(input: { itemId: string }): Promise<DeletedTimelineItem>;
+  updateItem(input: UpdateTimelineItemInput): Promise<UpdatedTimelineItem>;
 };

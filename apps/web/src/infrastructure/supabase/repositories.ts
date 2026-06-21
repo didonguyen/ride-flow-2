@@ -1,22 +1,23 @@
-import type {
+﻿import type {
   MemberRepository,
   TripMemberRecord
 } from "@/src/application/members/types";
 import type { TripRole } from "@/src/domain/permissions";
 import type { AiDraftRepository } from "@/src/application/ai/types";
 import type { ItineraryDraft } from "@/src/domain/ai-draft";
-import type {
-  TimelineRepository
-} from "@/src/application/timeline/types";
+import type { TimelineRepository } from "@/src/application/timeline/types";
 import type {
   CreatedTrip,
   CreatedTripDay,
+  ExpenseRecord,
+  ExpenseRepository,
+  MemoryRecord,
+  MemoryRepository,
+  TripDayRepository,
   TripQueryRepository,
   TripRepository
 } from "@/src/application/trips/types";
-import type {
-  SupabaseDashboardTripRow
-} from "@/src/application/trips/supabase-dashboard-data";
+import type { SupabaseDashboardTripRow } from "@/src/application/trips/supabase-dashboard-data";
 import type {
   SupabasePlanningDayRow,
   SupabasePlanningTimelineRow,
@@ -26,10 +27,10 @@ import type { PlaceSearchResult } from "@/src/domain/places";
 
 export type RideFlowSupabaseClient = {
   from(table: string): {
+    delete(): RideFlowSupabaseQuery;
     insert(payload: unknown): RideFlowSupabaseQuery;
     select(columns?: string): RideFlowSupabaseQuery;
     update(payload: unknown): RideFlowSupabaseQuery;
-    delete(): RideFlowSupabaseQuery;
     upsert(payload: unknown): RideFlowSupabaseQuery;
   };
 };
@@ -56,28 +57,22 @@ type SupabaseError = {
 };
 
 type TripRow = {
+  cover_image_path: string | null;
+  cover_image_url: string | null;
+  destination: string;
+  end_date: string;
   id: string;
+  name: string;
   owner_id: string;
-  name: string;
-  destination: string;
   start_date: string;
-  end_date: string;
-};
-
-type DashboardTripRow = {
-  id: string;
-  name: string;
-  destination: string;
-  start_date: string;
-  end_date: string;
-  created_at: string;
+  transport: string;
 };
 
 type TripDayRow = {
-  id: string;
-  trip_id: string;
   date: string;
   day_index: number;
+  id: string;
+  trip_id: string;
 };
 
 type TimelineMovedRow = {
@@ -96,6 +91,43 @@ type TripOwnerRow = {
 
 type IdRow = {
   id: string;
+};
+
+type MemoryEntryRow = {
+  content: string;
+  created_at: string;
+  created_by: string;
+  id: string;
+  title: string;
+  trip_id: string;
+};
+
+type MemoryAssetRow = {
+  alt_text: string;
+  id: string;
+  image_path: string;
+  image_url: string;
+  memory_entry_id: string;
+  sort_order: number;
+};
+
+type ExpenseEntryRow = {
+  amount: number;
+  category: string;
+  created_by: string;
+  currency: string;
+  expense_date: string;
+  id: string;
+  notes: string;
+  paid_by_member_id: string;
+  title: string;
+  trip_id: string;
+};
+
+type ExpenseParticipantRow = {
+  expense_id: string;
+  share_amount: number;
+  trip_member_id: string;
 };
 
 function throwIfSupabaseError(error: SupabaseError | null | undefined) {
@@ -123,7 +155,10 @@ export function createSupabaseTripRepository(
         name: input.name,
         destination: input.destination,
         start_date: input.startDate,
-        end_date: input.endDate
+        end_date: input.endDate,
+        cover_image_path: input.coverImagePath ?? null,
+        cover_image_url: input.coverImageUrl ?? null,
+        transport: input.transport?.trim() || "Motorcycle"
       };
       const createdDays: TripDayRow[] = input.days.map((day) => ({
         id: crypto.randomUUID(),
@@ -140,7 +175,10 @@ export function createSupabaseTripRepository(
           name: createdTrip.name,
           destination: createdTrip.destination,
           start_date: createdTrip.start_date,
-          end_date: createdTrip.end_date
+          end_date: createdTrip.end_date,
+          cover_image_path: createdTrip.cover_image_path,
+          cover_image_url: createdTrip.cover_image_url,
+          transport: createdTrip.transport
         });
 
       throwIfSupabaseError(tripError);
@@ -171,15 +209,61 @@ export function createSupabaseTripRepository(
 
       throwIfSupabaseError(daysError);
 
-      return {
-        id: createdTrip.id,
-        ownerId: createdTrip.owner_id,
-        name: createdTrip.name,
-        destination: createdTrip.destination,
-        startDate: createdTrip.start_date,
-        endDate: createdTrip.end_date,
-        days: createdDays.map(mapTripDayRow)
-      } satisfies CreatedTrip;
+      return mapCreatedTrip(createdTrip, createdDays);
+    },
+
+    async updateTripCover(input) {
+      const { error } = await supabase
+        .from("trips")
+        .update({
+          cover_image_path: input.coverImagePath,
+          cover_image_url: input.coverImageUrl
+        })
+        .eq("id", input.tripId)
+        .select("id")
+        .single();
+
+      throwIfSupabaseError(error);
+    }
+  };
+}
+
+export function createSupabaseTripDayRepository(
+  supabase: RideFlowSupabaseClient
+): TripDayRepository {
+  return {
+    async addTripDay(input) {
+      const id = crypto.randomUUID();
+      const { data, error } = await supabase
+        .from("trip_days")
+        .insert({
+          id,
+          trip_id: input.tripId,
+          date: input.date,
+          day_index: input.dayIndex
+        })
+        .select("id, trip_id, date, day_index")
+        .single();
+
+      throwIfSupabaseError(error);
+
+      return mapTripDayRow((data as TripDayRow | undefined) ?? {
+        id,
+        trip_id: input.tripId,
+        date: input.date,
+        day_index: input.dayIndex
+      });
+    },
+
+    async updateTripEndDate(input) {
+      const { error } = await supabase
+        .from("trips")
+        .update({ end_date: input.endDate })
+        .eq("id", input.tripId)
+        .select("id")
+        .single();
+
+      throwIfSupabaseError(error);
     }
   };
 }
@@ -211,7 +295,7 @@ export async function getSupabasePlanningTripRows(
 } | null> {
   const { data: trip, error: tripError } = await supabase
     .from("trips")
-    .select("id, name, destination, start_date, end_date")
+    .select("id, name, destination, start_date, end_date, cover_image_url, transport")
     .eq("id", tripId)
     .single();
 
@@ -231,7 +315,7 @@ export async function getSupabasePlanningTripRows(
   const { data: timelineItems, error: timelineError } = await supabase
     .from("timeline_items")
     .select(
-      "id, trip_id, trip_day_id, start_time, duration_minutes, title, notes, place_name, place_lat, place_lng"
+      "id, trip_id, trip_day_id, start_time, duration_minutes, title, notes, place_source, place_source_id, place_name, place_address, place_lat, place_lng, place_external_url"
     )
     .eq("trip_id", tripId);
 
@@ -249,7 +333,7 @@ export async function listDashboardTrips(
 ): Promise<SupabaseDashboardTripRow[]> {
   const { data, error } = await supabase
     .from("trips")
-    .select("id, name, destination, start_date, end_date, created_at")
+    .select("id, name, destination, start_date, end_date, created_at, cover_image_url, transport")
     .order("created_at", { ascending: false });
 
   throwIfSupabaseError(error);
@@ -276,14 +360,7 @@ export async function listSupabaseMembers(
     invited_email: string;
     role: TripRole;
     invite_status: "pending" | "accepted";
-  }>).map((member) => ({
-    id: member.id,
-    tripId: member.trip_id,
-    userId: member.user_id,
-    email: member.invited_email,
-    role: member.role,
-    inviteStatus: member.invite_status
-  }));
+  }>).map(mapTripMemberRow);
 }
 
 function mapDashboardTripRow(row: SupabaseDashboardTripRow) {
@@ -293,7 +370,9 @@ function mapDashboardTripRow(row: SupabaseDashboardTripRow) {
     destination: row.destination,
     startDate: row.start_date,
     endDate: row.end_date,
-    createdAt: row.created_at
+    createdAt: row.created_at,
+    coverImageUrl: row.cover_image_url,
+    transport: row.transport
   };
 }
 
@@ -358,6 +437,31 @@ export function createSupabaseTimelineRepository(
       };
     },
 
+    async updateItem(input) {
+      const payload: Record<string, unknown> = {};
+      if (input.title !== undefined) payload.title = input.title;
+      if (input.notes !== undefined) payload.notes = input.notes;
+      if (input.startTime !== undefined) payload.start_time = input.startTime;
+      if (input.place !== undefined) {
+        Object.assign(payload, mapPlaceToTimelineColumns(input.place ?? undefined));
+      }
+
+      const { data, error } = await supabase
+        .from("timeline_items")
+        .update(payload)
+        .eq("id", input.itemId)
+        .select("id")
+        .single();
+
+      throwIfSupabaseError(error);
+
+      if (!data) {
+        throw new Error("Timeline item was not updated");
+      }
+
+      return { id: (data as IdRow).id };
+    },
+
     async deleteItem(input) {
       const { data, error } = await supabase
         .from("timeline_items")
@@ -371,6 +475,206 @@ export function createSupabaseTimelineRepository(
       if (!data) {
         throw new Error("Timeline item was not deleted");
       }
+
+      return { id: (data as IdRow).id };
+    }
+  };
+}
+
+export function createSupabaseMemoryRepository(
+  supabase: RideFlowSupabaseClient
+): MemoryRepository {
+  return {
+    async createMemory(input) {
+      const { data, error } = await supabase
+        .from("memory_entries")
+        .insert({
+          trip_id: input.tripId,
+          created_by: input.createdBy,
+          title: input.title,
+          content: input.content
+        })
+        .select("id")
+        .single();
+
+      throwIfSupabaseError(error);
+
+      if (!data) {
+        throw new Error("Memory entry was not created");
+      }
+
+      const memoryId = (data as IdRow).id;
+
+      if (input.assets.length > 0) {
+        const { error: assetsError } = await supabase
+          .from("memory_assets")
+          .insert(input.assets.map((asset) => ({
+            memory_entry_id: memoryId,
+            trip_id: input.tripId,
+            uploaded_by: input.createdBy,
+            image_url: asset.imageUrl,
+            image_path: asset.imagePath,
+            alt_text: asset.altText ?? input.title,
+            sort_order: asset.sortOrder
+          })));
+
+        throwIfSupabaseError(assetsError);
+      }
+
+      return { id: memoryId };
+    },
+
+    async deleteMemory(input) {
+      const { data, error } = await supabase
+        .from("memory_entries")
+        .delete()
+        .eq("id", input.memoryId)
+        .select("id")
+        .single();
+
+      throwIfSupabaseError(error);
+
+      if (!data) {
+        throw new Error("Memory entry was not deleted");
+      }
+
+      return { id: (data as IdRow).id };
+    },
+
+    async listMemories(tripId) {
+      const { data: memories, error: memoriesError } = await supabase
+        .from("memory_entries")
+        .select("id, trip_id, created_by, title, content, created_at")
+        .eq("trip_id", tripId)
+        .order("created_at", { ascending: false });
+
+      throwIfSupabaseError(memoriesError);
+
+      const { data: assets, error: assetsError } = await supabase
+        .from("memory_assets")
+        .select("id, memory_entry_id, image_url, image_path, alt_text, sort_order")
+        .eq("trip_id", tripId)
+        .order("sort_order", { ascending: true });
+
+      throwIfSupabaseError(assetsError);
+
+      return mapMemoryRows(
+        (memories ?? []) as MemoryEntryRow[],
+        (assets ?? []) as MemoryAssetRow[]
+      );
+    }
+  };
+}
+
+export function createSupabaseExpenseRepository(
+  supabase: RideFlowSupabaseClient
+): ExpenseRepository {
+  return {
+    async createExpense(input) {
+      const { data, error } = await supabase
+        .from("expense_entries")
+        .insert({
+          trip_id: input.tripId,
+          title: input.title,
+          amount: input.amount,
+          currency: input.currency,
+          category: input.category,
+          paid_by_member_id: input.paidByMemberId,
+          expense_date: input.date,
+          notes: input.notes,
+          created_by: input.createdBy
+        })
+        .select("id")
+        .single();
+
+      throwIfSupabaseError(error);
+
+      if (!data) {
+        throw new Error("Expense was not created");
+      }
+
+      const expenseId = (data as IdRow).id;
+      await insertExpenseParticipants(supabase, {
+        expenseId,
+        participants: input.participants,
+        tripId: input.tripId
+      });
+
+      return { id: expenseId };
+    },
+
+    async deleteExpense(input) {
+      const { data, error } = await supabase
+        .from("expense_entries")
+        .delete()
+        .eq("id", input.expenseId)
+        .select("id")
+        .single();
+
+      throwIfSupabaseError(error);
+
+      if (!data) {
+        throw new Error("Expense was not deleted");
+      }
+
+      return { id: (data as IdRow).id };
+    },
+
+    async listExpenses(tripId) {
+      const { data: expenses, error: expensesError } = await supabase
+        .from("expense_entries")
+        .select("id, trip_id, title, amount, currency, category, paid_by_member_id, expense_date, notes, created_by")
+        .eq("trip_id", tripId)
+        .order("expense_date", { ascending: false });
+
+      throwIfSupabaseError(expensesError);
+
+      const { data: participants, error: participantsError } = await supabase
+        .from("expense_participants")
+        .select("expense_id, trip_member_id, share_amount")
+        .eq("trip_id", tripId);
+
+      throwIfSupabaseError(participantsError);
+
+      return mapExpenseRows(
+        (expenses ?? []) as ExpenseEntryRow[],
+        (participants ?? []) as ExpenseParticipantRow[]
+      );
+    },
+
+    async updateExpense(input) {
+      const { data, error } = await supabase
+        .from("expense_entries")
+        .update({
+          title: input.title,
+          amount: input.amount,
+          currency: input.currency,
+          category: input.category,
+          paid_by_member_id: input.paidByMemberId,
+          expense_date: input.date,
+          notes: input.notes
+        })
+        .eq("id", input.expenseId)
+        .select("id")
+        .single();
+
+      throwIfSupabaseError(error);
+
+      if (!data) {
+        throw new Error("Expense was not updated");
+      }
+
+      const { error: deleteError } = await supabase
+        .from("expense_participants")
+        .delete()
+        .eq("expense_id", input.expenseId);
+
+      throwIfSupabaseError(deleteError);
+      await insertExpenseParticipants(supabase, {
+        expenseId: input.expenseId,
+        participants: input.participants,
+        tripId: input.tripId
+      });
 
       return { id: (data as IdRow).id };
     }
@@ -424,29 +728,7 @@ export function createSupabaseMemberRepository(
     },
 
     async listMembers(tripId) {
-      const { data, error } = await supabase
-        .from("trip_members")
-        .select("id, trip_id, user_id, invited_email, role, invite_status")
-        .eq("trip_id", tripId)
-        .order("created_at", { ascending: true });
-
-      throwIfSupabaseError(error);
-
-      return ((data ?? []) as Array<{
-        id: string;
-        trip_id: string;
-        user_id: string | null;
-        invited_email: string;
-        role: TripRole;
-        invite_status: "pending" | "accepted";
-      }>).map((member) => ({
-        id: member.id,
-        tripId: member.trip_id,
-        userId: member.user_id,
-        email: member.invited_email,
-        role: member.role,
-        inviteStatus: member.invite_status
-      }));
+      return listSupabaseMembers(supabase, tripId);
     },
 
     async getViewerRole(tripId, userId) {
@@ -485,12 +767,45 @@ export function createSupabaseMemberRepository(
   };
 }
 
+function mapCreatedTrip(trip: TripRow, days: TripDayRow[]): CreatedTrip {
+  return {
+    id: trip.id,
+    ownerId: trip.owner_id,
+    name: trip.name,
+    destination: trip.destination,
+    startDate: trip.start_date,
+    endDate: trip.end_date,
+    coverImagePath: trip.cover_image_path,
+    coverImageUrl: trip.cover_image_url,
+    transport: trip.transport,
+    days: days.map(mapTripDayRow)
+  };
+}
+
 function mapTripDayRow(row: TripDayRow): CreatedTripDay {
   return {
     id: row.id,
     tripId: row.trip_id,
     date: row.date,
     dayIndex: row.day_index
+  };
+}
+
+function mapTripMemberRow(member: {
+  id: string;
+  trip_id: string;
+  user_id: string | null;
+  invited_email: string;
+  role: TripRole;
+  invite_status: "pending" | "accepted";
+}): TripMemberRecord {
+  return {
+    id: member.id,
+    tripId: member.trip_id,
+    userId: member.user_id,
+    email: member.invited_email,
+    role: member.role,
+    inviteStatus: member.invite_status
   };
 }
 
@@ -504,6 +819,77 @@ function mapPlaceToTimelineColumns(place?: PlaceSearchResult) {
     place_lng: place?.lng ?? null,
     place_external_url: place?.externalUrl ?? null
   };
+}
+
+function mapMemoryRows(
+  memories: MemoryEntryRow[],
+  assets: MemoryAssetRow[]
+): MemoryRecord[] {
+  return memories.map((memory) => ({
+    id: memory.id,
+    tripId: memory.trip_id,
+    createdBy: memory.created_by,
+    title: memory.title,
+    content: memory.content,
+    createdAt: memory.created_at,
+    assets: assets
+      .filter((asset) => asset.memory_entry_id === memory.id)
+      .map((asset) => ({
+        id: asset.id,
+        imageUrl: asset.image_url,
+        imagePath: asset.image_path,
+        altText: asset.alt_text,
+        sortOrder: asset.sort_order
+      }))
+  }));
+}
+
+function mapExpenseRows(
+  expenses: ExpenseEntryRow[],
+  participants: ExpenseParticipantRow[]
+): ExpenseRecord[] {
+  return expenses.map((expense) => ({
+    id: expense.id,
+    tripId: expense.trip_id,
+    title: expense.title,
+    amount: Number(expense.amount),
+    currency: expense.currency,
+    category: expense.category,
+    paidByMemberId: expense.paid_by_member_id,
+    date: expense.expense_date,
+    notes: expense.notes,
+    createdBy: expense.created_by,
+    participants: participants
+      .filter((participant) => participant.expense_id === expense.id)
+      .map((participant) => ({
+        memberId: participant.trip_member_id,
+        shareAmount: Number(participant.share_amount)
+      }))
+  }));
+}
+
+async function insertExpenseParticipants(
+  supabase: RideFlowSupabaseClient,
+  input: {
+    expenseId: string;
+    participants: Array<{ memberId: string; shareAmount: number }>;
+    tripId: string;
+  }
+) {
+  if (input.participants.length === 0) {
+    return;
+  }
+
+  const { error } = await supabase
+    .from("expense_participants")
+    .insert(input.participants.map((participant) => ({
+      expense_id: input.expenseId,
+      trip_id: input.tripId,
+      trip_member_id: participant.memberId,
+      share_amount: participant.shareAmount
+    })));
+
+  throwIfSupabaseError(error);
 }
 
 export function createSupabaseAiDraftRepository(

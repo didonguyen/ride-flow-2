@@ -1,12 +1,14 @@
-import type { DashboardTrip } from "@/src/application/trips/dashboard-data";
+﻿import type { DashboardTrip } from "@/src/application/trips/dashboard-data";
 
 export type SupabaseDashboardTripRow = {
+  cover_image_url?: string | null;
   created_at: string;
   destination: string;
   end_date: string;
   id: string;
   name: string;
   start_date: string;
+  transport?: string | null;
 };
 
 const defaultImageUrls = [
@@ -44,7 +46,7 @@ export function mapSupabaseDashboardTrips(
       dateRange: sameYear
         ? `${startLabel} - ${endLabel}, ${yearLabel}`
         : `${startLabel}, ${start.getUTCFullYear()} - ${endLabel}, ${yearLabel}`,
-      imageUrl: pickImageUrl(row.id),
+      imageUrl: row.cover_image_url || pickImageUrl(row.id),
       imageAlt: `${row.destination} travel destination`
     } satisfies DashboardTrip;
   });
