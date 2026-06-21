@@ -268,6 +268,64 @@ describe("Supabase repositories", () => {
     await expect(repository.listDashboardTrips()).resolves.toHaveLength(2);
   });
 
+  it("falls back to legacy trip columns when functional trip migration is missing", async () => {
+    const responses: QueryResponse[] = [
+      { error: { message: "column trips.cover_image_url does not exist" } },
+      {
+        data: [
+          {
+            id: "trip-1",
+            name: "Da Nang Trip",
+            destination: "Da Nang, Vietnam",
+            start_date: "2026-05-10",
+            end_date: "2026-05-16",
+            created_at: "2026-06-13T00:00:00Z"
+          }
+        ],
+        error: null
+      }
+    ];
+    const selectedColumns: string[] = [];
+    const client = {
+      from: vi.fn(() => ({
+        select(columns?: string) {
+          selectedColumns.push(columns ?? "");
+          return {
+            order() {
+              const response = responses.shift() ?? { data: [], error: null };
+              return {
+                then(resolve: (value: QueryResponse) => unknown) {
+                  return Promise.resolve(resolve(response));
+                }
+              };
+            }
+          };
+        }
+      }))
+    };
+
+    const result = await listDashboardTrips(
+      client as unknown as Parameters<typeof listDashboardTrips>[0]
+    );
+
+    expect(selectedColumns).toEqual([
+      "id, name, destination, start_date, end_date, created_at, cover_image_url, transport",
+      "id, name, destination, start_date, end_date, created_at"
+    ]);
+    expect(result).toEqual([
+      {
+        id: "trip-1",
+        name: "Da Nang Trip",
+        destination: "Da Nang, Vietnam",
+        start_date: "2026-05-10",
+        end_date: "2026-05-16",
+        created_at: "2026-06-13T00:00:00Z",
+        cover_image_url: null,
+        transport: null
+      }
+    ]);
+  });
+
   it("lists trip members with camelCase fields", async () => {
     const supabase = createSupabaseMock({
       trip_members: {

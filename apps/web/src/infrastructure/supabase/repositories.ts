@@ -1,4 +1,4 @@
-﻿import type {
+import type {
   MemberRepository,
   TripMemberRecord
 } from "@/src/application/members/types";
@@ -141,6 +141,23 @@ function isNoRowsError(error: SupabaseError | null | undefined) {
     error?.code === "PGRST116" ||
     error?.message.includes("multiple (or no) rows returned") ||
     error?.message.includes("0 rows")
+  );
+}
+
+function isMissingDashboardTripColumnError(
+  error: SupabaseError | null | undefined
+) {
+  if (!error) return false;
+
+  const message = error.message.toLowerCase();
+  const mentionsFunctionalTripColumn =
+    message.includes("cover_image_url") || message.includes("transport");
+
+  return (
+    mentionsFunctionalTripColumn &&
+    (message.includes("does not exist") ||
+      message.includes("could not find") ||
+      message.includes("schema cache"))
   );
 }
 
@@ -335,6 +352,21 @@ export async function listDashboardTrips(
     .from("trips")
     .select("id, name, destination, start_date, end_date, created_at, cover_image_url, transport")
     .order("created_at", { ascending: false });
+
+  if (isMissingDashboardTripColumnError(error)) {
+    const { data: legacyData, error: legacyError } = await supabase
+      .from("trips")
+      .select("id, name, destination, start_date, end_date, created_at")
+      .order("created_at", { ascending: false });
+
+    throwIfSupabaseError(legacyError);
+
+    return ((legacyData ?? []) as SupabaseDashboardTripRow[]).map((row) => ({
+      ...row,
+      cover_image_url: row.cover_image_url ?? null,
+      transport: row.transport ?? null
+    }));
+  }
 
   throwIfSupabaseError(error);
 
