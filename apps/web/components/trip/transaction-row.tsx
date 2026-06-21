@@ -1,5 +1,5 @@
 import type { LucideIcon } from "lucide-react";
-import { Coffee, Fuel, MapPin, Receipt, Utensils, Wallet } from "lucide-react";
+import { Bed, Coffee, Fuel, MapPin, Receipt, Utensils, Wallet } from "lucide-react";
 
 import { TripStatusChip, type TripStatusTone } from "@/components/trip/trip-status-chip";
 import { cn } from "@/src/lib/utils";
@@ -15,7 +15,7 @@ export type TransactionCategory =
 const CATEGORY_ICON: Record<TransactionCategory, LucideIcon> = {
   fuel: Fuel,
   food: Utensils,
-  stay: MapPin,
+  stay: Bed,
   tickets: Receipt,
   transport: Coffee,
   other: Wallet
@@ -68,7 +68,7 @@ export function TransactionRow({
   return (
     <article
       className={cn(
-        "flex items-center gap-4 rounded-2xl bg-paper-50 px-4 py-4 ring-1 ring-paper-200 transition hover:ring-sage-300",
+        "flex items-center gap-4 rounded-2xl bg-paper-50 p-4 ring-1 ring-paper-200 transition hover:ring-sage-300",
         className
       )}
       data-testid="transaction-row"
@@ -101,3 +101,5 @@ export function TransactionRow({
     </article>
   );
 }
+
+export { MapPin };

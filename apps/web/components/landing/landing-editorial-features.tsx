@@ -45,6 +45,7 @@ export function LandingEditorialFeatures() {
           <h2
             className="mt-4 font-display text-3xl text-ink-950 sm:text-4xl"
             id="landing-editorial-features-heading"
+            style={{ letterSpacing: "-0.02em" }}
           >
             The Modern Explorer toolkit
           </h2>

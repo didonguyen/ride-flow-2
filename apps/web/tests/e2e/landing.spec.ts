@@ -13,7 +13,7 @@ test.describe("Editorial landing page (US-RF-018)", () => {
     await expect(
       page.getByRole("heading", {
         level: 2,
-        name: "Discover Vietnam"
+        name: /Discover\s+Vietnam/
       })
     ).toBeVisible();
 
@@ -29,6 +29,19 @@ test.describe("Editorial landing page (US-RF-018)", () => {
         level: 2,
         name: "Plan your next journey"
       })
+    ).toBeVisible();
+
+    await expect(
+      page.getByTestId("landing-region-hanoi")
+    ).toBeVisible();
+    await expect(
+      page.getByTestId("landing-region-hcmc")
+    ).toBeVisible();
+    await expect(
+      page.getByTestId("landing-region-card-hoàng-sa")
+    ).toBeVisible();
+    await expect(
+      page.getByTestId("landing-region-card-trường-sa")
     ).toBeVisible();
   });
 

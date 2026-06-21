@@ -34,23 +34,44 @@ export function PlanningSurface({ trip, onDismissAssistant }: PlanningSurfacePro
   const [selectedDayId, setSelectedDayId] = useState<string>(
     trip.selectedDayId
   );
+  const [extraDays, setExtraDays] = useState<DayRailDay[]>([]);
   const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
 
   const days: DayRailDay[] = useMemo(
-    () =>
-      trip.days.map((day) => ({
+    () => [
+      ...trip.days.map((day) => ({
         id: day.id,
         label: day.label,
         date: day.date,
         isSelected: day.id === selectedDayId
       })),
-    [trip.days, selectedDayId]
+      ...extraDays.map((day) => ({
+        ...day,
+        isSelected: day.id === selectedDayId
+      }))
+    ],
+    [trip.days, extraDays, selectedDayId]
   );
 
   const dayItems = useMemo(
     () => agendaForDay(trip, selectedDayId),
     [trip, selectedDayId]
   );
+
+  const handleAddDay = () => {
+    const next = days.length + 1;
+    const id = `day-extra-${next}`;
+    setExtraDays((prev) => [
+      ...prev,
+      {
+        id,
+        label: `Day ${next}`,
+        date: `Day ${next}`
+      }
+    ]);
+    setSelectedDayId(id);
+    setSelectedItemId(null);
+  };
 
   return (
     <div
@@ -59,7 +80,7 @@ export function PlanningSurface({ trip, onDismissAssistant }: PlanningSurfacePro
     >
       <TripDayRail
         days={days}
-        onAddDay={() => undefined}
+        onAddDay={handleAddDay}
         onSelectDay={(id) => {
           setSelectedDayId(id);
           setSelectedItemId(null);

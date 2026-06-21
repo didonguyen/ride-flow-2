@@ -45,4 +45,14 @@ describe("PlanningSurface (pixel-perfect)", () => {
     await userEvent.click(screen.getByTestId("ai-assistant-secondary"));
     expect(onDismiss).toHaveBeenCalledTimes(1);
   });
+
+  it("adds a new day when the day rail Add Day is clicked", async () => {
+    const trip = planningTrips[0]!;
+    render(<PlanningSurface trip={trip} />);
+    const initialDays = screen.getAllByTestId(/^trip-day-rail-day-/);
+    expect(initialDays).toHaveLength(trip.days.length);
+    await userEvent.click(screen.getByTestId("trip-day-rail-add"));
+    const afterDays = screen.getAllByTestId(/^trip-day-rail-day-/);
+    expect(afterDays).toHaveLength(trip.days.length + 1);
+  });
 });

@@ -27,7 +27,7 @@ export function BudgetUsageBar({
     >
       <div
         aria-label="Budget usage bar"
-        className="flex h-3 w-full overflow-hidden rounded-full bg-paper-200"
+        className="flex h-2.5 w-full overflow-hidden rounded-full bg-paper-200"
         role="img"
       >
         {slices.map((slice) => {

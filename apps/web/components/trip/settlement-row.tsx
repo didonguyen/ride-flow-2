@@ -9,6 +9,18 @@ type SettlementRowProps = {
   className?: string;
 };
 
+const AVATAR_TONES = [
+  "bg-sage-200 text-forest-800",
+  "bg-amber-100 text-amber-500",
+  "bg-terracotta-100 text-terracotta-500",
+  "bg-paper-200 text-ink-700"
+];
+
+function toneFor(initial: string) {
+  const code = initial.toUpperCase().charCodeAt(0);
+  return AVATAR_TONES[code % AVATAR_TONES.length];
+}
+
 export function SettlementRow({
   debtorName,
   debtorInitial,
@@ -19,14 +31,17 @@ export function SettlementRow({
   return (
     <article
       className={cn(
-        "flex items-center gap-3 rounded-2xl bg-paper-50 px-4 py-3 ring-1 ring-paper-200",
+        "flex items-center gap-3 rounded-2xl bg-paper-100 px-4 py-3",
         className
       )}
       data-testid="settlement-row"
     >
       <span
         aria-hidden="true"
-        className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-sage-200 text-sm font-semibold text-forest-800"
+        className={cn(
+          "inline-flex h-9 w-9 items-center justify-center rounded-full text-sm font-semibold",
+          toneFor(debtorInitial)
+        )}
       >
         {debtorInitial}
       </span>
@@ -34,7 +49,7 @@ export function SettlementRow({
         <p className="truncate text-sm font-semibold text-ink-950">
           {debtorName} owes {creditorName}
         </p>
-        <p className="text-xs font-semibold uppercase tracking-[0.14em] text-terracotta-500">
+        <p className="text-xs font-semibold text-terracotta-500">
           ${amount.toFixed(2)}
         </p>
       </div>

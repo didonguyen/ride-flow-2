@@ -29,7 +29,12 @@ export default async function TripExpensesPage({ params }: ExpensesPageProps) {
   }
 
   return (
-    <TripAppShell activeItem="My Trips">
+    <TripAppShell
+      activeItem="My Trips"
+      backHref={"/trips" as never}
+      pageTitle={trip.name}
+      showSearch
+    >
       <TripCoverHeader
         coverImageUrl={trip.coverImageUrl ?? ""}
         dateRange={trip.dateRange}

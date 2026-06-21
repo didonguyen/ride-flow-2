@@ -6,6 +6,7 @@ export function LandingFinalCta() {
       aria-labelledby="landing-final-cta-heading"
       className="bg-forest-900 py-16 sm:py-20"
       data-testid="landing-final-cta-section"
+      id="vietnam"
     >
       <div className="mx-auto flex w-full max-w-3xl flex-col items-center gap-5 px-4 text-center sm:px-6 lg:px-8">
         <span
@@ -15,6 +16,7 @@ export function LandingFinalCta() {
         <h2
           className="font-display text-3xl text-white sm:text-4xl"
           id="landing-final-cta-heading"
+          style={{ letterSpacing: "-0.02em" }}
         >
           Plan your next journey
         </h2>

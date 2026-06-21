@@ -43,7 +43,7 @@ export function LandingHeader({ className }: LandingHeaderProps) {
 
         <nav
           aria-label="Editorial navigation"
-          className="hidden items-center gap-6 text-sm font-semibold text-white/85 sm:flex"
+          className="hidden items-center gap-7 text-sm font-medium text-white/85 sm:flex"
         >
           {NAV_LINKS.map((link) => (
             <a

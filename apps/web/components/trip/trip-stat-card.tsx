@@ -34,14 +34,10 @@ export function TripStatCard({
           {label}
         </span>
         <span
-          className={cn(
-            "inline-flex h-9 w-9 items-center justify-center rounded-xl",
-            isPending
-              ? "bg-terracotta-100 text-terracotta-500"
-              : "bg-sage-100 text-forest-800"
-          )}
+          aria-hidden="true"
+          className="inline-flex h-7 w-7 items-center justify-center text-ink-700"
         >
-          <Icon aria-hidden="true" className="h-4 w-4" />
+          <Icon aria-hidden="true" className="h-4 w-4" strokeWidth={2.2} />
         </span>
       </div>
       <div

@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import Image from "next/image";
 import { Bike, CalendarDays, Clock } from "lucide-react";
 
@@ -9,6 +10,7 @@ type TripCoverHeaderProps = {
   dateRange: string;
   days: string;
   transport: string;
+  topActions?: ReactNode;
   className?: string;
 };
 
@@ -21,6 +23,7 @@ export function TripCoverHeader({
   dateRange,
   days,
   transport,
+  topActions,
   className
 }: TripCoverHeaderProps) {
   const safeCover = coverImageUrl || FALLBACK_COVER;
@@ -45,6 +48,14 @@ export function TripCoverHeader({
         aria-hidden="true"
         className="absolute inset-0 bg-gradient-to-t from-forest-900/85 via-forest-900/40 to-transparent"
       />
+      {topActions ? (
+        <div
+          className="absolute inset-x-5 top-5 z-10 flex items-center justify-end gap-2 sm:inset-x-8 lg:inset-x-10"
+          data-testid="trip-cover-top-actions"
+        >
+          {topActions}
+        </div>
+      ) : null}
       <div className="absolute inset-x-5 bottom-5 z-10 sm:inset-x-8 lg:inset-x-10 lg:bottom-7">
         <h1
           className="font-display text-2xl text-white sm:text-[28px]"
