@@ -144,7 +144,7 @@ function isNoRowsError(error: SupabaseError | null | undefined) {
   );
 }
 
-function isMissingDashboardTripColumnError(
+function isMissingFunctionalTripColumnError(
   error: SupabaseError | null | undefined
 ) {
   if (!error) return false;
@@ -316,9 +316,28 @@ export async function getSupabasePlanningTripRows(
     .eq("id", tripId)
     .single();
 
-  throwIfSupabaseError(tripError);
+  let tripRow = trip as SupabasePlanningTripRow | undefined;
 
-  if (!trip) {
+  if (isMissingFunctionalTripColumnError(tripError)) {
+    const { data: legacyTrip, error: legacyTripError } = await supabase
+      .from("trips")
+      .select("id, name, destination, start_date, end_date")
+      .eq("id", tripId)
+      .single();
+
+    throwIfSupabaseError(legacyTripError);
+    tripRow = legacyTrip
+      ? {
+          ...(legacyTrip as SupabasePlanningTripRow),
+          cover_image_url: null,
+          transport: null
+        }
+      : undefined;
+  } else {
+    throwIfSupabaseError(tripError);
+  }
+
+  if (!tripRow) {
     return null;
   }
 
@@ -339,7 +358,7 @@ export async function getSupabasePlanningTripRows(
   throwIfSupabaseError(timelineError);
 
   return {
-    trip: trip as SupabasePlanningTripRow,
+    trip: tripRow,
     days: (days ?? []) as SupabasePlanningDayRow[],
     timelineItems: (timelineItems ?? []) as SupabasePlanningTimelineRow[]
   };
@@ -353,7 +372,7 @@ export async function listDashboardTrips(
     .select("id, name, destination, start_date, end_date, created_at, cover_image_url, transport")
     .order("created_at", { ascending: false });
 
-  if (isMissingDashboardTripColumnError(error)) {
+  if (isMissingFunctionalTripColumnError(error)) {
     const { data: legacyData, error: legacyError } = await supabase
       .from("trips")
       .select("id, name, destination, start_date, end_date, created_at")

@@ -5,6 +5,7 @@ import {
   createSupabaseTimelineRepository,
   createSupabaseTripQueryRepository,
   createSupabaseTripRepository,
+  getSupabasePlanningTripRows,
   listDashboardTrips,
   listSupabaseMembers
 } from "@/src/infrastructure/supabase/repositories";
@@ -266,6 +267,65 @@ describe("Supabase repositories", () => {
 
     const repository = createSupabaseTripQueryRepository(supabase.client);
     await expect(repository.listDashboardTrips()).resolves.toHaveLength(2);
+  });
+
+  it("falls back to legacy trip columns for planning detail when migration is missing", async () => {
+    const tripResponses: QueryResponse[] = [
+      { error: { message: "column trips.cover_image_url does not exist" } },
+      {
+        data: {
+          id: "trip-1",
+          name: "Da Nang Trip",
+          destination: "Da Nang, Vietnam",
+          start_date: "2026-05-10",
+          end_date: "2026-05-16"
+        },
+        error: null
+      }
+    ];
+    const selectedColumns: string[] = [];
+    const client = {
+      from: vi.fn((table: string) => ({
+        select(columns?: string) {
+          if (table === "trips") {
+            selectedColumns.push(columns ?? "");
+          }
+          return {
+            eq() {
+              return {
+                single() {
+                  return Promise.resolve(
+                    tripResponses.shift() ?? { data: null, error: null }
+                  );
+                },
+                then(resolve: (value: QueryResponse) => unknown) {
+                  const response =
+                    table === "trip_days"
+                      ? { data: [], error: null }
+                      : { data: [], error: null };
+                  return Promise.resolve(resolve(response));
+                }
+              };
+            }
+          };
+        }
+      }))
+    };
+
+    const result = await getSupabasePlanningTripRows(
+      client as unknown as Parameters<typeof getSupabasePlanningTripRows>[0],
+      "trip-1"
+    );
+
+    expect(selectedColumns).toEqual([
+      "id, name, destination, start_date, end_date, cover_image_url, transport",
+      "id, name, destination, start_date, end_date"
+    ]);
+    expect(result?.trip).toMatchObject({
+      id: "trip-1",
+      cover_image_url: null,
+      transport: null
+    });
   });
 
   it("falls back to legacy trip columns when functional trip migration is missing", async () => {
