@@ -1,4 +1,4 @@
-﻿import { err, ok, type Result } from "@/src/lib/result";
+import { err, type Result } from "@/src/lib/result";
 
 export type MemoryDraft = {
   content: string;
@@ -25,5 +25,5 @@ export function validateMemoryDraft(
     return err("memory_empty");
   }
 
-  return ok({ title, content, imageCount });
+  return { ok: true, value: { title, content, imageCount } };
 }

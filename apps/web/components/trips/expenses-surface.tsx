@@ -56,6 +56,7 @@ export function ExpensesSurface({
       >
         <ExpenseForm
           action={addExpenseAction}
+          onSubmit={() => setShowAddExpense(false)}
           members={members}
           submitLabel="Save expense"
           tripId={tripId}
@@ -73,6 +74,7 @@ export function ExpensesSurface({
         {editingExpense ? (
           <ExpenseForm
             action={updateExpenseAction}
+            onSubmit={() => setEditingExpenseId(null)}
             expense={editingExpense}
             members={members}
             submitLabel="Update expense"
@@ -94,7 +96,11 @@ export function ExpensesSurface({
         title="Delete expense"
       >
         {deletingExpense ? (
-          <form action={deleteExpenseAction} className="flex flex-wrap gap-2">
+          <form
+            action={deleteExpenseAction}
+            className="flex flex-wrap gap-2"
+            onSubmit={() => setDeletingExpense(null)}
+          >
             <input name="tripId" type="hidden" value={tripId} />
             <input name="expenseId" type="hidden" value={deletingExpense.id} />
             <button
@@ -356,13 +362,15 @@ function ExpenseForm({
   expense,
   members,
   submitLabel,
-  tripId
+  tripId,
+  onSubmit
 }: {
   action?: (formData: FormData) => Promise<void> | void;
   expense?: TripExpense;
   members: TripMemberRecord[];
   submitLabel: string;
   tripId: string;
+  onSubmit?: () => void;
 }) {
   const defaultPaidBy = expense?.paidByMemberId ?? members[0]?.id ?? "";
   const selectedParticipants = new Set(
@@ -374,6 +382,7 @@ function ExpenseForm({
       action={action}
       className="grid gap-3 rounded-2xl bg-sage-100 p-4"
       data-testid={expense ? "expenses-edit-form" : "expenses-add-form"}
+      onSubmit={onSubmit}
     >
       <input name="tripId" type="hidden" value={tripId} />
       {expense ? <input name="expenseId" type="hidden" value={expense.id} /> : null}

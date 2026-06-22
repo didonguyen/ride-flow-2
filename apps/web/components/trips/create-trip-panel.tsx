@@ -1,6 +1,7 @@
-﻿"use client";
+"use client";
 
-import { forwardRef, useState, type FormEvent } from "react";
+import { forwardRef, useEffect, type Ref } from "react";
+import { useFormStatus } from "react-dom";
 
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
@@ -11,7 +12,7 @@ type CreateTripPanelProps = {
   action: (formData: FormData) => Promise<void> | void;
   error?: string;
   onSubmittingChange?: (isSubmitting: boolean) => void;
-  submitRef?: React.Ref<HTMLButtonElement>;
+  submitRef?: Ref<HTMLButtonElement>;
   contentClassName?: string;
   formClassName?: string;
   submitLabel?: string;
@@ -28,14 +29,6 @@ export const CreateTripPanel = forwardRef<HTMLDivElement, CreateTripPanelProps>(
       formClassName,
       submitLabel = "Create trip"
     } = props;
-    const [isSubmitting, setIsSubmitting] = useState(false);
-
-    const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
-      if (typeof (event.nativeEvent as { submitter?: HTMLButtonElement }).submitter?.disabled === "boolean") {
-        setIsSubmitting(true);
-        onSubmittingChange?.(true);
-      }
-    };
 
     return (
       <div
@@ -61,8 +54,6 @@ export const CreateTripPanel = forwardRef<HTMLDivElement, CreateTripPanelProps>(
         <form
           action={action}
           className={formClassName ?? "space-y-4"}
-          encType="multipart/form-data"
-          onSubmit={handleSubmit}
         >
           <div className="space-y-2">
             <Label htmlFor="name">Trip name</Label>
@@ -122,22 +113,42 @@ export const CreateTripPanel = forwardRef<HTMLDivElement, CreateTripPanelProps>(
             </div>
           </div>
 
-          <Button
-            className="w-full sm:w-auto"
-            data-testid="create-trip-panel-submit"
-            disabled={isSubmitting}
-            ref={submitRef}
-            size="lg"
-            type="submit"
-            onClick={() => {
-              setIsSubmitting(true);
-              onSubmittingChange?.(true);
-            }}
-          >
-            {submitLabel}
-          </Button>
+          <CreateTripSubmitButton
+            onSubmittingChange={onSubmittingChange}
+            submitLabel={submitLabel}
+            submitRef={submitRef}
+          />
         </form>
       </div>
     );
   }
 );
+
+function CreateTripSubmitButton({
+  onSubmittingChange,
+  submitLabel,
+  submitRef
+}: {
+  onSubmittingChange?: (isSubmitting: boolean) => void;
+  submitLabel: string;
+  submitRef?: Ref<HTMLButtonElement>;
+}) {
+  const { pending } = useFormStatus();
+
+  useEffect(() => {
+    onSubmittingChange?.(pending);
+  }, [onSubmittingChange, pending]);
+
+  return (
+    <Button
+      className="w-full sm:w-auto"
+      data-testid="create-trip-panel-submit"
+      disabled={pending}
+      ref={submitRef}
+      size="lg"
+      type="submit"
+    >
+      {pending ? "Creating trip..." : submitLabel}
+    </Button>
+  );
+}

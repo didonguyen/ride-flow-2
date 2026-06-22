@@ -45,6 +45,7 @@ export function MemoriesSurface({
           className="grid gap-4"
           data-testid="memories-add-form"
           encType="multipart/form-data"
+          onSubmit={() => setShowAdd(false)}
         >
           <input name="tripId" type="hidden" value={tripId} />
           <label className="flex flex-col gap-1 text-xs font-semibold uppercase tracking-[0.14em] text-forest-800">
@@ -107,7 +108,11 @@ export function MemoriesSurface({
         title="Delete memory"
       >
         {deletingMemory ? (
-          <form action={deleteMemoryAction} className="flex flex-wrap gap-2">
+          <form
+            action={deleteMemoryAction}
+            className="flex flex-wrap gap-2"
+            onSubmit={() => setDeletingMemory(null)}
+          >
             <input name="tripId" type="hidden" value={tripId} />
             <input name="memoryId" type="hidden" value={deletingMemory.id} />
             <button

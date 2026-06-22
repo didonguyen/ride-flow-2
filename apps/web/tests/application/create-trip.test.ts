@@ -1,4 +1,4 @@
-﻿import { describe, expect, it, vi } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { createTripUseCase } from "@/src/application/trips/create-trip";
 import type { TripRepository } from "@/src/application/trips/types";
 
@@ -26,6 +26,8 @@ describe("createTripUseCase", () => {
       ownerId: "user-1",
       name: "Da Nang Food Trip",
       destination: "Da Nang",
+      coverImagePath: null,
+      coverImageUrl: null,
       startDate: "2026-07-01",
       endDate: "2026-07-02",
       transport: "Van"
@@ -36,6 +38,8 @@ describe("createTripUseCase", () => {
       ownerEmail: null,
       name: "Da Nang Food Trip",
       destination: "Da Nang",
+      coverImagePath: null,
+      coverImageUrl: null,
       startDate: "2026-07-01",
       endDate: "2026-07-02",
       transport: "Van",
@@ -62,6 +66,8 @@ describe("createTripUseCase", () => {
       ownerId: "user-1",
       name: "  ",
       destination: "Da Nang",
+      coverImagePath: null,
+      coverImageUrl: null,
       startDate: "2026-07-01",
       endDate: "2026-07-02"
     });

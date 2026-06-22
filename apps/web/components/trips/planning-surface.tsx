@@ -27,12 +27,12 @@ const NIGHT_ALTERNATIVES = [
   {
     id: "green-hope",
     name: "Green Hope Lodge",
-    meta: "Forest cabin · 4.6 ?"
+    meta: "Forest cabin Â· 4.6 â˜…"
   },
   {
     id: "nam-cat-tien-bay",
-    name: "Nam Cát Tiên Bay Stay",
-    meta: "Lakeside rooms · 4.4 ?"
+    name: "Nam CÃ¡t TiÃªn Bay Stay",
+    meta: "Lakeside rooms Â· 4.4 â˜…"
   }
 ];
 
@@ -47,7 +47,6 @@ export function PlanningSurface({
   const [selectedDayId, setSelectedDayId] = useState<string>(
     trip.selectedDayId
   );
-  const [extraDays, setExtraDays] = useState<DayRailDay[]>([]);
   const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
   const [showAddDay, setShowAddDay] = useState(false);
   const [showAddStop, setShowAddStop] = useState(false);
@@ -55,19 +54,14 @@ export function PlanningSurface({
   const [deletingStop, setDeletingStop] = useState<PlanningAgendaItem | null>(null);
 
   const days: DayRailDay[] = useMemo(
-    () => [
-      ...trip.days.map((day) => ({
+    () =>
+      trip.days.map((day) => ({
         id: day.id,
         label: day.label,
         date: day.date,
         isSelected: day.id === selectedDayId
       })),
-      ...extraDays.map((day) => ({
-        ...day,
-        isSelected: day.id === selectedDayId
-      }))
-    ],
-    [trip.days, extraDays, selectedDayId]
+    [trip.days, selectedDayId]
   );
 
   const dayItems = useMemo(
@@ -87,16 +81,7 @@ export function PlanningSurface({
   const nextDay = buildNextDay(trip, days.length + 1);
 
   const handleAddDay = () => {
-    const id = `day-extra-${days.length + 1}`;
-    setExtraDays((prev) => [
-      ...prev,
-      {
-        id,
-        label: `Day ${days.length + 1}`,
-        date: nextDay.label
-      }
-    ]);
-    setSelectedDayId(id);
+    setShowAddDay(false);
     setSelectedItemId(null);
   };
 
