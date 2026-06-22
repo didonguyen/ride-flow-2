@@ -7,6 +7,7 @@ import { AiInsightCard } from "@/components/trip/ai-insight-card";
 import { BudgetUsageBar } from "@/components/trip/budget-usage-bar";
 import { MemberBalanceRow } from "@/components/trip/member-balance-row";
 import { TripStatCard } from "@/components/trip/trip-stat-card";
+import { ActionModal } from "@/components/ui/action-modal";
 import type { TripMemberRecord } from "@/src/application/members/types";
 import type {
   TripExpense,
@@ -34,8 +35,11 @@ export function ExpensesSurface({
 }: ExpensesSurfaceProps) {
   const [showAddExpense, setShowAddExpense] = useState(false);
   const [editingExpenseId, setEditingExpenseId] = useState<string | null>(null);
+  const [deletingExpense, setDeletingExpense] = useState<TripExpense | null>(null);
   const [showSettle, setShowSettle] = useState(false);
   const activeBalances = summary.balances.filter(isActiveBalance);
+  const editingExpense =
+    summary.transactions.find((expense) => expense.id === editingExpenseId) ?? null;
 
   return (
     <section
@@ -44,6 +48,74 @@ export function ExpensesSurface({
       data-testid="expenses-surface"
       data-trip-id={tripId}
     >
+      <ActionModal
+        description="Record who paid, who joined, and how the shared cost should be split."
+        onOpenChange={setShowAddExpense}
+        open={showAddExpense}
+        title="Add expense"
+      >
+        <ExpenseForm
+          action={addExpenseAction}
+          members={members}
+          submitLabel="Save expense"
+          tripId={tripId}
+        />
+      </ActionModal>
+
+      <ActionModal
+        description="Update the amount, category, payer, notes, or joined members."
+        onOpenChange={(open) => {
+          if (!open) setEditingExpenseId(null);
+        }}
+        open={Boolean(editingExpense)}
+        title="Edit expense"
+      >
+        {editingExpense ? (
+          <ExpenseForm
+            action={updateExpenseAction}
+            expense={editingExpense}
+            members={members}
+            submitLabel="Update expense"
+            tripId={tripId}
+          />
+        ) : null}
+      </ActionModal>
+
+      <ActionModal
+        description={
+          deletingExpense
+            ? `This removes "${deletingExpense.title}" from the trip expense list.`
+            : undefined
+        }
+        onOpenChange={(open) => {
+          if (!open) setDeletingExpense(null);
+        }}
+        open={Boolean(deletingExpense)}
+        title="Delete expense"
+      >
+        {deletingExpense ? (
+          <form action={deleteExpenseAction} className="flex flex-wrap gap-2">
+            <input name="tripId" type="hidden" value={tripId} />
+            <input name="expenseId" type="hidden" value={deletingExpense.id} />
+            <button
+              className="inline-flex items-center justify-center gap-2 rounded-full bg-red-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-red-700"
+              data-testid={`expenses-delete-confirm-${deletingExpense.id}`}
+              type="submit"
+            >
+              <Trash2 aria-hidden="true" className="h-4 w-4" />
+              Delete expense
+            </button>
+            <button
+              className="inline-flex items-center justify-center rounded-full border border-paper-300 bg-white px-4 py-2 text-sm font-semibold text-ink-700 transition hover:bg-paper-100"
+              type="button"
+              onClick={() => setDeletingExpense(null)}
+            >
+              Cancel
+            </button>
+          </form>
+        ) : null}
+      </ActionModal>
+
       <div
         className="flex flex-wrap items-center justify-between gap-3 rounded-2xl bg-forest-800/95 px-5 py-4 text-white shadow-rideflow-editorial-card"
         data-testid="expenses-cover-actions"
@@ -60,7 +132,7 @@ export function ExpensesSurface({
           className="inline-flex items-center gap-2 rounded-full bg-amber-400 px-4 py-2 text-xs font-semibold text-ink-950 shadow-rideflow-editorial-card transition hover:bg-amber-500"
           data-testid="expenses-add"
           type="button"
-          onClick={() => setShowAddExpense((value) => !value)}
+          onClick={() => setShowAddExpense(true)}
         >
           <Plus aria-hidden="true" className="h-3.5 w-3.5" />
           Add expense
@@ -127,14 +199,6 @@ export function ExpensesSurface({
             <div className="flex items-center justify-between gap-3">
               <h2 className="font-display text-xl text-ink-950">Recent Expenses</h2>
             </div>
-            {showAddExpense ? (
-              <ExpenseForm
-                action={addExpenseAction}
-                members={members}
-                submitLabel="Save expense"
-                tripId={tripId}
-              />
-            ) : null}
             {summary.transactions.length === 0 ? (
               <p
                 className="rounded-2xl border border-dashed border-paper-200 bg-paper-50 px-4 py-6 text-center text-sm text-ink-500"
@@ -146,18 +210,12 @@ export function ExpensesSurface({
               <div className="flex flex-col gap-3">
                 {summary.transactions.map((transaction) => (
                   <ExpenseRow
-                    deleteAction={deleteExpenseAction}
-                    editing={editingExpenseId === transaction.id}
+                    canDelete={Boolean(deleteExpenseAction)}
+                    canEdit={Boolean(updateExpenseAction)}
                     key={transaction.id}
-                    members={members}
-                    onEdit={() =>
-                      setEditingExpenseId((current) =>
-                        current === transaction.id ? null : transaction.id
-                      )
-                    }
+                    onDelete={() => setDeletingExpense(transaction)}
+                    onEdit={() => setEditingExpenseId(transaction.id)}
                     transaction={transaction}
-                    tripId={tripId}
-                    updateAction={updateExpenseAction}
                   />
                 ))}
               </div>
@@ -234,21 +292,17 @@ export function ExpensesSurface({
 }
 
 function ExpenseRow({
-  deleteAction,
-  editing,
-  members,
+  canDelete,
+  canEdit,
+  onDelete,
   onEdit,
-  transaction,
-  tripId,
-  updateAction
+  transaction
 }: {
-  deleteAction?: (formData: FormData) => Promise<void> | void;
-  editing: boolean;
-  members: TripMemberRecord[];
+  canDelete: boolean;
+  canEdit: boolean;
+  onDelete: () => void;
   onEdit: () => void;
   transaction: TripExpense;
-  tripId: string;
-  updateAction?: (formData: FormData) => Promise<void> | void;
 }) {
   return (
     <article
@@ -270,37 +324,29 @@ function ExpenseRow({
         <span className="text-base font-semibold text-ink-950">
           {formatMoney(transaction.amount, transaction.currency)}
         </span>
-        <button
-          aria-label={`Edit ${transaction.title}`}
-          className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-paper-100 text-ink-700 transition hover:bg-sage-100"
-          data-testid={`expenses-edit-${transaction.id}`}
-          type="button"
-          onClick={onEdit}
-        >
-          <Pencil aria-hidden="true" className="h-4 w-4" />
-        </button>
-        <form action={deleteAction}>
-          <input name="tripId" type="hidden" value={tripId} />
-          <input name="expenseId" type="hidden" value={transaction.id} />
+        {canEdit ? (
+          <button
+            aria-label={`Edit ${transaction.title}`}
+            className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-paper-100 text-ink-700 transition hover:bg-sage-100"
+            data-testid={`expenses-edit-${transaction.id}`}
+            type="button"
+            onClick={onEdit}
+          >
+            <Pencil aria-hidden="true" className="h-4 w-4" />
+          </button>
+        ) : null}
+        {canDelete ? (
           <button
             aria-label={`Delete ${transaction.title}`}
             className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-red-50 text-red-700 transition hover:bg-red-100"
             data-testid={`expenses-delete-${transaction.id}`}
-            type="submit"
+            type="button"
+            onClick={onDelete}
           >
             <Trash2 aria-hidden="true" className="h-4 w-4" />
           </button>
-        </form>
+        ) : null}
       </div>
-      {editing ? (
-        <ExpenseForm
-          action={updateAction}
-          expense={transaction}
-          members={members}
-          submitLabel="Update expense"
-          tripId={tripId}
-        />
-      ) : null}
     </article>
   );
 }

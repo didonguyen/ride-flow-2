@@ -1,10 +1,11 @@
-﻿"use client";
+"use client";
 
 import { useState } from "react";
 import Image from "next/image";
 import { ImagePlus, Trash2 } from "lucide-react";
 
 import { TripVaultCard } from "@/components/trip/trip-vault-card";
+import { ActionModal } from "@/components/ui/action-modal";
 import { getTripVault, type TripMemory } from "@/src/application/trips/memories-data";
 
 type MemoriesSurfaceProps = {
@@ -23,6 +24,7 @@ export function MemoriesSurface({
   tripName
 }: MemoriesSurfaceProps) {
   const [showAdd, setShowAdd] = useState(false);
+  const [deletingMemory, setDeletingMemory] = useState<TripMemory | null>(null);
   const vault = getTripVault(memories);
 
   return (
@@ -32,62 +34,102 @@ export function MemoriesSurface({
       data-testid="memories-surface"
       data-trip-id={tripId}
     >
-      <div className="flex flex-col gap-5">
-        {showAdd ? (
-          <form
-            action={addMemoryAction}
-            className="grid gap-4 rounded-2xl border border-dashed border-forest-800/40 bg-sage-100 p-5"
-            data-testid="memories-add-form"
-            encType="multipart/form-data"
-          >
+      <ActionModal
+        description="Upload trip photos and add an optional note for this memory."
+        onOpenChange={setShowAdd}
+        open={showAdd}
+        title="Add memory"
+      >
+        <form
+          action={addMemoryAction}
+          className="grid gap-4"
+          data-testid="memories-add-form"
+          encType="multipart/form-data"
+        >
+          <input name="tripId" type="hidden" value={tripId} />
+          <label className="flex flex-col gap-1 text-xs font-semibold uppercase tracking-[0.14em] text-forest-800">
+            Title
+            <input
+              className="rounded-xl border border-paper-200 bg-white px-3 py-2 text-sm normal-case tracking-normal text-ink-950 outline-none focus:border-forest-800"
+              name="title"
+              placeholder="Lantern-lit dinner"
+            />
+          </label>
+          <label className="flex flex-col gap-1 text-xs font-semibold uppercase tracking-[0.14em] text-forest-800">
+            Content
+            <textarea
+              className="min-h-28 rounded-xl border border-paper-200 bg-white px-3 py-2 text-sm normal-case tracking-normal text-ink-950 outline-none focus:border-forest-800"
+              name="content"
+              placeholder="What do you want to remember?"
+            />
+          </label>
+          <label className="flex flex-col gap-1 text-xs font-semibold uppercase tracking-[0.14em] text-forest-800">
+            Images
+            <input
+              accept="image/*"
+              className="rounded-xl border border-paper-200 bg-white px-3 py-2 text-sm normal-case tracking-normal text-ink-950"
+              multiple
+              name="images"
+              type="file"
+            />
+          </label>
+          <div className="flex flex-wrap gap-2">
+            <button
+              className="inline-flex items-center justify-center gap-2 rounded-full bg-forest-800 px-4 py-2 text-sm font-semibold text-white transition hover:bg-forest-700"
+              data-testid="memories-add-submit"
+              type="submit"
+            >
+              <ImagePlus aria-hidden="true" className="h-4 w-4" />
+              Save memory
+            </button>
+            <button
+              className="inline-flex items-center justify-center rounded-full border border-forest-800/30 bg-white px-4 py-2 text-sm font-semibold text-forest-800 transition hover:bg-forest-800/5"
+              data-testid="memories-add-dismiss"
+              type="button"
+              onClick={() => setShowAdd(false)}
+            >
+              Dismiss
+            </button>
+          </div>
+        </form>
+      </ActionModal>
+
+      <ActionModal
+        description={
+          deletingMemory
+            ? `This removes "${deletingMemory.title}" and its photos from this trip view.`
+            : undefined
+        }
+        onOpenChange={(open) => {
+          if (!open) setDeletingMemory(null);
+        }}
+        open={Boolean(deletingMemory)}
+        title="Delete memory"
+      >
+        {deletingMemory ? (
+          <form action={deleteMemoryAction} className="flex flex-wrap gap-2">
             <input name="tripId" type="hidden" value={tripId} />
-            <label className="flex flex-col gap-1 text-xs font-semibold uppercase tracking-[0.14em] text-forest-800">
-              Title
-              <input
-                className="rounded-xl border border-paper-200 bg-white px-3 py-2 text-sm normal-case tracking-normal text-ink-950 outline-none focus:border-forest-800"
-                name="title"
-                placeholder="Lantern-lit dinner"
-              />
-            </label>
-            <label className="flex flex-col gap-1 text-xs font-semibold uppercase tracking-[0.14em] text-forest-800">
-              Content
-              <textarea
-                className="min-h-28 rounded-xl border border-paper-200 bg-white px-3 py-2 text-sm normal-case tracking-normal text-ink-950 outline-none focus:border-forest-800"
-                name="content"
-                placeholder="What do you want to remember?"
-              />
-            </label>
-            <label className="flex flex-col gap-1 text-xs font-semibold uppercase tracking-[0.14em] text-forest-800">
-              Images
-              <input
-                accept="image/*"
-                className="rounded-xl border border-paper-200 bg-white px-3 py-2 text-sm normal-case tracking-normal text-ink-950"
-                multiple
-                name="images"
-                type="file"
-              />
-            </label>
-            <div className="flex flex-wrap gap-2">
-              <button
-                className="inline-flex items-center justify-center gap-2 rounded-full bg-forest-800 px-4 py-2 text-sm font-semibold text-white transition hover:bg-forest-700"
-                data-testid="memories-add-submit"
-                type="submit"
-              >
-                <ImagePlus aria-hidden="true" className="h-4 w-4" />
-                Save memory
-              </button>
-              <button
-                className="inline-flex items-center justify-center rounded-full border border-forest-800/30 bg-white px-4 py-2 text-sm font-semibold text-forest-800 transition hover:bg-forest-800/5"
-                data-testid="memories-add-dismiss"
-                type="button"
-                onClick={() => setShowAdd(false)}
-              >
-                Dismiss
-              </button>
-            </div>
+            <input name="memoryId" type="hidden" value={deletingMemory.id} />
+            <button
+              className="inline-flex items-center justify-center gap-2 rounded-full bg-red-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-red-700"
+              data-testid={`memories-delete-confirm-${deletingMemory.id}`}
+              type="submit"
+            >
+              <Trash2 aria-hidden="true" className="h-4 w-4" />
+              Delete memory
+            </button>
+            <button
+              className="inline-flex items-center justify-center rounded-full border border-paper-300 bg-white px-4 py-2 text-sm font-semibold text-ink-700 transition hover:bg-paper-100"
+              type="button"
+              onClick={() => setDeletingMemory(null)}
+            >
+              Cancel
+            </button>
           </form>
         ) : null}
+      </ActionModal>
 
+      <div className="flex flex-col gap-5">
         {memories.length === 0 ? (
           <div
             className="rounded-2xl border border-dashed border-paper-200 bg-paper-50 p-8 text-center text-sm text-ink-500"
@@ -110,18 +152,15 @@ export function MemoriesSurface({
                       </h3>
                     </div>
                     {deleteMemoryAction ? (
-                      <form action={deleteMemoryAction}>
-                        <input name="tripId" type="hidden" value={tripId} />
-                        <input name="memoryId" type="hidden" value={memory.id} />
-                        <button
-                          aria-label={`Delete ${memory.title}`}
-                          className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-red-50 text-red-700 transition hover:bg-red-100"
-                          data-testid={`memories-delete-${memory.id}`}
-                          type="submit"
-                        >
-                          <Trash2 aria-hidden="true" className="h-4 w-4" />
-                        </button>
-                      </form>
+                      <button
+                        aria-label={`Delete ${memory.title}`}
+                        className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-red-50 text-red-700 transition hover:bg-red-100"
+                        data-testid={`memories-delete-${memory.id}`}
+                        type="button"
+                        onClick={() => setDeletingMemory(memory)}
+                      >
+                        <Trash2 aria-hidden="true" className="h-4 w-4" />
+                      </button>
                     ) : null}
                   </div>
                   {memory.assets.length > 0 ? (

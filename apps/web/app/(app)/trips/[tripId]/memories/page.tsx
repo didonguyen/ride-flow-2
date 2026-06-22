@@ -1,4 +1,4 @@
-﻿import { notFound } from "next/navigation";
+import { notFound } from "next/navigation";
 
 import { MemoriesSurface } from "@/components/trips/memories-surface";
 import { TripAppShell } from "@/components/trip/trip-app-shell";
@@ -19,6 +19,9 @@ import {
 } from "@/src/infrastructure/supabase/repositories";
 
 export const dynamic = "force-dynamic";
+
+const TRIP_IMAGE_BUCKET = "rideflow-trip-images";
+const MEMORY_IMAGE_SIGNED_URL_TTL_SECONDS = 60 * 60;
 
 type MemoriesPageProps = {
   params: Promise<{
@@ -77,10 +80,34 @@ async function getMemoriesPageData(tripId: string) {
   const memoryRecords = await createSupabaseMemoryRepository(
     rideflowSupabase
   ).listMemories(tripId);
+  const memoryRecordsWithSignedAssets = await Promise.all(
+    memoryRecords.map(async (memory) => ({
+      ...memory,
+      assets: await Promise.all(
+        memory.assets.map(async (asset) => {
+          const { data, error } = await supabase.storage
+            .from(TRIP_IMAGE_BUCKET)
+            .createSignedUrl(
+              asset.imagePath,
+              MEMORY_IMAGE_SIGNED_URL_TTL_SECONDS
+            );
+
+          if (error || !data?.signedUrl) {
+            return asset;
+          }
+
+          return {
+            ...asset,
+            imageUrl: data.signedUrl
+          };
+        })
+      )
+    }))
+  );
 
   return {
     trip: mapSupabasePlanningTrip(rows),
-    memories: getTripMemories(memoryRecords)
+    memories: getTripMemories(memoryRecordsWithSignedAssets)
   };
 }
 

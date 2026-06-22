@@ -25,7 +25,7 @@ describe("PlanningSurface (pixel-perfect)", () => {
     if (trip.days.length < 2) {
       return;
     }
-    render(<PlanningSurface trip={trip} />);
+    render(<PlanningSurface addDayAction={vi.fn()} trip={trip} />);
     await userEvent.click(
       screen.getByTestId(`trip-day-rail-day-${trip.days[1]!.id}`)
     );
@@ -46,12 +46,14 @@ describe("PlanningSurface (pixel-perfect)", () => {
     expect(onDismiss).toHaveBeenCalledTimes(1);
   });
 
-  it("adds a new day when the day rail Add Day is clicked", async () => {
+  it("adds a new day from the Add Day modal", async () => {
     const trip = planningTrips[0]!;
-    render(<PlanningSurface trip={trip} />);
+    render(<PlanningSurface addDayAction={vi.fn()} trip={trip} />);
     const initialDays = screen.getAllByTestId(/^trip-day-rail-day-/);
     expect(initialDays).toHaveLength(trip.days.length);
     await userEvent.click(screen.getByTestId("trip-day-rail-add"));
+    expect(screen.getByTestId("planning-add-day-form")).toBeInTheDocument();
+    await userEvent.click(screen.getByTestId("planning-add-day-submit"));
     const afterDays = screen.getAllByTestId(/^trip-day-rail-day-/);
     expect(afterDays).toHaveLength(trip.days.length + 1);
   });
