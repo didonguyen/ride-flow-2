@@ -151,7 +151,9 @@ function isMissingFunctionalTripColumnError(
 
   const message = error.message.toLowerCase();
   const mentionsFunctionalTripColumn =
-    message.includes("cover_image_url") || message.includes("transport");
+    message.includes("cover_image_url") ||
+    message.includes("cover_image_path") ||
+    message.includes("transport");
 
   return (
     mentionsFunctionalTripColumn &&
@@ -217,7 +219,22 @@ export function createSupabaseTripRepository(
           transport: createdTrip.transport
         });
 
-      throwIfSupabaseError(tripError);
+      if (isMissingFunctionalTripColumnError(tripError)) {
+        const { error: legacyTripError } = await supabase
+          .from("trips")
+          .insert({
+            id: createdTrip.id,
+            owner_id: createdTrip.owner_id,
+            name: createdTrip.name,
+            destination: createdTrip.destination,
+            start_date: createdTrip.start_date,
+            end_date: createdTrip.end_date
+          });
+
+        throwIfSupabaseError(legacyTripError);
+      } else {
+        throwIfSupabaseError(tripError);
+      }
 
       const { error: ownerMemberError } = await supabase
         .from("trip_members")
@@ -258,6 +275,10 @@ export function createSupabaseTripRepository(
         .eq("id", input.tripId)
         .select("id")
         .single();
+
+      if (isMissingFunctionalTripColumnError(error)) {
+        return;
+      }
 
       throwIfSupabaseError(error);
     }
@@ -567,6 +588,10 @@ export function createSupabaseMemoryRepository(
         .select("id")
         .single();
 
+      if (isMissingRelationError(error, ["memory_entries"])) {
+        return { id: "" };
+      }
+
       throwIfSupabaseError(error);
 
       if (!data) {
@@ -588,6 +613,10 @@ export function createSupabaseMemoryRepository(
             sort_order: asset.sortOrder
           })));
 
+        if (isMissingRelationError(assetsError, ["memory_assets"])) {
+          return { id: memoryId };
+        }
+
         throwIfSupabaseError(assetsError);
       }
 
@@ -601,6 +630,10 @@ export function createSupabaseMemoryRepository(
         .eq("id", input.memoryId)
         .select("id")
         .single();
+
+      if (isMissingRelationError(error, ["memory_entries"])) {
+        return { id: input.memoryId };
+      }
 
       throwIfSupabaseError(error);
 
@@ -665,6 +698,10 @@ export function createSupabaseExpenseRepository(
         .select("id")
         .single();
 
+      if (isMissingRelationError(error, ["expense_entries"])) {
+        return { id: "" };
+      }
+
       throwIfSupabaseError(error);
 
       if (!data) {
@@ -688,6 +725,10 @@ export function createSupabaseExpenseRepository(
         .eq("id", input.expenseId)
         .select("id")
         .single();
+
+      if (isMissingRelationError(error, ["expense_entries"])) {
+        return { id: input.expenseId };
+      }
 
       throwIfSupabaseError(error);
 
@@ -744,6 +785,10 @@ export function createSupabaseExpenseRepository(
         .select("id")
         .single();
 
+      if (isMissingRelationError(error, ["expense_entries"])) {
+        return { id: input.expenseId };
+      }
+
       throwIfSupabaseError(error);
 
       if (!data) {
@@ -755,7 +800,9 @@ export function createSupabaseExpenseRepository(
         .delete()
         .eq("expense_id", input.expenseId);
 
-      throwIfSupabaseError(deleteError);
+      if (!isMissingRelationError(deleteError, ["expense_participants"])) {
+        throwIfSupabaseError(deleteError);
+      }
       await insertExpenseParticipants(supabase, {
         expenseId: input.expenseId,
         participants: input.participants,
@@ -974,6 +1021,10 @@ async function insertExpenseParticipants(
       trip_member_id: participant.memberId,
       share_amount: participant.shareAmount
     })));
+
+  if (isMissingRelationError(error, ["expense_participants"])) {
+    return;
+  }
 
   throwIfSupabaseError(error);
 }
