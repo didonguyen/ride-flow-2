@@ -161,6 +161,25 @@ function isMissingFunctionalTripColumnError(
   );
 }
 
+function isMissingRelationError(
+  error: SupabaseError | null | undefined,
+  relations: string[]
+) {
+  if (!error) return false;
+
+  const message = error.message.toLowerCase();
+  const mentionsRelation = relations.some((relation) =>
+    message.includes(relation.toLowerCase())
+  );
+
+  return (
+    mentionsRelation &&
+    (message.includes("does not exist") ||
+      message.includes("could not find") ||
+      message.includes("schema cache"))
+  );
+}
+
 export function createSupabaseTripRepository(
   supabase: RideFlowSupabaseClient
 ): TripRepository {
@@ -599,6 +618,10 @@ export function createSupabaseMemoryRepository(
         .eq("trip_id", tripId)
         .order("created_at", { ascending: false });
 
+      if (isMissingRelationError(memoriesError, ["memory_entries"])) {
+        return [];
+      }
+
       throwIfSupabaseError(memoriesError);
 
       const { data: assets, error: assetsError } = await supabase
@@ -606,6 +629,10 @@ export function createSupabaseMemoryRepository(
         .select("id, memory_entry_id, image_url, image_path, alt_text, sort_order")
         .eq("trip_id", tripId)
         .order("sort_order", { ascending: true });
+
+      if (isMissingRelationError(assetsError, ["memory_assets"])) {
+        return mapMemoryRows((memories ?? []) as MemoryEntryRow[], []);
+      }
 
       throwIfSupabaseError(assetsError);
 
@@ -678,12 +705,20 @@ export function createSupabaseExpenseRepository(
         .eq("trip_id", tripId)
         .order("expense_date", { ascending: false });
 
+      if (isMissingRelationError(expensesError, ["expense_entries"])) {
+        return [];
+      }
+
       throwIfSupabaseError(expensesError);
 
       const { data: participants, error: participantsError } = await supabase
         .from("expense_participants")
         .select("expense_id, trip_member_id, share_amount")
         .eq("trip_id", tripId);
+
+      if (isMissingRelationError(participantsError, ["expense_participants"])) {
+        return mapExpenseRows((expenses ?? []) as ExpenseEntryRow[], []);
+      }
 
       throwIfSupabaseError(participantsError);
 

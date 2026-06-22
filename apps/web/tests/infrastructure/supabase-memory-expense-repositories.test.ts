@@ -1,4 +1,4 @@
-﻿import { describe, expect, it, vi } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 import {
   createSupabaseExpenseRepository,
@@ -244,6 +244,100 @@ describe("functional trip data repositories", () => {
       "update",
       "delete",
       "insert"
+    ]);
+  });
+
+  it("returns an empty memory list when memory tables are not migrated", async () => {
+    const supabase = createSupabaseMock({
+      memory_entries: {
+        error: {
+          message: "Could not find the table 'public.memory_entries' in the schema cache"
+        }
+      }
+    });
+
+    await expect(
+      createSupabaseMemoryRepository(supabase.client).listMemories("trip-1")
+    ).resolves.toEqual([]);
+  });
+
+  it("returns memory rows without assets when memory assets table is missing", async () => {
+    const supabase = createSupabaseMock({
+      memory_entries: {
+        data: [
+          {
+            id: "memory-1",
+            trip_id: "trip-1",
+            created_by: "user-1",
+            title: "Trail morning",
+            content: "Photos later.",
+            created_at: "2026-07-01T00:00:00Z"
+          }
+        ]
+      },
+      memory_assets: {
+        error: {
+          message: "Could not find the table 'public.memory_assets' in the schema cache"
+        }
+      }
+    });
+
+    await expect(
+      createSupabaseMemoryRepository(supabase.client).listMemories("trip-1")
+    ).resolves.toMatchObject([
+      {
+        id: "memory-1",
+        assets: []
+      }
+    ]);
+  });
+
+  it("returns an empty expense list when expense tables are not migrated", async () => {
+    const supabase = createSupabaseMock({
+      expense_entries: {
+        error: {
+          message: "Could not find the table 'public.expense_entries' in the schema cache"
+        }
+      }
+    });
+
+    await expect(
+      createSupabaseExpenseRepository(supabase.client).listExpenses("trip-1")
+    ).resolves.toEqual([]);
+  });
+
+  it("returns expense rows without participants when participants table is missing", async () => {
+    const supabase = createSupabaseMock({
+      expense_entries: {
+        data: [
+          {
+            id: "expense-1",
+            trip_id: "trip-1",
+            title: "Fuel",
+            amount: 120000,
+            currency: "VND",
+            category: "fuel",
+            paid_by_member_id: "member-1",
+            expense_date: "2026-07-01",
+            notes: "Highway stop",
+            created_by: "user-1"
+          }
+        ]
+      },
+      expense_participants: {
+        error: {
+          message: "Could not find the table 'public.expense_participants' in the schema cache"
+        }
+      }
+    });
+
+    await expect(
+      createSupabaseExpenseRepository(supabase.client).listExpenses("trip-1")
+    ).resolves.toMatchObject([
+      {
+        id: "expense-1",
+        participants: []
+      }
     ]);
   });
 });
