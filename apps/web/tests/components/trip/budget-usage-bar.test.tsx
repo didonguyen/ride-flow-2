@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { render, screen } from "@testing-library/react";
 
-import { BudgetUsageBar } from "@/components/trip/budget-usage-bar";
+import { SpendingBreakdownBar } from "@/components/trip/budget-usage-bar";
 
 const slices = [
   { name: "Accommodation", amount: 150, color: "#003527" },
@@ -11,13 +11,13 @@ const slices = [
   { name: "Misc", amount: 30, color: "#b65a3a" }
 ];
 
-describe("BudgetUsageBar", () => {
+describe("SpendingBreakdownBar", () => {
   it("renders one slice per category and a legend", () => {
-    render(<BudgetUsageBar slices={slices} total={450} />);
-    const bar = screen.getByTestId("budget-usage-bar");
+    render(<SpendingBreakdownBar slices={slices} total={450} />);
+    const bar = screen.getByTestId("spending-breakdown-bar");
     expect(bar).toBeVisible();
-    expect(screen.getByTestId("budget-slice-accommodation")).toBeVisible();
-    expect(screen.getByTestId("budget-slice-fuel")).toBeVisible();
-    expect(screen.getByText(/Accommodation \(\$150\)/)).toBeVisible();
+    expect(screen.getByTestId("spending-slice-accommodation")).toBeVisible();
+    expect(screen.getByTestId("spending-slice-fuel")).toBeVisible();
+    expect(screen.getByText(/Accommodation \(150\)/)).toBeVisible();
   });
 });

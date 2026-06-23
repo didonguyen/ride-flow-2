@@ -1,32 +1,32 @@
 import { cn } from "@/src/lib/utils";
 
-export type BudgetSlice = {
+export type SpendingSlice = {
   name: string;
   amount: number;
   color: string;
 };
 
-type BudgetUsageBarProps = {
-  slices: BudgetSlice[];
+type SpendingBreakdownBarProps = {
+  slices: SpendingSlice[];
   total: number;
   caption?: string;
   className?: string;
 };
 
-export function BudgetUsageBar({
+export function SpendingBreakdownBar({
   slices,
   total,
   caption,
   className
-}: BudgetUsageBarProps) {
+}: SpendingBreakdownBarProps) {
   const safeTotal = total > 0 ? total : 1;
   return (
     <div
       className={cn("flex flex-col gap-4", className)}
-      data-testid="budget-usage-bar"
+      data-testid="spending-breakdown-bar"
     >
       <div
-        aria-label="Budget usage bar"
+        aria-label="Spending breakdown bar"
         className="flex h-2.5 w-full overflow-hidden rounded-full bg-paper-200"
         role="img"
       >
@@ -37,13 +37,13 @@ export function BudgetUsageBar({
           }
           return (
             <div
-              aria-label={`${slice.name} ${width.toFixed(0)}%`}
+              aria-label={slice.name + " " + width.toFixed(0) + "%"}
               className="h-full"
-              data-testid={`budget-slice-${slice.name.toLowerCase()}`}
+              data-testid={"spending-slice-" + slice.name.toLowerCase()}
               key={slice.name}
               style={{
                 backgroundColor: slice.color,
-                width: `${width}%`
+                width: width + "%"
               }}
             />
           );
@@ -57,7 +57,7 @@ export function BudgetUsageBar({
               className="h-2.5 w-2.5 rounded-full"
               style={{ backgroundColor: slice.color }}
             />
-            {slice.name} (${slice.amount.toFixed(0)})
+            {slice.name} ({slice.amount.toFixed(0)})
           </li>
         ))}
       </ul>
@@ -67,3 +67,6 @@ export function BudgetUsageBar({
     </div>
   );
 }
+
+export type BudgetSlice = SpendingSlice;
+export const BudgetUsageBar = SpendingBreakdownBar;

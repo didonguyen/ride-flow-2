@@ -33,13 +33,13 @@ export function DashboardRecentJourneys({ trips }: DashboardRecentJourneysProps)
         >
           Recent Journeys
         </h2>
-        <a
+        <Link
           className="text-sm font-semibold text-forest-800 underline-offset-4 hover:underline"
           data-testid="dashboard-recent-journeys-view-all"
-          href="#"
+          href={"/trips" as Route}
         >
           View all
-        </a>
+        </Link>
       </div>
       <ul className="grid gap-5 sm:grid-cols-2">
         {trips.map((trip) => (

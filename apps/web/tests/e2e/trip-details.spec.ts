@@ -36,15 +36,13 @@ test.describe("Trip details editorial surfaces (US-RF-018)", () => {
     ).toHaveCount(0);
   });
 
-  test("Add Day adds a new day in the planning tab", async ({ page }) => {
+  test("Add Day opens the persisted-day modal in the planning tab", async ({ page }) => {
     await page.goto("/trips/nam-cat-tien");
-    const before = await page.locator('[data-testid^="trip-day-rail-day-"]').count();
     await page.getByTestId("trip-day-rail-add").click();
-    const after = await page.locator('[data-testid^="trip-day-rail-day-"]').count();
-    expect(after).toBe(before + 1);
+    await expect(page.getByTestId("planning-add-day-form")).toBeVisible();
   });
 
-  test("Expenses tab: Edit Details + Start Ride + Settle all + Split equally + Add expense all work", async ({
+  test("Expenses tab: spending breakdown, settlement, and Add expense modal work", async ({
     page
   }) => {
     await page.goto("/trips/nam-cat-tien/expenses");
@@ -53,35 +51,22 @@ test.describe("Trip details editorial surfaces (US-RF-018)", () => {
     expect(
       await page.getByTestId("trip-stat-card").count()
     ).toBeGreaterThanOrEqual(4);
-    await expect(page.getByTestId("budget-usage-bar")).toBeVisible();
-    await expect(page.getByTestId("expenses-budget-usage")).toBeVisible();
+    await expect(page.getByTestId("spending-breakdown-bar")).toBeVisible();
+    await expect(page.getByTestId("expenses-spending-breakdown")).toBeVisible();
     await expect(page.getByTestId("expenses-settlement")).toBeVisible();
     await expect(page.getByTestId("ai-insight-card")).toBeVisible();
 
-    await page.getByTestId("expenses-edit-details").click();
-    await expect(page.getByTestId("expenses-edit-details")).toHaveText(
-      /Editing/
-    );
-
-    await page.getByTestId("expenses-start-ride").click();
-    await expect(page.getByTestId("expenses-start-ride")).toHaveText(/Riding/);
-
-    await page.getByTestId("expenses-split-equally").click();
-    await expect(page.getByTestId("expenses-split-equally")).toHaveAttribute(
-      "aria-pressed",
-      "true"
-    );
-
     await page.getByTestId("expenses-add").click();
-    await expect(page.getByTestId("expenses-add-confirmation")).toBeVisible();
+    await expect(page.getByTestId("expenses-add-form")).toBeVisible();
 
+    await page.keyboard.press("Escape");
     await page.getByTestId("expenses-settle-all").click();
     await expect(
       page.getByTestId("expenses-settle-confirmation")
     ).toBeVisible();
   });
 
-  test("Memories tab: Add Memory + Add Day all work", async ({ page }) => {
+  test("Memories tab: Add Memory opens the upload modal", async ({ page }) => {
     await page.goto("/trips/nam-cat-tien/memories");
 
     await expect(page.getByTestId("memories-surface")).toBeVisible();
@@ -89,12 +74,7 @@ test.describe("Trip details editorial surfaces (US-RF-018)", () => {
     await expect(page.getByTestId("trip-vault-card")).toBeVisible();
 
     await page.getByTestId("trip-vault-add").click();
-    await expect(page.getByTestId("memories-add-confirmation")).toBeVisible();
-
-    const before = await page.locator('[data-testid^="trip-day-rail-day-"]').count();
-    await page.getByTestId("trip-day-rail-add").click();
-    const after = await page.locator('[data-testid^="trip-day-rail-day-"]').count();
-    expect(after).toBe(before + 1);
+    await expect(page.getByTestId("memories-add-form")).toBeVisible();
   });
 
   test("da-nang trip planning surface still renders editorial day rail, timeline, and AI assistant", async ({

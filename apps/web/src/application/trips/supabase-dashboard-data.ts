@@ -46,8 +46,10 @@ export function mapSupabaseDashboardTrips(
       dateRange: sameYear
         ? `${startLabel} - ${endLabel}, ${yearLabel}`
         : `${startLabel}, ${start.getUTCFullYear()} - ${endLabel}, ${yearLabel}`,
+      daysLabel: formatDayCount(start, end),
       imageUrl: row.cover_image_url || pickImageUrl(row.id),
-      imageAlt: `${row.destination} travel destination`
+      imageAlt: `${row.destination} travel destination`,
+      transport: row.transport || "Motorcycle"
     } satisfies DashboardTrip;
   });
 }
@@ -62,4 +64,11 @@ function formatMonthDay(date: Date) {
     month: "short",
     timeZone: "UTC"
   });
+}
+
+function formatDayCount(start: Date, end: Date) {
+  const dayMs = 24 * 60 * 60 * 1000;
+  const days = Math.max(1, Math.round((end.getTime() - start.getTime()) / dayMs) + 1);
+
+  return `${days} Day${days === 1 ? "" : "s"}`;
 }

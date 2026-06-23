@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { ChevronRight, Pencil, Plus, Trash2 } from "lucide-react";
+import { ChevronRight, MapPin, Pencil, Plus, Trash2 } from "lucide-react";
 
 import { AiAssistantCard } from "@/components/trip/ai-assistant-card";
 import { TripDayRail, type DayRailDay } from "@/components/trip/trip-day-rail";
@@ -87,7 +87,7 @@ export function PlanningSurface({
 
   return (
     <div
-      className="grid gap-8 px-5 py-8 sm:px-8 lg:grid-cols-[180px_minmax(0,1fr)_340px] lg:gap-10 lg:px-10 lg:py-10"
+      className="grid gap-8 bg-paper-50 px-5 py-8 sm:px-8 lg:grid-cols-[180px_minmax(0,1fr)_340px] lg:gap-10 lg:px-10 lg:py-10"
       data-testid="planning-surface"
     >
       <ActionModal
@@ -260,7 +260,7 @@ export function PlanningSurface({
                   aria-hidden="true"
                   className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-sage-200 text-forest-800"
                 >
-                  ??
+                  <MapPin aria-hidden="true" className="h-4 w-4" />
                 </span>
                 <div className="flex min-w-0 flex-1 flex-col">
                   <span className="truncate text-sm font-semibold text-ink-950">

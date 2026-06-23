@@ -50,6 +50,8 @@ describe("createTripFromFormData", () => {
       startDate: "2026-07-01",
       endDate: "2026-07-02",
       transport: "Van",
+      coverImageUrl: null,
+      coverImagePath: null,
       days: [
         { date: "2026-07-01", dayIndex: 1 },
         { date: "2026-07-02", dayIndex: 2 }

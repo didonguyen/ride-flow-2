@@ -29,9 +29,9 @@ export function DashboardShell({
   memberTier,
   avatarUrl
 }: DashboardShellProps) {
-  const activity = getDashboardActivity();
-  const upcoming = trips.length > 0 ? getDashboardUpcoming() : null;
-  const recent = getDashboardRecent();
+  const activity = getDashboardActivity(trips);
+  const upcoming = getDashboardUpcoming(trips);
+  const recent = getDashboardRecent(trips);
   const firstTripId = trips[0]?.id ?? upcoming?.id ?? "da-nang";
 
   return (

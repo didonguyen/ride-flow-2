@@ -40,6 +40,7 @@ type RideFlowSupabaseQuery = PromiseLike<{
   error?: SupabaseError | null;
 }> & {
   eq(column: string, value: string): RideFlowSupabaseQuery;
+  in(column: string, values: string[]): RideFlowSupabaseQuery;
   order(
     column: string,
     options?: { ascending?: boolean }

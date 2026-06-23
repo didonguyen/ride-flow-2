@@ -15,21 +15,23 @@ describe("database type contract", () => {
       "memory_entries",
       "memory_assets",
       "expense_entries",
-      "expense_participants"
+      "expense_participants",
+      "trip_stops",
+      "stop_options"
     ] satisfies Array<keyof Tables>;
 
-    expect(tableNames).toHaveLength(10);
+    expect(tableNames).toHaveLength(12);
   });
 
   it("exposes enum values used by RideFlow schema contracts", () => {
     type Enums = Database["public"]["Enums"];
 
-    const roles = ["owner", "planner", "viewer"] satisfies Enums["trip_role"][];
+    const roles = ["owner", "planner", "member", "viewer"] satisfies Enums["trip_role"][];
     const inviteStatuses = ["pending", "accepted"] satisfies Enums["invite_status"][];
     const placeSources = ["seed", "osm", "manual", "google"] satisfies Enums["place_source"][];
     const draftStatuses = ["pending", "completed", "failed"] satisfies Enums["ai_draft_status"][];
 
-    expect(roles).toContain("owner");
+    expect(roles).toContain("member");
     expect(inviteStatuses).toContain("accepted");
     expect(placeSources).toContain("manual");
     expect(draftStatuses).toContain("failed");
@@ -198,5 +200,62 @@ describe("database type contract", () => {
 
     expect(args.target_trip_id).toBe("trip-1");
     expect(result).toBeUndefined();
+  });
+
+  it("exposes trip stop rows with action_needed / pinned statuses", () => {
+    type TripStop = Database["public"]["Tables"]["trip_stops"]["Row"];
+
+    const stop = {
+      id: "stop-1",
+      trip_id: "trip-1",
+      day_id: "day-1",
+      title: "Lunch near the park",
+      time: "12:30",
+      description: "Group lunch stop",
+      note: "",
+      location_name: "Park entrance",
+      address: "Highway 20",
+      lat: 11.45,
+      lng: 107.42,
+      status: "pinned",
+      pinned_option_id: "opt-1",
+      sort_order: 0,
+      created_by: "user-1",
+      created_at: "2026-06-23T00:00:00Z",
+      updated_at: "2026-06-23T00:00:00Z"
+    } satisfies TripStop;
+
+    expect(stop.status).toBe("pinned");
+    expect(stop.pinned_option_id).toBe("opt-1");
+  });
+
+  it("exposes stop option rows with the four statuses and three sources", () => {
+    type StopOption = Database["public"]["Tables"]["stop_options"]["Row"];
+
+    const option = {
+      id: "opt-1",
+      trip_id: "trip-1",
+      stop_id: "stop-1",
+      name: "Forest Cafe",
+      address: "Highway 20",
+      description: "Quiet spot",
+      image_url: null,
+      rating: 4.5,
+      price_level: 2,
+      distance_text: "5 min away",
+      duration_text: null,
+      google_place_id: null,
+      google_maps_url: null,
+      lat: 11.45,
+      lng: 107.42,
+      source: "ai",
+      status: "candidate",
+      sort_order: 0,
+      created_at: "2026-06-23T00:00:00Z",
+      updated_at: "2026-06-23T00:00:00Z"
+    } satisfies StopOption;
+
+    expect(option.source).toBe("ai");
+    expect(option.status).toBe("candidate");
   });
 });

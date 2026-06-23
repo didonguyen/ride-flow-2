@@ -23,6 +23,15 @@ export function DashboardPlanningActivity({ entries }: DashboardPlanningActivity
           <Sparkles aria-hidden="true" className="h-3.5 w-3.5" />
         </span>
       </header>
+      {entries.length === 0 ? (
+        <div
+          className="rounded-2xl bg-sage-50 p-5 text-sm leading-6 text-ink-700 ring-1 ring-sage-200"
+          data-testid="dashboard-activity-empty"
+        >
+          Your planning updates will appear here once you create a trip or add
+          route details.
+        </div>
+      ) : (
       <ol className="relative flex flex-col gap-4">
         <span
           aria-hidden="true"
@@ -60,13 +69,16 @@ export function DashboardPlanningActivity({ entries }: DashboardPlanningActivity
           </li>
         ))}
       </ol>
-      <a
-        className="text-center text-sm font-semibold text-forest-800 underline-offset-4 hover:underline"
-        data-testid="dashboard-activity-full"
-        href="#"
-      >
-        View full history
-      </a>
+      )}
+      {entries.length > 0 ? (
+        <a
+          className="text-center text-sm font-semibold text-forest-800 underline-offset-4 hover:underline"
+          data-testid="dashboard-activity-full"
+          href="#"
+        >
+          View full history
+        </a>
+      ) : null}
     </article>
   );
 }

@@ -143,9 +143,21 @@ export function MemoriesSurface({
             No memories yet. Add photos during or after your trip.
           </div>
         ) : (
-          <ol className="grid gap-5" data-testid="memories-timeline">
+          <ol className="relative grid gap-5 pl-6" data-testid="memories-timeline">
+            <span
+              aria-hidden="true"
+              className="absolute left-[5px] top-3 bottom-3 w-px border-l border-dashed border-sage-300"
+            />
             {memories.map((memory) => (
-              <li data-testid={`memories-entry-${memory.id}`} key={memory.id}>
+              <li
+                className="relative"
+                data-testid={`memories-entry-${memory.id}`}
+                key={memory.id}
+              >
+                <span
+                  aria-hidden="true"
+                  className="absolute -left-[25px] top-7 z-10 h-3 w-3 rounded-full bg-forest-800 ring-4 ring-paper-50"
+                />
                 <article className="flex flex-col gap-4 rounded-2xl bg-paper-50 p-5 shadow-rideflow-editorial-card ring-1 ring-paper-200">
                   <div className="flex items-start justify-between gap-4">
                     <div>

@@ -31,7 +31,7 @@ export function TripCoverHeader({
     <section
       aria-label={`${tripName} cover`}
       className={cn(
-        "relative h-[260px] overflow-hidden bg-forest-900 sm:h-[300px] lg:h-[320px]",
+        "relative h-[340px] overflow-hidden bg-forest-900 sm:h-[400px] lg:h-[460px]",
         className
       )}
       data-testid="trip-cover-header"
@@ -46,7 +46,7 @@ export function TripCoverHeader({
       />
       <div
         aria-hidden="true"
-        className="absolute inset-0 bg-gradient-to-t from-forest-900/85 via-forest-900/40 to-transparent"
+        className="absolute inset-0 bg-[linear-gradient(180deg,rgba(0,0,0,0.22)_0%,rgba(0,53,39,0.22)_38%,rgba(0,28,20,0.88)_100%)]"
       />
       {topActions ? (
         <div
@@ -56,26 +56,23 @@ export function TripCoverHeader({
           {topActions}
         </div>
       ) : null}
-      <div className="absolute inset-x-5 bottom-5 z-10 sm:inset-x-8 lg:inset-x-10 lg:bottom-7">
+      <div className="absolute inset-x-5 bottom-6 z-10 sm:inset-x-8 lg:inset-x-10 lg:bottom-10">
         <h1
-          className="font-display text-2xl text-white sm:text-[28px]"
+          className="max-w-4xl font-display text-4xl font-bold leading-tight text-white sm:text-5xl lg:text-6xl"
           data-testid="trip-cover-title"
-          style={{ letterSpacing: "-0.02em" }}
         >
           {tripName}
         </h1>
-        <ul className="mt-3 flex flex-wrap items-center gap-x-2.5 gap-y-1.5 text-xs font-semibold text-white/85">
-          <li className="inline-flex items-center gap-1.5">
+        <ul className="mt-5 flex flex-wrap items-center gap-2 text-xs font-semibold text-white/90">
+          <li className="inline-flex items-center gap-1.5 rounded-full bg-white/14 px-3 py-1.5 shadow-rideflow-chip ring-1 ring-white/20 backdrop-blur">
             <CalendarDays aria-hidden="true" className="h-3.5 w-3.5" />
             {dateRange}
           </li>
-          <li aria-hidden="true" className="text-white/40">•</li>
-          <li className="inline-flex items-center gap-1.5">
+          <li className="inline-flex items-center gap-1.5 rounded-full bg-white/14 px-3 py-1.5 shadow-rideflow-chip ring-1 ring-white/20 backdrop-blur">
             <Clock aria-hidden="true" className="h-3.5 w-3.5" />
             {days}
           </li>
-          <li aria-hidden="true" className="text-white/40">•</li>
-          <li className="inline-flex items-center gap-1.5">
+          <li className="inline-flex items-center gap-1.5 rounded-full bg-white/14 px-3 py-1.5 shadow-rideflow-chip ring-1 ring-white/20 backdrop-blur">
             <Bike aria-hidden="true" className="h-3.5 w-3.5" />
             {transport}
           </li>

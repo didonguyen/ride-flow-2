@@ -4,9 +4,11 @@ export type DashboardTrip = {
   destination: string;
   region: string;
   dateRange: string;
+  daysLabel?: string;
   imageUrl: string;
   imageAlt: string;
   rating?: number;
+  transport?: string;
 };
 
 export const dashboardTrips: DashboardTrip[] = [

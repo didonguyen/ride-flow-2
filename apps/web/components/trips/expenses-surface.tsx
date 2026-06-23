@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Pencil, Plus, Trash2, Wallet } from "lucide-react";
 
 import { AiInsightCard } from "@/components/trip/ai-insight-card";
-import { BudgetUsageBar } from "@/components/trip/budget-usage-bar";
+import { SpendingBreakdownBar } from "@/components/trip/budget-usage-bar";
 import { MemberBalanceRow } from "@/components/trip/member-balance-row";
 import { TripStatCard } from "@/components/trip/trip-stat-card";
 import { ActionModal } from "@/components/ui/action-modal";
@@ -180,18 +180,18 @@ export function ExpensesSurface({
       <div className="grid gap-6 lg:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]">
         <div className="flex flex-col gap-6">
           <article
-            aria-label="Category usage"
+            aria-label="Spending breakdown"
             className="flex flex-col gap-4 rounded-2xl bg-paper-50 p-5 shadow-rideflow-editorial-card ring-1 ring-paper-200"
-            data-testid="expenses-category-usage"
+            data-testid="expenses-spending-breakdown"
           >
             <div className="flex items-center justify-between">
-              <h2 className="font-display text-xl text-ink-950">Category Usage</h2>
+              <h2 className="font-display text-xl text-ink-950">Spending Breakdown</h2>
               <span className="text-xs font-semibold uppercase tracking-[0.18em] text-ink-500">
                 {formatMoney(summary.totalSpent, summary.currency)} recorded
               </span>
             </div>
-            <BudgetUsageBar
-              caption="Based on recorded expenses only."
+            <SpendingBreakdownBar
+              caption="Relative share of recorded expenses."
               slices={summary.breakdown}
               total={summary.totalSpent}
             />

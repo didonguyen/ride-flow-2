@@ -16,6 +16,7 @@ type MemberListProps = {
 const roleBadgeClass: Record<TripRole, string> = {
   owner: "bg-[#00565b] text-white",
   planner: "bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200",
+  member: "bg-amber-50 text-amber-700 ring-1 ring-amber-200",
   viewer: "bg-slate-100 text-slate-600 ring-1 ring-slate-200"
 };
 

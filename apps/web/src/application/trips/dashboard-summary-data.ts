@@ -1,3 +1,5 @@
+import type { DashboardTrip } from "@/src/application/trips/dashboard-data";
+
 export type DashboardMember = {
   id: string;
   name: string;
@@ -37,86 +39,69 @@ export type DashboardCompletedTrip = {
 
 const MEMBER_PALETTE = ["#003527", "#064E3B", "#2B6954", "#80BEA6"];
 
-const DEFAULT_ACTIVITY: DashboardActivity[] = [
-  {
-    id: "act-1",
-    actor: "Alex",
-    actorInitial: "A",
-    action: "added a waypoint:",
-    target: "Bao Loc Pass",
-    relativeTime: "2 hours ago"
-  },
-  {
-    id: "act-2",
-    actor: "You",
-    actorInitial: "Y",
-    action: "booked accommodation:",
-    target: "Forest Lodge",
-    relativeTime: "Yesterday"
-  },
-  {
-    id: "act-3",
-    actor: "Sarah",
-    actorInitial: "S",
-    action: "updated the gear list.",
-    target: "",
-    relativeTime: "2 days ago"
-  },
-  {
-    id: "act-4",
-    actor: "You",
-    actorInitial: "Y",
-    action: "created route:",
-    target: "Nam Cát Tiên Exploration",
-    relativeTime: "3 days ago"
+function progressFromTrip(trip: DashboardTrip, index: number) {
+  if (typeof trip.rating === "number") {
+    return Math.min(95, Math.max(20, Math.round((trip.rating / 5) * 100)));
   }
-];
 
-const DEFAULT_UPCOMING: DashboardUpcomingTrip = {
-  id: "da-nang",
-  name: "Nam Cát Tiên Exploration",
-  terrain: "Off-Road",
-  daysLabel: "3 Days",
-  coverImageUrl:
-    "https://images.unsplash.com/photo-1502602898657-3e91760cbb34?auto=format&fit=crop&w=2000&q=80",
-  progress: 65,
-  progressLabel: "65% Planned",
-  members: [
-    { id: "m-1", name: "Alex", initial: "A" },
-    { id: "m-2", name: "Sarah", initial: "S" }
-  ],
-  extraMemberCount: 2
-};
-
-const DEFAULT_RECENT: DashboardCompletedTrip[] = [
-  {
-    id: "pacific-coast",
-    name: "Pacific Coast Highway",
-    completedLabel: "Completed • Oct 12",
-    imageUrl:
-      "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=2000&q=80",
-    meta: ["450 mi", "4 Riders"]
-  },
-  {
-    id: "high-desert-loop",
-    name: "High Desert Loop",
-    completedLabel: "Completed • Sep 28",
-    imageUrl:
-      "https://images.unsplash.com/photo-1483729558449-99ef09a8c325?auto=format&fit=crop&w=2000&q=80",
-    meta: ["280 mi", "Solo"]
-  }
-];
-
-export function getDashboardActivity(): DashboardActivity[] {
-  return DEFAULT_ACTIVITY;
+  return Math.min(85, 45 + index * 10);
 }
 
-export function getDashboardUpcoming(): DashboardUpcomingTrip {
-  return DEFAULT_UPCOMING;
+function memberFromName(name: string): DashboardMember {
+  const initial = name.trim().charAt(0).toUpperCase() || "Y";
+
+  return {
+    id: "you",
+    name: "You",
+    initial
+  };
 }
 
-export function getDashboardRecent(): DashboardCompletedTrip[] {
-  return DEFAULT_RECENT;
+export function getDashboardActivity(trips: DashboardTrip[] = []): DashboardActivity[] {
+  return trips.slice(0, 4).map((trip, index) => ({
+    id: "activity-" + trip.id,
+    actor: index === 0 ? "You" : "RideFlow",
+    actorInitial: index === 0 ? "Y" : "R",
+    action: index === 0 ? "updated route:" : "kept trip ready:",
+    target: trip.name,
+    relativeTime: index === 0 ? "Recently" : trip.dateRange,
+    hasUpdate: index === 0
+  }));
+}
+
+export function getDashboardUpcoming(
+  trips: DashboardTrip[] = []
+): DashboardUpcomingTrip | null {
+  const trip = trips[0];
+
+  if (!trip) {
+    return null;
+  }
+
+  const progress = progressFromTrip(trip, 0);
+
+  return {
+    id: trip.id,
+    name: trip.name,
+    terrain: trip.transport ?? "Motorcycle",
+    daysLabel: trip.daysLabel ?? "Trip Plan",
+    coverImageUrl: trip.imageUrl,
+    progress,
+    progressLabel: progress + "% Planned",
+    members: [memberFromName(trip.name)]
+  };
+}
+
+export function getDashboardRecent(
+  trips: DashboardTrip[] = []
+): DashboardCompletedTrip[] {
+  return trips.slice(1, 5).map((trip) => ({
+    id: trip.id,
+    name: trip.name,
+    completedLabel: trip.dateRange,
+    imageUrl: trip.imageUrl,
+    meta: [trip.destination, trip.transport ?? "Journey"]
+  }));
 }
 
 export function memberPalette(): readonly string[] {

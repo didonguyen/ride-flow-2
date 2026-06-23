@@ -9,7 +9,7 @@
 export type Database = {
   public: {
     Enums: {
-      trip_role: "owner" | "planner" | "viewer";
+      trip_role: "owner" | "planner" | "member" | "viewer";
       invite_status: "pending" | "accepted";
       place_source: "seed" | "osm" | "manual" | "google";
       ai_draft_status: "pending" | "completed" | "failed";
@@ -258,6 +258,94 @@ export type Database = {
           created_at?: string;
         };
         Update: Partial<Database["public"]["Tables"]["expense_participants"]["Insert"]>;
+      };
+      trip_stops: {
+        Row: {
+          id: string;
+          trip_id: string;
+          day_id: string;
+          title: string;
+          time: string | null;
+          description: string;
+          note: string;
+          location_name: string | null;
+          address: string | null;
+          lat: number | null;
+          lng: number | null;
+          status: "action_needed" | "pinned";
+          pinned_option_id: string | null;
+          sort_order: number;
+          created_by: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          trip_id: string;
+          day_id: string;
+          title: string;
+          time?: string | null;
+          description?: string;
+          note?: string;
+          location_name?: string | null;
+          address?: string | null;
+          lat?: number | null;
+          lng?: number | null;
+          status?: "action_needed" | "pinned";
+          pinned_option_id?: string | null;
+          sort_order?: number;
+          created_by?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["trip_stops"]["Insert"]>;
+      };
+      stop_options: {
+        Row: {
+          id: string;
+          trip_id: string;
+          stop_id: string;
+          name: string;
+          address: string | null;
+          description: string | null;
+          image_url: string | null;
+          rating: number | null;
+          price_level: number | null;
+          distance_text: string | null;
+          duration_text: string | null;
+          google_place_id: string | null;
+          google_maps_url: string | null;
+          lat: number | null;
+          lng: number | null;
+          source: "ai" | "google_places" | "manual";
+          status: "candidate" | "pinned" | "backup" | "removed";
+          sort_order: number;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          trip_id: string;
+          stop_id: string;
+          name: string;
+          address?: string | null;
+          description?: string | null;
+          image_url?: string | null;
+          rating?: number | null;
+          price_level?: number | null;
+          distance_text?: string | null;
+          duration_text?: string | null;
+          google_place_id?: string | null;
+          google_maps_url?: string | null;
+          lat?: number | null;
+          lng?: number | null;
+          source: "ai" | "google_places" | "manual";
+          status?: "candidate" | "pinned" | "backup" | "removed";
+          sort_order?: number;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["stop_options"]["Insert"]>;
       };
     };
     Functions: {

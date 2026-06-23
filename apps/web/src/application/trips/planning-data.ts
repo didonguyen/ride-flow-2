@@ -1,4 +1,4 @@
-﻿export type PlanningDay = {
+export type PlanningDay = {
   id: string;
   label: string;
   date: string;
@@ -55,8 +55,8 @@ export type PlanningTrip = {
 export const planningTrips: PlanningTrip[] = [
   {
     id: "nam-cat-tien",
-    name: "Nam CÃ¡t TiÃªn Exploration",
-    destination: "Nam CÃ¡t TiÃªn, Vietnam",
+    name: "Nam Cát Tiên Exploration",
+    destination: "Nam Cát Tiên, Vietnam",
     dateRange: "Oct 14-15, 2025",
     coverImageUrl:
       "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?auto=format&fit=crop&w=2000&q=85",
@@ -73,7 +73,7 @@ export const planningTrips: PlanningTrip[] = [
         label: "Day 1",
         date: "Oct 14",
         weatherIcon: "sun",
-        temperature: "30Â°C",
+        temperature: "30°C",
         isSelected: true
       },
       {
@@ -81,7 +81,7 @@ export const planningTrips: PlanningTrip[] = [
         label: "Day 2",
         date: "Oct 15",
         weatherIcon: "cloud",
-        temperature: "28Â°C"
+        temperature: "28°C"
       }
     ],
     agenda: [
@@ -96,7 +96,7 @@ export const planningTrips: PlanningTrip[] = [
         place: {
           id: "hcm",
           source: "manual",
-          name: "Há»“ ChÃ­ Minh City",
+          name: "Hồ Chí Minh City",
           address: "Starting Point"
         },
         status: "confirmed"
@@ -113,7 +113,7 @@ export const planningTrips: PlanningTrip[] = [
           id: "ql20",
           source: "manual",
           name: "Highway QL20 Rest Stop",
-          address: "Tá»‰nh lá»™ 2, Äá»“ng Nai"
+          address: "Tỉnh lộ 2, �?ồng Nai"
         },
         status: "ready"
       },
@@ -122,7 +122,7 @@ export const planningTrips: PlanningTrip[] = [
         dayId: "day-1",
         stop: 3,
         time: "12:30 PM",
-        title: "Lunch near Nam CÃ¡t TiÃªn",
+        title: "Lunch near Nam Cát Tiên",
         description: "Local Vietnamese cuisine with river views.",
         category: "food",
         imageUrl:
@@ -133,7 +133,7 @@ export const planningTrips: PlanningTrip[] = [
           id: "forest-cafe",
           source: "seed",
           name: "Forest Cafe",
-          address: "Nam CÃ¡t TiÃªn, Äá»“ng Nai"
+          address: "Nam Cát Tiên, �?ồng Nai"
         },
         status: "ready"
       },
@@ -148,8 +148,8 @@ export const planningTrips: PlanningTrip[] = [
         place: {
           id: "park-headquarters",
           source: "manual",
-          name: "CÃ¡t TiÃªn National Park HQ",
-          address: "TÃ¢n PhÃº, Äá»“ng Nai"
+          name: "Cát Tiên National Park HQ",
+          address: "Tân Phú, �?ồng Nai"
         },
         status: "ready"
       },
@@ -158,14 +158,14 @@ export const planningTrips: PlanningTrip[] = [
         dayId: "day-1",
         stop: 5,
         time: "06:30 PM",
-        title: "Sunset at BÃ u Sáº¥u Lake",
+        title: "Sunset at Bàu Sấu Lake",
         description: "Quiet lake inside the park. Watch the crocs from a safe distance.",
         category: "activity",
         place: {
           id: "bau-sau",
           source: "manual",
-          name: "BÃ u Sáº¥u Lake",
-          address: "CÃ¡t TiÃªn National Park"
+          name: "Bàu Sấu Lake",
+          address: "Cát Tiên National Park"
         },
         status: "ready"
       },
@@ -185,7 +185,7 @@ export const planningTrips: PlanningTrip[] = [
           id: "safari-route",
           source: "manual",
           name: "Safari Route A",
-          address: "CÃ¡t TiÃªn National Park"
+          address: "Cát Tiên National Park"
         },
         status: "ready"
       },
@@ -195,13 +195,13 @@ export const planningTrips: PlanningTrip[] = [
         stop: 7,
         time: "09:30 AM",
         title: "Breakfast at the Lodge",
-        description: "Phá»Ÿ, bÃ¡nh mÃ¬, and strong coffee.",
+        description: "Phở, bánh mì, and strong coffee.",
         category: "food",
         place: {
           id: "green-hope",
           source: "seed",
           name: "Green Hope Lodge",
-          address: "CÃ¡t TiÃªn, Äá»“ng Nai"
+          address: "Cát Tiên, �?ồng Nai"
         },
         status: "ready"
       },
@@ -216,8 +216,8 @@ export const planningTrips: PlanningTrip[] = [
         place: {
           id: "dau-giay",
           source: "manual",
-          name: "Dáº§u GiÃ¢y Petrol Station",
-          address: "Quá»‘c lá»™ 1A, Äá»“ng Nai"
+          name: "Dầu Giây Petrol Station",
+          address: "Quốc lộ 1A, �?ồng Nai"
         },
         status: "ready"
       },
@@ -232,21 +232,21 @@ export const planningTrips: PlanningTrip[] = [
         place: {
           id: "hcm-return",
           source: "manual",
-          name: "Há»“ ChÃ­ Minh City",
+          name: "Hồ Chí Minh City",
           address: "Final Stop"
         },
         status: "ready"
       }
     ],
     mapPins: [
-      { stop: 1, label: "Há»“ ChÃ­ Minh City", x: 30, y: 70 },
+      { stop: 1, label: "Hồ Chí Minh City", x: 30, y: 70 },
       { stop: 2, label: "QL20 Rest Stop", x: 55, y: 50 },
       { stop: 3, label: "Forest Cafe", x: 75, y: 40 },
       { stop: 4, label: "Park HQ", x: 80, y: 35 },
-      { stop: 5, label: "BÃ u Sáº¥u Lake", x: 85, y: 30 },
+      { stop: 5, label: "Bàu Sấu Lake", x: 85, y: 30 },
       { stop: 6, label: "Safari Route", x: 85, y: 30 },
       { stop: 7, label: "Green Hope Lodge", x: 80, y: 35 },
-      { stop: 8, label: "Dáº§u GiÃ¢y", x: 45, y: 60 },
+      { stop: 8, label: "Dầu Giây", x: 45, y: 60 },
       { stop: 9, label: "HCM", x: 30, y: 70 }
     ]
   },
@@ -270,7 +270,7 @@ export const planningTrips: PlanningTrip[] = [
         label: "Day 1",
         date: "Sat, Oct 26",
         weatherIcon: "sun",
-        temperature: "30Â°C",
+        temperature: "30°C",
         isSelected: true
       },
       {
@@ -278,14 +278,14 @@ export const planningTrips: PlanningTrip[] = [
         label: "Day 2",
         date: "Sun, Oct 27",
         weatherIcon: "cloud",
-        temperature: "29Â°C"
+        temperature: "29°C"
       },
       {
         id: "day-3",
         label: "Day 3",
         date: "Mon, Oct 28",
         weatherIcon: "cloud",
-        temperature: "28Â°C"
+        temperature: "28°C"
       }
     ],
     agenda: [
@@ -301,7 +301,7 @@ export const planningTrips: PlanningTrip[] = [
         place: {
           id: "hcm-depart",
           source: "manual",
-          name: "Há»“ ChÃ­ Minh City",
+          name: "Hồ Chí Minh City",
           address: "Starting Point"
         },
         status: "confirmed"
@@ -319,7 +319,7 @@ export const planningTrips: PlanningTrip[] = [
           id: "dad-airport",
           source: "manual",
           name: "Da Nang International Airport",
-          address: "Háº£i ChÃ¢u, ÄÃ  Náºµng"
+          address: "Hải Châu, �?à Nẵng"
         },
         status: "confirmed"
       },
@@ -328,7 +328,7 @@ export const planningTrips: PlanningTrip[] = [
         dayId: "day-1",
         stop: 3,
         time: "12:30 PM",
-        title: "Lunch at MÃ¬ Quáº£ng áº¤n",
+        title: "Lunch at Mì Quảng Ấn",
         description:
           "Local turmeric noodles with shrimp and pork. Quick stop near the airport.",
         category: "food",
@@ -339,8 +339,8 @@ export const planningTrips: PlanningTrip[] = [
         place: {
           id: "mi-quang-an",
           source: "seed",
-          name: "MÃ¬ Quáº£ng áº¤n",
-          address: "Tráº§n Cao VÃ¢n, ÄÃ  Náºµng"
+          name: "Mì Quảng Ấn",
+          address: "Trần Cao Vân, �?à Nẵng"
         },
         status: "ready"
       },
@@ -361,7 +361,7 @@ export const planningTrips: PlanningTrip[] = [
           id: "han-river-hotel",
           source: "seed",
           name: "Han River Boutique Hotel",
-          address: "Báº¡ch Äáº±ng, ÄÃ  Náºµng"
+          address: "Bạch �?ằng, �?à Nẵng"
         },
         status: "ready"
       },
@@ -370,15 +370,15 @@ export const planningTrips: PlanningTrip[] = [
         dayId: "day-1",
         stop: 5,
         time: "05:30 PM",
-        title: "Sunrise / sunset at Cáº§u Rá»“ng",
+        title: "Sunrise / sunset at Cầu Rồng",
         description:
           "Walk the Dragon Bridge before its nightly fire-and-water show at 9 PM.",
         category: "activity",
         place: {
           id: "cau-rong",
           source: "manual",
-          name: "Cáº§u Rá»“ng (Dragon Bridge)",
-          address: "SÆ¡n TrÃ , ÄÃ  Náºµng"
+          name: "Cầu Rồng (Dragon Bridge)",
+          address: "Sơn Trà, �?à Nẵng"
         },
         status: "ready"
       },
@@ -399,7 +399,7 @@ export const planningTrips: PlanningTrip[] = [
           id: "my-khe",
           source: "seed",
           name: "My Khe Beach Club",
-          address: "VÃµ NguyÃªn GiÃ¡p, ÄÃ  Náºµng"
+          address: "Võ Nguyên Giáp, �?à Nẵng"
         },
         status: "ready"
       },
@@ -416,7 +416,7 @@ export const planningTrips: PlanningTrip[] = [
           id: "hotel-breakfast",
           source: "manual",
           name: "Han River Boutique Hotel",
-          address: "Báº¡ch Äáº±ng, ÄÃ  Náºµng"
+          address: "Bạch �?ằng, �?à Nẵng"
         },
         status: "ready"
       },
@@ -425,15 +425,15 @@ export const planningTrips: PlanningTrip[] = [
         dayId: "day-2",
         stop: 8,
         time: "09:00 AM",
-        title: "Drive up to BÃ  NÃ  Hills",
+        title: "Drive up to Bà Nà Hills",
         description:
-          "Meet the driver at the lobby, swap the van for the cable car up to BÃ  NÃ .",
+          "Meet the driver at the lobby, swap the van for the cable car up to Bà Nà.",
         category: "activity",
         place: {
           id: "ba-na",
           source: "manual",
-          name: "BÃ  NÃ  Hills Resort",
-          address: "HÃ²a Ninh, ÄÃ  Náºµng"
+          name: "Bà Nà Hills Resort",
+          address: "Hòa Ninh, �?à Nẵng"
         },
         status: "ready"
       },
@@ -453,8 +453,8 @@ export const planningTrips: PlanningTrip[] = [
         place: {
           id: "golden-bridge",
           source: "seed",
-          name: "Cáº§u VÃ ng (Golden Bridge)",
-          address: "BÃ  NÃ  Hills, ÄÃ  Náºµng"
+          name: "Cầu Vàng (Golden Bridge)",
+          address: "Bà Nà Hills, �?à Nẵng"
         },
         status: "ready"
       },
@@ -470,8 +470,8 @@ export const planningTrips: PlanningTrip[] = [
         place: {
           id: "beer-plaza",
           source: "manual",
-          name: "BÃ  NÃ  Beer Plaza",
-          address: "BÃ  NÃ  Hills"
+          name: "Bà Nà Beer Plaza",
+          address: "Bà Nà Hills"
         },
         status: "ready"
       },
@@ -488,7 +488,7 @@ export const planningTrips: PlanningTrip[] = [
           id: "french-village",
           source: "manual",
           name: "French Village",
-          address: "BÃ  NÃ  Hills"
+          address: "Bà Nà Hills"
         },
         status: "ready"
       },
@@ -497,7 +497,7 @@ export const planningTrips: PlanningTrip[] = [
         dayId: "day-2",
         stop: 12,
         time: "06:30 PM",
-        title: "Back in town â€” river cruise",
+        title: "Back in town — river cruise",
         description:
           "Quick dinner on the Han River and a slow boat under the lit-up bridges.",
         category: "activity",
@@ -505,7 +505,7 @@ export const planningTrips: PlanningTrip[] = [
           id: "han-river-cruise",
           source: "seed",
           name: "Han River Cruise",
-          address: "Báº¡ch Äáº±ng, ÄÃ  Náºµng"
+          address: "Bạch �?ằng, �?à Nẵng"
         },
         status: "ready"
       },
@@ -515,15 +515,15 @@ export const planningTrips: PlanningTrip[] = [
         dayId: "day-3",
         stop: 13,
         time: "07:00 AM",
-        title: "Depart for Há»™i An",
+        title: "Depart for Hội An",
         description:
           "Pack light, the driver is waiting at the lobby. ~45 min ride south.",
         category: "flight",
         place: {
           id: "hoian-depart",
           source: "manual",
-          name: "Da Nang â†’ Há»™i An",
-          address: "ÄÃ  Náºµng"
+          name: "Da Nang → Hội An",
+          address: "�?à Nẵng"
         },
         status: "ready"
       },
@@ -543,8 +543,8 @@ export const planningTrips: PlanningTrip[] = [
         place: {
           id: "hoian-ancient",
           source: "seed",
-          name: "Há»™i An Ancient Town",
-          address: "Phá»‘ cá»• Há»™i An"
+          name: "Hội An Ancient Town",
+          address: "Phố cổ Hội An"
         },
         status: "ready"
       },
@@ -553,15 +553,15 @@ export const planningTrips: PlanningTrip[] = [
         dayId: "day-3",
         stop: 15,
         time: "10:30 AM",
-        title: "Cooking class at Báº¿p XÆ°a",
+        title: "Cooking class at Bếp Xưa",
         description:
-          "Hands-on class: market tour, then roll your own bÃ¡nh cuá»‘n and cao láº§u.",
+          "Hands-on class: market tour, then roll your own bánh cuốn and cao lầu.",
         category: "food",
         place: {
           id: "bep-xua",
           source: "seed",
-          name: "Báº¿p XÆ°a Há»™i An",
-          address: "Cáº©m ChÃ¢u, Há»™i An"
+          name: "Bếp Xưa Hội An",
+          address: "Cẩm Châu, Hội An"
         },
         status: "ready"
       },
@@ -572,13 +572,13 @@ export const planningTrips: PlanningTrip[] = [
         time: "01:00 PM",
         title: "Lunch on the river",
         description:
-          "Eat what you just cooked overlooking the Thu Bá»“n River.",
+          "Eat what you just cooked overlooking the Thu Bồn River.",
         category: "food",
         place: {
           id: "thu-bon",
           source: "manual",
-          name: "Thu Bá»“n Riverside",
-          address: "Há»™i An"
+          name: "Thu Bồn Riverside",
+          address: "Hội An"
         },
         status: "ready"
       },
@@ -587,15 +587,15 @@ export const planningTrips: PlanningTrip[] = [
         dayId: "day-3",
         stop: 17,
         time: "03:30 PM",
-        title: "An BÃ ng Beach",
+        title: "An Bàng Beach",
         description:
-          "Quiet beach north of Há»™i An. Cold drinks, hammocks, golden hour.",
+          "Quiet beach north of Hội An. Cold drinks, hammocks, golden hour.",
         category: "activity",
         place: {
           id: "an-bang",
           source: "seed",
-          name: "An BÃ ng Beach",
-          address: "Cáº©m An, Há»™i An"
+          name: "An Bàng Beach",
+          address: "Cẩm An, Hội An"
         },
         status: "ready"
       },
@@ -606,7 +606,7 @@ export const planningTrips: PlanningTrip[] = [
         time: "07:00 PM",
         title: "Lantern-lit dinner",
         description:
-          "Candle-lit riverfront dinner. Try the white-rose dumplings and finish with a bia hÆ¡i.",
+          "Candle-lit riverfront dinner. Try the white-rose dumplings and finish with a bia hơi.",
         category: "food",
         imageUrl:
           "https://images.unsplash.com/photo-1559592413-7cec4d0cae2b?auto=format&fit=crop&w=1200&q=85",
@@ -616,7 +616,7 @@ export const planningTrips: PlanningTrip[] = [
           id: "lantern-dinner",
           source: "seed",
           name: "Lantern Town Restaurant",
-          address: "Nguyá»…n ThÃ¡i Há»c, Há»™i An"
+          address: "Nguyễn Thái H�?c, Hội An"
         },
         status: "ready"
       },
@@ -641,21 +641,21 @@ export const planningTrips: PlanningTrip[] = [
     mapPins: [
       { stop: 1, label: "HCM City", x: 18, y: 80 },
       { stop: 2, label: "Da Nang Airport", x: 60, y: 38 },
-      { stop: 3, label: "MÃ¬ Quáº£ng áº¤n", x: 58, y: 42 },
+      { stop: 3, label: "Mì Quảng Ấn", x: 58, y: 42 },
       { stop: 4, label: "Han River Hotel", x: 60, y: 50 },
-      { stop: 5, label: "Cáº§u Rá»“ng", x: 62, y: 52 },
+      { stop: 5, label: "Cầu Rồng", x: 62, y: 52 },
       { stop: 6, label: "My Khe Beach", x: 70, y: 60 },
       { stop: 7, label: "Hotel", x: 60, y: 50 },
-      { stop: 8, label: "BÃ  NÃ  Hills", x: 30, y: 35 },
+      { stop: 8, label: "Bà Nà Hills", x: 30, y: 35 },
       { stop: 9, label: "Golden Bridge", x: 32, y: 32 },
       { stop: 10, label: "Beer Plaza", x: 34, y: 30 },
       { stop: 11, label: "French Village", x: 33, y: 28 },
       { stop: 12, label: "Han River Cruise", x: 62, y: 52 },
       { stop: 13, label: "Da Nang", x: 60, y: 55 },
-      { stop: 14, label: "Há»™i An", x: 70, y: 75 },
-      { stop: 15, label: "Báº¿p XÆ°a", x: 72, y: 78 },
-      { stop: 16, label: "Thu Bá»“n", x: 71, y: 76 },
-      { stop: 17, label: "An BÃ ng", x: 74, y: 70 },
+      { stop: 14, label: "Hội An", x: 70, y: 75 },
+      { stop: 15, label: "Bếp Xưa", x: 72, y: 78 },
+      { stop: 16, label: "Thu Bồn", x: 71, y: 76 },
+      { stop: 17, label: "An Bàng", x: 74, y: 70 },
       { stop: 18, label: "Lantern Town", x: 71, y: 77 },
       { stop: 19, label: "Hotel", x: 60, y: 50 }
     ]
